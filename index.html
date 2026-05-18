@@ -474,12 +474,12 @@ body { font-family: var(--font-body); background: var(--bg); color: var(--text);
         </div>
         <div class="dash-charts-row">
           <div class="card">
-            <h3 class="section-title"><svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="var(--primary)" stroke-width="2.5"><polyline points="22 12 18 12 15 21 9 3 6 12 2 12"/></svg>Performance de Entregas</h3>
+            <h3 class="section-title"><svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="var(--primary)" stroke-width="2.5" stroke-linecap="round" stroke-linejoin="round"><polyline points="22 12 18 12 15 21 9 3 6 12 2 12"/></svg>Performance de Entregas</h3>
             <p style="font-size:0.72rem;color:var(--text-muted);margin-bottom:1rem;margin-top:-0.6rem;font-family:var(--font-body)">Últimas análises realizadas</p>
             <div class="chart-wrap"><canvas id="dashLineChart"></canvas></div>
           </div>
           <div class="card">
-            <h3 class="section-title"><svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="var(--accent)" stroke-width="2.5"><line x1="18" y1="20" x2="18" y2="10"/><line x1="12" y1="20" x2="12" y2="4"/><line x1="6" y1="20" x2="6" y2="14"/></svg>Taxa por Campanha</h3>
+            <h3 class="section-title"><svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="var(--accent)" stroke-width="2.5" stroke-linecap="round" stroke-linejoin="round"><line x1="18" y1="20" x2="18" y2="10"/><line x1="12" y1="20" x2="12" y2="4"/><line x1="6" y1="20" x2="6" y2="14"/></svg>Taxa por Campanha</h3>
             <p style="font-size:0.72rem;color:var(--text-muted);margin-bottom:1rem;margin-top:-0.6rem;font-family:var(--font-body)">Últimas campanhas</p>
             <div class="chart-wrap"><canvas id="dashBarChart"></canvas></div>
           </div>
@@ -826,7 +826,7 @@ async function updateDashboard(email) {
   const dateStr = now.toLocaleDateString('pt-BR', opts);
   document.getElementById('dashDate').textContent = dateStr.charAt(0).toUpperCase() + dateStr.slice(1);
 
-  // ── Busca dados do Supabase para preencher KPIs do dashboard ──
+  // ── Busca dados reais do Supabase para preencher o Dashboard ──
   const doisMesesAtras = new Date();
   doisMesesAtras.setMonth(doisMesesAtras.getMonth() - 2);
 
@@ -959,13 +959,12 @@ function robustParse(text) {
 let chartMain=null, chartBar=null;
 
 // ── PROCESSAR ─────────────────────────────────────────────────────────────
-// reader.onload é async para permitir o await no saveHistory
 function processar() {
   const file = document.getElementById('csvFile').files[0]; if (!file) return;
   const btn = document.getElementById('btnGo'); btn.disabled=true; btn.textContent='Processando...';
   const reader = new FileReader();
 
-  reader.onload = async function(e) {                          // ← async aqui
+  reader.onload = async function(e) {
     btn.disabled=false; btn.textContent='Analisar Performance';
     const data = robustParse(e.target.result);
     if (data.length<3) return toast('CSV inválido ou muito pequeno.','error');
@@ -988,8 +987,9 @@ function processar() {
     const total   = rows.length;
     const sucesso = stats.entregue+stats.enviado+stats.visualizado+stats.respondido;
     const falha   = stats.f_msg+stats.f_meta+stats.f_exp+stats.f_gen;
+    
     render(total, sucesso, falha, stats);
-    await saveHistory(total, sucesso, falha);                  // ← await aqui
+    await saveHistory(total, sucesso, falha);
   };
   reader.readAsText(file);
 }
@@ -1015,9 +1015,9 @@ async function saveHistory(total, sucesso, falha) {
 
   if (error) {
     console.error('Erro ao salvar histórico:', error);
-    toast('Análise concluída, mas não foi possível salvar no histórico.', 'error');
+    toast('Análise concluída, mas não foi possível persistir os dados.', 'error');
   } else {
-    toast('Análise salva no histórico!');
+    toast('Análise salva com sucesso no banco!');
   }
 }
 
@@ -1094,10 +1094,10 @@ function resetAnalysis() {
   checkForm();
 }
 
-// ── HISTORY (lê do Supabase) ───────────────────────────────────────────────
+// ── HISTORY (Busca direto do Supabase) ───────────────────────────────────────
 async function renderHistory() {
   const grid = document.getElementById('historyGrid');
-  grid.innerHTML = `<div class="history-empty"><p style="color:var(--text-muted);font-size:0.85rem">Carregando...</p></div>`;
+  grid.innerHTML = `<div class="history-empty"><p style="color:var(--text-muted);font-size:0.85rem">Carregando histórico...</p></div>`;
 
   const doisMesesAtras = new Date();
   doisMesesAtras.setMonth(doisMesesAtras.getMonth() - 2);
@@ -1120,9 +1120,9 @@ async function renderHistory() {
   grid.innerHTML = data.map(h => {
     const t  = parseFloat(h.taxa);
     const bc = t > 70 ? 'good' : t > 50 ? 'warn' : 'bad';
-    const bl = t > 70 ? 'Sucesso ' + parseFloat(h.taxa).toFixed(1) + '%'
-             : t > 50 ? 'Atenção ' + parseFloat(h.taxa).toFixed(1) + '%'
-             :           'Crítico '  + parseFloat(h.taxa).toFixed(1) + '%';
+    const bl = t > 70 ? 'Sucesso ' + t.toFixed(1) + '%'
+             : t > 50 ? 'Atenção ' + t.toFixed(1) + '%'
+             :           'Crítico '  + t.toFixed(1) + '%';
     const dataFormatada = new Date(h.created_at).toLocaleString('pt-BR');
     return `
       <div class="history-card">
@@ -1393,5 +1393,5 @@ async function exportarPDF() {
   }
 }
 </script>
-</body>
+</body> 
 </html>
