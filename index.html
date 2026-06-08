@@ -1121,12 +1121,26 @@ async function doResetPassword() {
 async function doLogin() {
   const email = document.getElementById('loginEmail').value.trim();
   const pass  = document.getElementById('loginPass').value;
+
   if (!email || !pass) return showMsg('Preencha e-mail e senha.', 'error');
+
   const btn = document.getElementById('btnLogin');
-  btn.disabled = true; btn.textContent = 'Entrando...';
-  const { data, error } = await _sb.auth.signInWithPassword({ email, password: pass });
-  btn.disabled = false; btn.textContent = 'Entrar';
-  if (error) return showMsg('E-mail ou senha incorretos.', 'error');
+  btn.disabled = true;
+  btn.textContent = 'Entrando...';
+
+  const { data, error } = await _sb.auth.signInWithPassword({
+    email,
+    password: pass
+  });
+
+  btn.disabled = false;
+  btn.textContent = 'Entrar';
+
+  if (error) {
+    console.error('Erro login Supabase:', error);
+    return showMsg('Erro: ' + error.message, 'error');
+  }
+
   enterApp(data.user.email);
 }
 
