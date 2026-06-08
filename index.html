@@ -1,5 +1,3 @@
-
-
 <!DOCTYPE html>
 <html lang="pt-BR">
 <head>
@@ -1016,16 +1014,38 @@ button{font-family:var(--font-body);cursor:pointer}
 
 <div class="toast-area" id="toastArea"></div>
 
-<script src="https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2"></script>
+<script src="https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2/dist/umd/supabase.js"></script>
 <script>
 /* ═══════════════════════════════════════════════════
    CONFIG
 ═══════════════════════════════════════════════════ */
 const SUPABASE_URL = 'https://gddgmpkshwhukrzopiyt.supabase.co';
 const SUPABASE_ANON = 'eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJpc3MiOiJzdXBhYmFzZSIsInJlZiI6ImdkZGdtcGtzaHdodWtyem9waXl0Iiwicm9sZSI6ImFub24iLCJpYXQiOjE3NzYwMzEzMTMsImV4cCI6MjA5MTYwNzMxM30.9W6zy7j97ZKQWSCugkuJKlwDJ-ckBqY7kykCUdgSdWY';
+
+if (!window.supabase) {
+  alert('Erro ao carregar Supabase. Tente recarregar a página ou verifique o bloqueio do CDN.');
+  throw new Error('Supabase não carregado');
+}
+
 const _sb = window.supabase.createClient(SUPABASE_URL, SUPABASE_ANON);
 
-const ITEMS_PER_PAGE = 8;
+(async () => {
+  try {
+    const { data, error } = await _sb.auth.getSession();
+
+    if (error) {
+      console.error(error);
+      toast('Erro ao conectar Supabase', 'error');
+      return;
+    }
+
+    console.log('Supabase conectado');
+    toast('Supabase conectado', 'success');
+  } catch (e) {
+    console.error(e);
+    toast('Erro de conexão', 'error');
+  }
+})();
 
 /* ═══════════════════════════════════════════════════
    TOAST
