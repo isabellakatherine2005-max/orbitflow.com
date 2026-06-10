@@ -1693,6 +1693,7 @@ function escapeHtml(str) {
 ═══════════════════════════════════════════════════ */
 let _historyAll  = [];
 let _historyPage = 0;
+const ITEMS_PER_PAGE = 8;
 
 async function loadHistory() {
   const grid = document.getElementById('historyGrid');
