@@ -6,6 +6,7 @@
 <title>Orbit Analytics | Enterprise</title>
 <script src="https://cdnjs.cloudflare.com/ajax/libs/Chart.js/4.4.1/chart.umd.min.js"></script>
 <script src="https://cdnjs.cloudflare.com/ajax/libs/jspdf/2.5.1/jspdf.umd.min.js"></script>
+<script src="https://cdn.jsdelivr.net/npm/xlsx@0.18.5/dist/xlsx.full.min.js"></script>
 <link href="https://fonts.googleapis.com/css2?family=Syne:wght@400;500;600;700;800&family=DM+Sans:ital,wght@0,300;0,400;0,500;0,600;1,400&display=swap" rel="stylesheet">
 <style>
 /* ═══════════════════════════════════════════════════
@@ -581,6 +582,513 @@ button{font-family:var(--font-body);cursor:pointer}
 .cmp-chart-title { font-size:.68rem;font-weight:700;color:var(--text-muted);text-transform:uppercase;letter-spacing:1px; }
 .hist-checkbox { width:16px;height:16px;accent-color:var(--primary);cursor:pointer;flex-shrink:0; }
 </style>
+
+  <!-- UX REFINEMENT: visual-only overrides; IDs, events and business logic remain unchanged -->
+  <style id="orbit-ux-refinement">
+  /* =========================================================
+     ORBIT — PROFESSIONAL UX REFINEMENT
+     Visual overrides only. No JavaScript or functional markup
+     has been changed.
+  ========================================================= */
+
+  :root {
+    --radius: 16px;
+    --radius-sm: 10px;
+    --radius-lg: 22px;
+    --sidebar-w: 236px;
+    --transition: color .18s ease, background-color .18s ease,
+                  border-color .18s ease, box-shadow .18s ease,
+                  transform .18s ease, opacity .18s ease;
+  }
+
+  [data-theme="light"] {
+    --bg: #f6f7fb;
+    --surface: #ffffff;
+    --surface-2: #f8fafc;
+    --surface-3: #eef2f7;
+    --border: #e6eaf0;
+    --border-2: #d5dbe6;
+    --primary: #635bff;
+    --primary-dim: rgba(99, 91, 255, .08);
+    --primary-glow: rgba(99, 91, 255, .16);
+    --accent: #009f7a;
+    --accent-dim: rgba(0, 159, 122, .08);
+    --accent-glow: rgba(0, 159, 122, .15);
+    --warning: #d88900;
+    --warning-dim: rgba(216, 137, 0, .08);
+    --danger: #d64545;
+    --danger-dim: rgba(214, 69, 69, .08);
+    --text: #111827;
+    --text-2: #475569;
+    --text-muted: #718096;
+  }
+
+  body {
+    letter-spacing: -.005em;
+  }
+
+  /* App shell */
+  .sidebar {
+    box-shadow: 10px 0 30px rgba(15, 23, 42, .025);
+    position: relative;
+    z-index: 20;
+  }
+
+  [data-theme="light"] .sidebar {
+    border-right-color: #e8ecf2;
+  }
+
+  .sidebar-brand {
+    padding: 1.15rem 1rem 1rem;
+  }
+
+  .brand-name {
+    font-size: 1.72rem;
+    text-shadow: none;
+    letter-spacing: .01em;
+  }
+
+  .brand-sub {
+    font-size: .55rem;
+    letter-spacing: 1.65px;
+    margin-top: 5px;
+  }
+
+  .sidebar-nav {
+    padding: 1rem .75rem;
+    gap: 4px;
+  }
+
+  .nav-section-label {
+    padding: .9rem .75rem .35rem;
+    font-size: .55rem;
+    letter-spacing: 1.7px;
+  }
+
+  .nav-item {
+    position: relative;
+    min-height: 42px;
+    padding: .66rem .85rem;
+    border: 0;
+    border-radius: 11px;
+    font-size: .82rem;
+  }
+
+  .nav-item::before {
+    content: '';
+    position: absolute;
+    left: 0;
+    top: 9px;
+    bottom: 9px;
+    width: 3px;
+    border-radius: 0 3px 3px 0;
+    background: var(--primary);
+    transform: scaleY(0);
+    opacity: 0;
+    transition: transform .18s ease, opacity .18s ease;
+  }
+
+  .nav-item:hover {
+    transform: translateX(2px);
+  }
+
+  .nav-item.active {
+    background: var(--primary-dim);
+    border-color: transparent;
+    box-shadow: inset 0 0 0 1px rgba(99, 91, 255, .08);
+  }
+
+  .nav-item.active::before {
+    transform: scaleY(1);
+    opacity: 1;
+  }
+
+  .sidebar-profile {
+    padding: .8rem .75rem;
+  }
+
+  .profile-card {
+    padding: .72rem;
+    border: 1px solid transparent;
+  }
+
+  .profile-card:hover {
+    border-color: var(--border);
+  }
+
+  /* Top bar */
+  .topbar {
+    min-height: 68px;
+    padding: .85rem 2rem;
+    position: sticky;
+    top: 0;
+    z-index: 15;
+    background: color-mix(in srgb, var(--surface) 92%, transparent);
+    backdrop-filter: blur(14px);
+    -webkit-backdrop-filter: blur(14px);
+  }
+
+  [data-theme="light"] .topbar {
+    box-shadow: 0 1px 0 rgba(15, 23, 42, .03);
+  }
+
+  .topbar-title {
+    font-size: 1.22rem;
+    letter-spacing: -.02em;
+  }
+
+  .live-dot {
+    padding: 5px 9px;
+    border-radius: 999px;
+    background: var(--accent-dim);
+    color: var(--accent);
+    letter-spacing: .8px;
+  }
+
+  .live-dot::before {
+    width: 6px;
+    height: 6px;
+    box-shadow: 0 0 0 4px var(--accent-dim);
+  }
+
+  .btn-icon {
+    width: 36px;
+    height: 36px;
+    border-radius: 10px;
+  }
+
+  /* Page rhythm */
+  .page {
+    width: 100%;
+    max-width: 1480px;
+    margin: 0 auto;
+    padding: 2rem clamp(1.25rem, 2.2vw, 2.35rem) 2.75rem;
+  }
+
+  .dash-welcome {
+    margin-bottom: 1.45rem;
+  }
+
+  .dash-greeting {
+    font-size: clamp(1.8rem, 2.4vw, 2.15rem);
+    line-height: 1.1;
+    letter-spacing: -.035em;
+  }
+
+  .dash-date {
+    margin-top: .45rem;
+    font-size: .79rem;
+  }
+
+  .dash-subtitle {
+    margin-top: .15rem;
+    font-size: .76rem;
+  }
+
+  /* Shared cards */
+  .card,
+  .kpi-dash-card,
+  .quick-card,
+  .history-card,
+  .profile-header-section {
+    box-shadow: 0 1px 2px rgba(15, 23, 42, .025),
+                0 10px 26px rgba(15, 23, 42, .035);
+  }
+
+  [data-theme="light"] .card,
+  [data-theme="light"] .kpi-dash-card,
+  [data-theme="light"] .quick-card,
+  [data-theme="light"] .history-card,
+  [data-theme="light"] .profile-header-section {
+    border-color: #e7eaf0;
+  }
+
+  .card {
+    padding: 1.4rem;
+  }
+
+  .card:hover {
+    border-color: var(--border-2);
+  }
+
+  .section-title {
+    font-size: 1rem;
+    letter-spacing: -.02em;
+    margin-bottom: 1rem;
+  }
+
+  /* KPI hierarchy */
+  .kpi-grid-4 {
+    gap: 1.05rem;
+    margin-bottom: 1.45rem;
+  }
+
+  .kpi-dash-card {
+    min-height: 148px;
+    padding: 1.2rem 1.35rem;
+    border-color: var(--border);
+  }
+
+  .kpi-dash-card:hover {
+    transform: translateY(-3px);
+    box-shadow: 0 14px 34px rgba(15, 23, 42, .07);
+  }
+
+  .kpi-dash-card::before,
+  .kpi-dash-card.kd-a::before,
+  .kpi-dash-card.kd-b::before,
+  .kpi-dash-card.kd-c::before,
+  .kpi-dash-card.kd-d::before {
+    height: 2px;
+    background: linear-gradient(90deg, var(--primary), rgba(99, 91, 255, .25));
+  }
+
+  .kdc-icon {
+    width: 38px;
+    height: 38px;
+    margin-bottom: .78rem;
+    border-radius: 11px;
+  }
+
+  .kdc-value {
+    font-size: 2.05rem;
+    letter-spacing: -.035em;
+  }
+
+  .kdc-label {
+    margin-top: .38rem;
+    font-size: .72rem;
+  }
+
+  .kdc-badge {
+    top: 1rem;
+    right: 1rem;
+    font-size: .59rem;
+    padding: 3px 8px;
+    letter-spacing: .02em;
+  }
+
+  /* Redundant badges are hidden; the semantic status on the rate card remains. */
+  .kpi-dash-card:not(.kd-d) .kdc-badge {
+    display: none;
+  }
+
+  /* Quick actions: compact, action-oriented cards */
+  .dash-quick-title {
+    margin-bottom: .72rem;
+    font-size: .63rem;
+    letter-spacing: 1.45px;
+  }
+
+  .dash-quick-grid {
+    gap: 1rem;
+    margin-bottom: 1.55rem;
+  }
+
+  .quick-card {
+    min-height: 94px;
+    padding: 1rem 1.1rem;
+    display: grid;
+    grid-template-columns: auto minmax(0, 1fr) auto;
+    align-items: center;
+    gap: .85rem;
+  }
+
+  .quick-card:hover {
+    background: var(--surface);
+    border-color: rgba(99, 91, 255, .35);
+    box-shadow: 0 14px 30px rgba(99, 91, 255, .08);
+    transform: translateY(-3px);
+  }
+
+  .qc-icon {
+    width: 42px;
+    height: 42px;
+    border-radius: 12px;
+  }
+
+  .qc-title {
+    font-size: .86rem;
+  }
+
+  .qc-desc {
+    margin-top: 2px;
+    line-height: 1.35;
+  }
+
+  .qc-arrow {
+    display: inline-flex;
+    align-items: center;
+    justify-content: center;
+    width: 30px;
+    height: 30px;
+    border-radius: 9px;
+    background: var(--primary-dim);
+    transition: transform .18s ease, background-color .18s ease;
+  }
+
+  .quick-card:hover .qc-arrow {
+    transform: translateX(2px);
+    background: var(--primary);
+    color: #fff;
+  }
+
+  /* Analytics area receives more visual priority */
+  .dash-charts-row {
+    grid-template-columns: minmax(0, 1.45fr) minmax(310px, .85fr);
+    gap: 1.1rem;
+  }
+
+  .chart-wrap {
+    height: 238px;
+  }
+
+  /* Forms and controls */
+  .form-input,
+  .form-select,
+  .filter-input,
+  .filter-select,
+  .field-input {
+    min-height: 42px;
+  }
+
+  .form-input:hover,
+  .form-select:hover,
+  .filter-input:hover,
+  .filter-select:hover,
+  .field-input:hover {
+    border-color: var(--border-2);
+  }
+
+  .btn-primary,
+  .btn-accent,
+  .btn-analyze,
+  .btn-save {
+    box-shadow: 0 6px 18px var(--primary-glow);
+  }
+
+  .btn-primary:hover:not(:disabled),
+  .btn-accent:hover:not(:disabled),
+  .btn-analyze:hover:not(:disabled),
+  .btn-save:hover:not(:disabled) {
+    transform: translateY(-1px);
+  }
+
+  button:focus-visible,
+  input:focus-visible,
+  select:focus-visible,
+  [tabindex]:focus-visible {
+    outline: 3px solid var(--primary-dim);
+    outline-offset: 2px;
+  }
+
+  /* Tables and dense lists */
+  .status-row {
+    min-height: 44px;
+    padding: .72rem .9rem;
+  }
+
+  .history-card {
+    padding: 1rem 1.25rem;
+  }
+
+  /* Modals */
+  .modal-overlay {
+    backdrop-filter: blur(5px);
+    -webkit-backdrop-filter: blur(5px);
+  }
+
+  .modal-overlay .modal-box,
+  .change-pass-modal .modal-box {
+    box-shadow: 0 28px 90px rgba(0, 0, 0, .28);
+  }
+
+  /* Dark theme depth without heavy borders */
+  :root:not([data-theme="light"]) .card,
+  :root:not([data-theme="light"]) .kpi-dash-card,
+  :root:not([data-theme="light"]) .quick-card,
+  :root:not([data-theme="light"]) .history-card {
+    box-shadow: 0 12px 34px rgba(0, 0, 0, .16);
+  }
+
+  /* Responsive refinements */
+  @media (max-width: 1100px) {
+    .dash-charts-row {
+      grid-template-columns: minmax(0, 1.2fr) minmax(280px, .8fr);
+    }
+  }
+
+  @media (max-width: 960px) {
+    .dash-charts-row {
+      grid-template-columns: 1fr;
+    }
+
+    .chart-wrap {
+      height: 230px;
+    }
+  }
+
+  @media (max-width: 680px) {
+    .sidebar {
+      position: fixed;
+      left: -100%;
+      top: 0;
+      bottom: 0;
+      z-index: 100;
+    }
+
+    .sidebar.mobile-open {
+      left: 0;
+    }
+
+    .page {
+      padding: 1.15rem 1rem 2rem;
+    }
+
+    .topbar {
+      min-height: 60px;
+      padding: .72rem 1rem;
+    }
+
+    .dash-greeting {
+      font-size: 1.65rem;
+    }
+
+    .kpi-grid-4 {
+      gap: .75rem;
+    }
+
+    .kpi-dash-card {
+      min-height: 132px;
+      padding: 1rem;
+    }
+
+    .kdc-value {
+      font-size: 1.75rem;
+    }
+
+    .quick-card {
+      min-height: 86px;
+      padding: .9rem;
+    }
+  }
+
+  @media (max-width: 420px) {
+    .kpi-grid-4 {
+      grid-template-columns: 1fr;
+    }
+  }
+
+  @media (prefers-reduced-motion: reduce) {
+    *, *::before, *::after {
+      animation-duration: .01ms !important;
+      animation-iteration-count: 1 !important;
+      scroll-behavior: auto !important;
+      transition-duration: .01ms !important;
+    }
+  }
+  </style>
+
 </head>
 <body>
 
@@ -666,6 +1174,11 @@ button{font-family:var(--font-body);cursor:pointer}
         <div class="nav-item" id="nav-analysis" onclick="showPage('analysis');closeMobileSidebar()">
           <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5" stroke-linecap="round" stroke-linejoin="round"><polyline points="22 12 18 12 15 21 9 3 6 12 2 12"/></svg>
           <span>Análise de Campanha</span>
+        </div>
+
+        <div class="nav-item" id="nav-campaigns" onclick="showPage('campaigns');closeMobileSidebar()">
+          <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5" stroke-linecap="round" stroke-linejoin="round"><path d="M3 3h18v4H3z"/><path d="M5 7v14h14V7"/><path d="M9 11h6"/></svg>
+          <span>Gerador de Campanhas</span>
         </div>
         <div class="nav-item" id="nav-history" onclick="showPage('history');closeMobileSidebar()">
           <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5" stroke-linecap="round" stroke-linejoin="round"><circle cx="12" cy="12" r="10"/><polyline points="12 6 12 12 16 14"/></svg>
@@ -875,6 +1388,137 @@ button{font-family:var(--font-body);cursor:pointer}
             </button>
           </div>
 
+        </div>
+      </div>
+
+
+      <!-- ══ GERADOR DE CAMPANHAS ══ -->
+      <div class="page" id="page-campaigns">
+        <div class="card" style="margin-bottom:1.2rem">
+          <div style="display:flex;align-items:flex-start;justify-content:space-between;gap:1rem;flex-wrap:wrap">
+            <div>
+              <h3 class="section-title" style="margin-bottom:.35rem">Gerador de Listas para Disparo</h3>
+              <p style="font-size:.8rem;color:var(--text-muted)">Carregue uma única base. O sistema separa automaticamente OSTEN/DISMATAL e INTERNO/EXTERNO e gera somente as 3 colunas finais do disparo.</p>
+            </div>
+            <span class="badge-pct badge-success">PROCESSAMENTO LOCAL</span>
+          </div>
+
+          <div class="card-sm" style="padding:1rem;margin-top:1rem">
+            <div style="font-size:.68rem;font-weight:700;text-transform:uppercase;letter-spacing:1.2px;color:var(--text-muted);margin-bottom:.65rem">Colunas obrigatórias da base</div>
+            <div style="display:flex;gap:.45rem;flex-wrap:wrap">
+              <span class="badge-pct badge-success">CNPJ</span>
+              <span class="badge-pct badge-success">Filial</span>
+              <span class="badge-pct badge-success">Tipo/Canal do vendedor</span>
+              <span class="badge-pct badge-success">Nome do cliente</span>
+              <span class="badge-pct badge-success">WhatsApp/Telefone</span>
+              <span class="badge-pct badge-success">Valor comprado / faturamento</span>
+            </div>
+          </div>
+
+          <div class="analysis-form" style="grid-template-columns:1.2fr .55fr 1.5fr auto;margin-top:1rem">
+            <div class="form-group">
+              <label class="form-label">Campanha</label>
+              <input class="form-input" id="campGenName" placeholder="Ex: FEICON">
+            </div>
+            <div class="form-group">
+              <label class="form-label">Lote</label>
+              <input class="form-input" id="campGenLot" placeholder="001" value="001" maxlength="3">
+            </div>
+            <div class="form-group">
+              <label class="form-label">Base para separação</label>
+              <label class="file-upload-area" id="campaignFileLabel">
+                <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5"><path d="M21 15v4a2 2 0 0 1-2 2H5a2 2 0 0 1-2-2v-4"/><polyline points="17 8 12 3 7 8"/><line x1="12" y1="3" x2="12" y2="15"/></svg>
+                <span id="campaignFileTxt">Selecionar XLS / XLSX / CSV</span>
+                <input type="file" id="campaignFile" accept=".csv,.xlsx,.xls">
+              </label>
+            </div>
+            <div class="form-group">
+              <label class="form-label">&nbsp;</label>
+              <button class="btn-analyze" id="btnProcessCampaign" onclick="processCampaignFile()">Processar base</button>
+            </div>
+          </div>
+          <div id="campaignStatus" class="csv-warning" style="display:none;margin-top:.8rem"></div>
+          <div class="actions-row" style="margin-top:.9rem">
+            <button class="btn-new" onclick="resetCampaignGenerator()">Limpar processamento</button>
+          </div>
+        </div>
+
+        <div class="kpi-row" id="campKpis">
+          <div class="card kpi-card k-total"><div class="kpi-label">Registros recebidos</div><div class="kpi-value" id="camp-total">0</div><div class="kpi-sub">Linhas lidas da base</div></div>
+          <div class="card kpi-card k-success"><div class="kpi-label">Prontos para disparo</div><div class="kpi-value" id="camp-ok">0</div><div class="kpi-sub">Após regras e limite</div></div>
+          <div class="card kpi-card k-fail"><div class="kpi-label">Revisão / excluídos</div><div class="kpi-value" id="camp-pend">0</div><div class="kpi-sub">Não entram nos CSVs</div></div>
+        </div>
+
+        <div class="results-grid-2">
+          <div class="card">
+            <h3 class="section-title">Arquivos finais</h3>
+            <p style="font-size:.74rem;color:var(--text-muted);margin-top:-.65rem;margin-bottom:.8rem">Cada arquivo contém somente: <b style="color:var(--text)">Id Contato · Nome completo · Whatsapp</b></p>
+            <div class="status-list" id="campOutputList">
+              <div class="status-row"><span class="status-name-txt">OSTEN — Interno</span><span class="status-num" id="out-oi">0</span></div>
+              <div class="status-row"><span class="status-name-txt">OSTEN — Externo</span><span class="status-num" id="out-oe">0</span></div>
+              <div class="status-row"><span class="status-name-txt">DISMATAL — Interno</span><span class="status-num" id="out-di">0</span></div>
+              <div class="status-row"><span class="status-name-txt">DISMATAL — Externo</span><span class="status-num" id="out-de">0</span></div>
+            </div>
+            <div class="actions-row">
+              <button class="btn-export-uiverse" onclick="exportCampaignCsv('oi')">IN OSTEN</button>
+              <button class="btn-export-uiverse" onclick="exportCampaignCsv('oe')">EX OSTEN</button>
+              <button class="btn-export-uiverse" onclick="exportCampaignCsv('di')">IN DISMATAL</button>
+              <button class="btn-export-uiverse" onclick="exportCampaignCsv('de')">EX DISMATAL</button>
+            </div>
+          </div>
+
+          <div class="card">
+            <h3 class="section-title">Regras aplicadas</h3>
+            <div class="status-list">
+              <div class="status-row"><span class="status-name-txt">Filial 01 / 1</span><span class="badge-pct badge-success">OSTEN</span></div>
+              <div class="status-row"><span class="status-name-txt">Filial 80</span><span class="badge-pct badge-success">DISMATAL</span></div>
+              <div class="status-row fail-row"><span class="status-name-txt">Filial 90</span><span class="badge-pct badge-fail">VONDER — EXCLUIR</span></div>
+              <div class="status-row"><span class="status-name-txt">Canal Interno</span><span class="badge-pct badge-success">IN</span></div>
+              <div class="status-row"><span class="status-name-txt">Canal Externo</span><span class="badge-pct badge-success">EX</span></div>
+              <div class="status-row"><span class="status-name-txt">CNPJ</span><span class="badge-pct badge-success">14 DÍGITOS</span></div>
+              <div class="status-row"><span class="status-name-txt">Prioridade</span><span class="status-num">Maior faturamento</span></div>
+              <div class="status-row"><span class="status-name-txt">Limite</span><span class="status-num">500 / grupo</span></div>
+            </div>
+          </div>
+        </div>
+
+        <div class="results-grid-2">
+          <div class="card">
+            <div style="display:flex;align-items:center;justify-content:space-between;gap:.7rem;flex-wrap:wrap;margin-bottom:1rem">
+              <h3 class="section-title" style="margin:0">Prévia do arquivo</h3>
+              <select class="filter-select" id="campPreviewGroup" onchange="renderCampaignPreview()">
+                <option value="oi">OSTEN — Interno</option>
+                <option value="oe">OSTEN — Externo</option>
+                <option value="di">DISMATAL — Interno</option>
+                <option value="de">DISMATAL — Externo</option>
+              </select>
+            </div>
+            <div style="overflow:auto;max-height:310px;border:1px solid var(--border);border-radius:var(--radius-sm)">
+              <table style="width:100%;border-collapse:collapse;font-size:.76rem" id="campaignPreviewTable">
+                <thead style="position:sticky;top:0;background:var(--surface-2);z-index:1"><tr>
+                  <th style="text-align:left;padding:.7rem;border-bottom:1px solid var(--border)">Id Contato</th>
+                  <th style="text-align:left;padding:.7rem;border-bottom:1px solid var(--border)">Nome completo</th>
+                  <th style="text-align:left;padding:.7rem;border-bottom:1px solid var(--border)">Whatsapp</th>
+                </tr></thead>
+                <tbody id="campaignPreviewBody"><tr><td colspan="3" style="padding:1.5rem;text-align:center;color:var(--text-muted)">Processe uma base para visualizar.</td></tr></tbody>
+              </table>
+            </div>
+          </div>
+
+          <div class="card">
+            <h3 class="section-title">Revisão e exclusões</h3>
+            <div class="status-list" id="campPendingList">
+              <div class="status-row"><span class="status-name-txt">CNPJ inválido</span><span class="status-num">0</span></div>
+              <div class="status-row"><span class="status-name-txt">Nome vazio</span><span class="status-num">0</span></div>
+              <div class="status-row"><span class="status-name-txt">WhatsApp vazio/inválido</span><span class="status-num">0</span></div>
+              <div class="status-row"><span class="status-name-txt">Filial não identificada</span><span class="status-num">0</span></div>
+              <div class="status-row"><span class="status-name-txt">Canal não identificado</span><span class="status-num">0</span></div>
+              <div class="status-row"><span class="status-name-txt">Vonder excluído</span><span class="status-num">0</span></div>
+              <div class="status-row"><span class="status-name-txt">CNPJ duplicado</span><span class="status-num">0</span></div>
+              <div class="status-row"><span class="status-name-txt">Excedente acima de 500</span><span class="status-num">0</span></div>
+            </div>
+            <button class="btn-new" style="width:100%;margin-top:1rem" onclick="exportCampaignReviewCsv()">Exportar relatório de revisão</button>
+          </div>
         </div>
       </div>
 
@@ -1206,6 +1850,7 @@ function enterApp(email) {
 const pageTitles = {
   dashboard: 'Dashboard',
   analysis:  'Análise de Campanha',
+  campaigns: 'Gerador de Campanhas',
   history:   'Histórico',
   profile:   'Perfil'
 };
@@ -2261,6 +2906,319 @@ async function exportarPDF() {
     btn.innerHTML = orig;
   }
 }
+
+
+/* ═══════════════════════════════════════════════════
+   GERADOR DE CAMPANHAS — PROCESSAMENTO REAL NO NAVEGADOR
+   Entrada esperada:
+   CNPJ | Filial | Tipo/Canal do vendedor | Nome do cliente |
+   WhatsApp/Telefone | Valor comprado / faturamento
+   ═══════════════════════════════════════════════════ */
+let _campaignGroups = { oi:[], oe:[], di:[], de:[] };
+let _campaignReview = [];
+let _campaignHeaders = {};
+
+const CAMPAIGN_ALIASES = {
+  cnpj: ['cnpj','id contato','id_contato','documento','cpf/cnpj','cpf cnpj'],
+  filial: ['filial','cod filial','codigo filial','cód filial','código filial'],
+  canal: ['tipo/canal do vendedor','tipo canal do vendedor','canal do vendedor','tipo vendedor','tipo de vendedor','canal','interno/externo','interno externo'],
+  nome: ['nome do cliente','nome cliente','nome completo','razao social','razão social','cliente'],
+  whatsapp: ['whatsapp/telefone','whatsapp telefone','whatsapp','telefone','celular','fone'],
+  faturamento: ['valor comprado / faturamento','valor comprado/faturamento','valor comprado','faturamento','valor faturado','compras','valor']
+};
+
+const campaignFileInput = document.getElementById('campaignFile');
+if (campaignFileInput) {
+  campaignFileInput.addEventListener('change', () => {
+    const file = campaignFileInput.files?.[0];
+    const txt = document.getElementById('campaignFileTxt');
+    const label = document.getElementById('campaignFileLabel');
+    if (file) {
+      txt.textContent = file.name;
+      label.classList.add('has-file');
+    } else {
+      txt.textContent = 'Selecionar XLS / XLSX / CSV';
+      label.classList.remove('has-file');
+    }
+  });
+}
+
+document.getElementById('campGenLot')?.addEventListener('input', e => {
+  e.target.value = e.target.value.replace(/\D/g,'').slice(0,3);
+});
+
+function campaignNormHeader(v) {
+  return String(v ?? '')
+    .trim().toLowerCase().normalize('NFD').replace(/[\u0300-\u036f]/g,'')
+    .replace(/[_-]+/g,' ').replace(/\s+/g,' ');
+}
+
+function campaignFindHeader(headers, aliases) {
+  const norm = headers.map(h => campaignNormHeader(h));
+  for (const alias of aliases) {
+    const a = campaignNormHeader(alias);
+    let idx = norm.indexOf(a);
+    if (idx >= 0) return headers[idx];
+  }
+  // fallback por conteúdo parcial, apenas para nomes mais longos
+  for (let i=0;i<norm.length;i++) {
+    for (const alias of aliases) {
+      const a = campaignNormHeader(alias);
+      if (a.length >= 6 && (norm[i].includes(a) || a.includes(norm[i]))) return headers[i];
+    }
+  }
+  return null;
+}
+
+function campaignCleanDigits(v) {
+  if (v === null || v === undefined) return '';
+  if (typeof v === 'number' && Number.isFinite(v)) return Math.trunc(v).toFixed(0).replace(/\D/g,'');
+  return String(v).replace(/\D/g,'');
+}
+
+function campaignNormalizeCnpj(v) {
+  let d = campaignCleanDigits(v);
+  if (!d) return '';
+  if (d.length < 14) d = d.padStart(14,'0'); // preserva CNPJ que perdeu zero inicial no Excel
+  return d.length === 14 ? d : '';
+}
+
+function campaignNormalizeFilial(v) {
+  let d = campaignCleanDigits(v);
+  if (!d) return '';
+  d = String(parseInt(d,10));
+  if (d === '1') return '01';
+  if (d === '80') return '80';
+  if (d === '90') return '90';
+  return d.padStart(2,'0');
+}
+
+function campaignNormalizeCanal(v) {
+  const s = campaignNormHeader(v);
+  if (!s) return '';
+  if (s.includes('intern') || s === 'in' || s === 'i') return 'IN';
+  if (s.includes('extern') || s === 'ex' || s === 'e') return 'EX';
+  return '';
+}
+
+function campaignNormalizeWhatsapp(v) {
+  let d = campaignCleanDigits(v);
+  if (!d) return '';
+  // se vier somente DDD + número, adiciona Brasil (55)
+  if (d.length === 10 || d.length === 11) d = '55' + d;
+  // aceita fixo/celular já com DDI: 12 ou 13 dígitos
+  if ((d.length === 12 || d.length === 13) && d.startsWith('55')) return d;
+  return '';
+}
+
+function campaignParseMoney(v) {
+  if (typeof v === 'number' && Number.isFinite(v)) return v;
+  let s = String(v ?? '').trim();
+  if (!s) return 0;
+  s = s.replace(/R\$|\s/g,'');
+  if (s.includes(',') && s.includes('.')) s = s.replace(/\./g,'').replace(',','.');
+  else if (s.includes(',')) s = s.replace(',','.');
+  s = s.replace(/[^0-9.-]/g,'');
+  const n = Number(s);
+  return Number.isFinite(n) ? n : 0;
+}
+
+async function campaignReadFile(file) {
+  if (!window.XLSX) throw new Error('Biblioteca de Excel não carregada. Verifique sua conexão e recarregue a página.');
+  const buf = await file.arrayBuffer();
+  const wb = XLSX.read(buf, { type:'array', raw:true, cellDates:false });
+  const ws = wb.Sheets[wb.SheetNames[0]];
+  if (!ws) throw new Error('Nenhuma planilha encontrada no arquivo.');
+  return XLSX.utils.sheet_to_json(ws, { defval:'', raw:true });
+}
+
+function campaignMapHeaders(rows) {
+  if (!rows.length) throw new Error('A base está vazia.');
+  const headers = Object.keys(rows[0]);
+  const map = {};
+  for (const [key, aliases] of Object.entries(CAMPAIGN_ALIASES)) map[key] = campaignFindHeader(headers, aliases);
+  const missing = Object.entries(map).filter(([,v])=>!v).map(([k])=>k);
+  if (missing.length) {
+    const labels = {cnpj:'CNPJ',filial:'Filial',canal:'Tipo/Canal do vendedor',nome:'Nome do cliente',whatsapp:'WhatsApp/Telefone',faturamento:'Valor comprado / faturamento'};
+    throw new Error('Colunas obrigatórias não encontradas: ' + missing.map(k=>labels[k]).join(', ') + '.');
+  }
+  _campaignHeaders = map;
+  return map;
+}
+
+function campaignReasonPush(row, reason, extra='') {
+  _campaignReview.push({
+    motivo: reason,
+    detalhe: extra,
+    cnpj: campaignCleanDigits(row.rawCnpj || row.cnpj || ''),
+    nome: row.nome || '',
+    whatsapp: campaignCleanDigits(row.rawWhatsapp || row.whatsapp || ''),
+    filial: row.filial || '',
+    canal: row.canal || ''
+  });
+}
+
+async function processCampaignFile() {
+  const file = document.getElementById('campaignFile').files?.[0];
+  if (!file) return toast('Selecione a base para processar.', 'warn');
+  const camp = document.getElementById('campGenName').value.trim();
+  if (!camp) return toast('Informe o nome da campanha.', 'warn');
+
+  const btn = document.getElementById('btnProcessCampaign');
+  const status = document.getElementById('campaignStatus');
+  btn.disabled = true; btn.textContent = 'Processando...';
+  status.style.display = 'none';
+
+  try {
+    const sourceRows = await campaignReadFile(file);
+    const h = campaignMapHeaders(sourceRows);
+    _campaignGroups = { oi:[], oe:[], di:[], de:[] };
+    _campaignReview = [];
+
+    const candidates = [];
+    for (let idx=0; idx<sourceRows.length; idx++) {
+      const r = sourceRows[idx];
+      const rawCnpj = r[h.cnpj];
+      const rawWhatsapp = r[h.whatsapp];
+      const cnpj = campaignNormalizeCnpj(rawCnpj);
+      const filial = campaignNormalizeFilial(r[h.filial]);
+      const canal = campaignNormalizeCanal(r[h.canal]);
+      const nome = String(r[h.nome] ?? '').trim().replace(/\s+/g,' ');
+      const whatsapp = campaignNormalizeWhatsapp(rawWhatsapp);
+      const faturamento = campaignParseMoney(r[h.faturamento]);
+      const base = {idx:idx+2,rawCnpj,rawWhatsapp,cnpj,filial,canal,nome,whatsapp,faturamento};
+
+      if (!cnpj) { campaignReasonPush(base,'CNPJ inválido','Não foi possível formatar para 14 dígitos'); continue; }
+      if (!nome) { campaignReasonPush(base,'Nome vazio'); continue; }
+      if (!whatsapp) { campaignReasonPush(base,'WhatsApp vazio/inválido','Esperado 55 + DDD + número'); continue; }
+      if (filial === '90') { campaignReasonPush(base,'Vonder excluído','Filial 90'); continue; }
+      if (filial !== '01' && filial !== '80') { campaignReasonPush(base,'Filial não identificada',filial || 'vazia'); continue; }
+      if (!canal) { campaignReasonPush(base,'Canal não identificado',String(r[h.canal] ?? '')); continue; }
+
+      const group = filial === '01' ? (canal === 'IN' ? 'oi' : 'oe') : (canal === 'IN' ? 'di' : 'de');
+      candidates.push({...base,group});
+    }
+
+    // Prioriza maior faturamento. Em caso de CNPJ repetido, mantém o registro de maior valor.
+    candidates.sort((a,b)=>b.faturamento-a.faturamento);
+    const seenCnpj = new Set();
+    const unique = [];
+    for (const r of candidates) {
+      if (seenCnpj.has(r.cnpj)) { campaignReasonPush(r,'CNPJ duplicado','Mantido o registro de maior faturamento'); continue; }
+      seenCnpj.add(r.cnpj); unique.push(r);
+    }
+
+    // Separa e limita cada grupo a 500.
+    for (const key of ['oi','oe','di','de']) {
+      const arr = unique.filter(r=>r.group===key).sort((a,b)=>b.faturamento-a.faturamento);
+      const selected = arr.slice(0,500);
+      const overflow = arr.slice(500);
+      _campaignGroups[key] = selected.map(r=>({cnpj:r.cnpj,nome:r.nome,whats:r.whatsapp,faturamento:r.faturamento}));
+      overflow.forEach(r=>campaignReasonPush(r,'Excedente acima de 500','Ficou fora do lote atual'));
+    }
+
+    const ready = Object.values(_campaignGroups).reduce((s,a)=>s+a.length,0);
+    document.getElementById('camp-total').textContent = sourceRows.length.toLocaleString('pt-BR');
+    document.getElementById('camp-ok').textContent = ready.toLocaleString('pt-BR');
+    document.getElementById('camp-pend').textContent = _campaignReview.length.toLocaleString('pt-BR');
+    document.getElementById('out-oi').textContent = _campaignGroups.oi.length.toLocaleString('pt-BR');
+    document.getElementById('out-oe').textContent = _campaignGroups.oe.length.toLocaleString('pt-BR');
+    document.getElementById('out-di').textContent = _campaignGroups.di.length.toLocaleString('pt-BR');
+    document.getElementById('out-de').textContent = _campaignGroups.de.length.toLocaleString('pt-BR');
+
+    renderCampaignPending();
+    renderCampaignPreview();
+    status.textContent = `✓ ${sourceRows.length.toLocaleString('pt-BR')} linhas lidas. ${ready.toLocaleString('pt-BR')} prontas para disparo e ${_campaignReview.length.toLocaleString('pt-BR')} em revisão/exclusão.`;
+    status.style.display = 'block'; status.classList.add('show'); status.style.color='var(--accent)';
+    toast('Base processada com sucesso.', 'success');
+  } catch (err) {
+    console.error(err);
+    status.textContent = '⚠ ' + (err.message || 'Erro ao processar arquivo.');
+    status.style.display = 'block'; status.classList.add('show'); status.style.color='var(--danger)';
+    toast(err.message || 'Erro ao processar arquivo.', 'error');
+  } finally {
+    btn.disabled = false; btn.textContent = 'Processar base';
+  }
+}
+
+function renderCampaignPending() {
+  const reasons = [
+    'CNPJ inválido','Nome vazio','WhatsApp vazio/inválido','Filial não identificada',
+    'Canal não identificado','Vonder excluído','CNPJ duplicado','Excedente acima de 500'
+  ];
+  const counts = Object.fromEntries(reasons.map(r=>[r,0]));
+  _campaignReview.forEach(r=>{ if (counts[r.motivo] !== undefined) counts[r.motivo]++; });
+  document.getElementById('campPendingList').innerHTML = reasons.map(r=>{
+    const n=counts[r]||0, cls=n?' fail-row':'';
+    return `<div class="status-row${cls}"><span class="status-name-txt">${escapeHtml(r)}</span><span class="status-num${n?' s-red':''}">${n.toLocaleString('pt-BR')}</span></div>`;
+  }).join('');
+}
+
+function renderCampaignPreview() {
+  const group = document.getElementById('campPreviewGroup')?.value || 'oi';
+  const rows = (_campaignGroups[group] || []).slice(0,50);
+  const body = document.getElementById('campaignPreviewBody');
+  if (!body) return;
+  if (!rows.length) {
+    body.innerHTML='<tr><td colspan="3" style="padding:1.5rem;text-align:center;color:var(--text-muted)">Nenhum registro neste grupo.</td></tr>';
+    return;
+  }
+  body.innerHTML = rows.map(r=>`<tr>
+    <td style="padding:.62rem .7rem;border-bottom:1px solid var(--border);font-family:monospace">${escapeHtml(r.cnpj)}</td>
+    <td style="padding:.62rem .7rem;border-bottom:1px solid var(--border)">${escapeHtml(r.nome)}</td>
+    <td style="padding:.62rem .7rem;border-bottom:1px solid var(--border);font-family:monospace">${escapeHtml(r.whats)}</td>
+  </tr>`).join('');
+}
+
+function resetCampaignGenerator() {
+  document.getElementById('campGenName').value='';
+  document.getElementById('campGenLot').value='001';
+  document.getElementById('campaignFile').value='';
+  document.getElementById('campaignFileTxt').textContent='Selecionar XLS / XLSX / CSV';
+  document.getElementById('campaignFileLabel').classList.remove('has-file');
+  document.getElementById('campaignStatus').style.display='none';
+  ['camp-total','camp-ok','camp-pend','out-oi','out-oe','out-di','out-de'].forEach(id=>document.getElementById(id).textContent='0');
+  _campaignGroups={oi:[],oe:[],di:[],de:[]}; _campaignReview=[]; _campaignHeaders={};
+  renderCampaignPending(); renderCampaignPreview();
+}
+
+function campaignCsvEscape(v) {
+  const s=String(v ?? '');
+  if (/[;"\n\r]/.test(s)) return '"'+s.replace(/"/g,'""')+'"';
+  return s;
+}
+
+function campaignFileName(group) {
+  const camp=(document.getElementById('campGenName').value||'CAMPANHA').trim().replace(/[\\/:*?"<>|]+/g,'-').replace(/\s+/g,' ');
+  const lot=(document.getElementById('campGenLot').value||'001').trim().padStart(3,'0');
+  const map={oi:'IN OSTEN',oe:'EX OSTEN',di:'IN DISMATAL',de:'EX DISMATAL'};
+  return `${camp}_${lot} - ${map[group]}.csv`;
+}
+
+function exportCampaignCsv(group) {
+  const rows=_campaignGroups[group]||[];
+  if(!rows.length){toast('Este grupo não possui registros para exportar.','warn');return;}
+  // O arquivo final contém SOMENTE as três colunas solicitadas.
+  const csv=['Id Contato;Nome completo;Whatsapp',...rows.map(r=>[r.cnpj,r.nome,r.whats].map(campaignCsvEscape).join(';'))].join('\r\n');
+  const blob=new Blob(['\ufeff'+csv],{type:'text/csv;charset=utf-8;'});
+  const url=URL.createObjectURL(blob); const a=document.createElement('a');
+  a.href=url; a.download=campaignFileName(group); a.click();
+  setTimeout(()=>URL.revokeObjectURL(url),1000);
+  toast('CSV gerado: '+a.download,'success');
+}
+
+function exportCampaignReviewCsv() {
+  if(!_campaignReview.length){toast('Não há registros de revisão para exportar.','warn');return;}
+  const head=['Motivo','Detalhe','CNPJ original','Nome','Whatsapp','Filial','Canal'];
+  const lines=_campaignReview.map(r=>[r.motivo,r.detalhe,r.cnpj,r.nome,r.whatsapp,r.filial,r.canal].map(campaignCsvEscape).join(';'));
+  const csv=[head.join(';'),...lines].join('\r\n');
+  const blob=new Blob(['\ufeff'+csv],{type:'text/csv;charset=utf-8;'});
+  const url=URL.createObjectURL(blob); const a=document.createElement('a');
+  const camp=(document.getElementById('campGenName').value||'CAMPANHA').trim().replace(/\s+/g,'_');
+  const lot=(document.getElementById('campGenLot').value||'001').trim().padStart(3,'0');
+  a.href=url; a.download=`${camp}_${lot}_REVISAO.csv`; a.click(); setTimeout(()=>URL.revokeObjectURL(url),1000);
+}
+
 </script>
 </body>
 </html>
