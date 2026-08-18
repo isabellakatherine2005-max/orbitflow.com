@@ -1163,6 +1163,379 @@ button{font-family:var(--font-body);cursor:pointer}
 @media(max-width:680px){.cnpj-search-row{grid-template-columns:1fr}.cnpj-company-columns{grid-template-columns:1fr}.cnpj-company-main{padding:1.1rem}.cnpj-card-footer{padding:.7rem 1.1rem}.cnpj-company-name{font-size:1.12rem}}
 </style>
 
+
+
+<style id="orbit-solar-login-integration">
+/* =========================================================
+   ORBIT LOGIN — SISTEMA SOLAR
+   Escopado ao #authScreen para não interferir no restante do app.
+========================================================= */
+#authScreen{
+  min-height:100vh;
+  display:block;
+  position:relative;
+  overflow:hidden;
+  background:#04060b;
+  isolation:isolate;
+}
+
+#authScreen::before{
+  content:'';
+  position:absolute;
+  inset:0;
+  z-index:1;
+  pointer-events:none;
+  background:
+    radial-gradient(circle at 22% 48%, rgba(124,111,247,.14), transparent 31%),
+    radial-gradient(circle at 72% 48%, rgba(0,229,176,.055), transparent 28%),
+    linear-gradient(90deg, rgba(4,6,11,.08), rgba(4,6,11,.48) 53%, rgba(4,6,11,.78));
+}
+
+#authScreen .sky-canvas{z-index:0}
+#authScreen .sky-moon{opacity:.22;right:7%;top:8%}
+
+#authScreen .auth-layout{
+  position:relative;
+  z-index:3;
+  width:min(1440px, 100%);
+  min-height:100vh;
+  margin:0 auto;
+  display:grid;
+  grid-template-columns:minmax(0,1.08fr) minmax(420px,.92fr);
+  align-items:center;
+  gap:clamp(2rem,5vw,6rem);
+  padding:clamp(2rem,5vw,5rem);
+}
+
+#authScreen .auth-visual{
+  min-width:0;
+  display:flex;
+  flex-direction:column;
+  align-items:center;
+  justify-content:center;
+  gap:2rem;
+  pointer-events:none;
+  user-select:none;
+}
+
+#authScreen .auth-visual-copy{
+  text-align:center;
+  max-width:560px;
+}
+
+#authScreen .auth-visual-kicker{
+  display:inline-flex;
+  align-items:center;
+  gap:.45rem;
+  padding:.38rem .75rem;
+  border-radius:999px;
+  border:1px solid rgba(124,111,247,.22);
+  background:rgba(124,111,247,.08);
+  color:#a9a1ff;
+  font-size:.64rem;
+  font-weight:700;
+  letter-spacing:1.4px;
+  text-transform:uppercase;
+  margin-bottom:.8rem;
+  backdrop-filter:blur(10px);
+}
+
+#authScreen .auth-visual-title{
+  font-family:var(--font-display);
+  font-size:clamp(1.65rem,2.4vw,2.6rem);
+  line-height:1.08;
+  letter-spacing:-.04em;
+  color:#f5f7fb;
+  font-weight:700;
+}
+
+#authScreen .auth-visual-text{
+  margin-top:.65rem;
+  color:#7c8ba3;
+  font-size:.83rem;
+  line-height:1.65;
+}
+
+#authScreen .auth-wrap{
+  position:relative;
+  z-index:4;
+  width:100%;
+  max-width:430px;
+  padding:0;
+  justify-self:center;
+}
+
+#authScreen .auth-card{
+  background:linear-gradient(180deg, rgba(15,18,29,.94), rgba(10,13,21,.97));
+  border:1px solid rgba(255,255,255,.08);
+  box-shadow:0 34px 90px rgba(0,0,0,.52), 0 0 0 1px rgba(124,111,247,.04) inset;
+  backdrop-filter:blur(18px);
+  -webkit-backdrop-filter:blur(18px);
+}
+
+#authScreen .auth-logo-area{margin-bottom:1.55rem}
+#authScreen .auth-wordmark{
+  background:linear-gradient(135deg,#8d82ff 0%,#b6afff 45%,#00e5b0 115%);
+  -webkit-background-clip:text;
+  background-clip:text;
+  color:transparent;
+  text-shadow:none;
+}
+
+/* ---------- Sistema Solar ---------- */
+#authScreen .orbit-solar-stage{
+  position:relative;
+  width:min(42vw, 34rem);
+  aspect-ratio:1;
+  display:grid;
+  place-items:center;
+  filter:drop-shadow(0 30px 50px rgba(0,0,0,.28));
+}
+
+#authScreen .orbit-solar-stage::before{
+  content:'';
+  position:absolute;
+  width:74%;
+  height:74%;
+  border-radius:50%;
+  background:radial-gradient(circle, rgba(124,111,247,.10), rgba(124,111,247,.025) 45%, transparent 70%);
+  filter:blur(12px);
+}
+
+#authScreen .orbit-solar-system{
+  position:relative;
+  width:30rem;
+  height:30rem;
+  max-width:100%;
+  max-height:100%;
+  display:flex;
+  justify-content:center;
+  align-items:center;
+  transform:rotateX(64deg) rotateZ(-12deg);
+  transform-style:preserve-3d;
+}
+
+#authScreen .orbit-sun{
+  position:absolute;
+  width:5.4rem;
+  height:5.4rem;
+  border-radius:50%;
+  background:radial-gradient(circle at 35% 30%, #fff7c7 0 6%, #ffd25f 18%, #f59e0b 46%, #ea580c 72%, #b91c1c 100%);
+  animation:orbitSolarPulse 2.8s ease-in-out infinite;
+  box-shadow:0 0 34px rgba(245,158,11,.92),0 0 90px rgba(234,88,12,.34),0 0 140px rgba(234,88,12,.16);
+  z-index:8;
+  transform:rotateX(-64deg) rotateZ(12deg);
+}
+
+#authScreen .orbit-sun::before{
+  content:'';
+  position:absolute;
+  inset:-3px;
+  border-radius:50%;
+  background:conic-gradient(from 0deg,rgba(255,255,255,.22),transparent 22%,rgba(255,236,153,.18),transparent 56%,rgba(255,255,255,.18));
+  animation:orbitSolarSpin 7s linear infinite;
+}
+
+#authScreen .orbit-corona{
+  position:absolute;
+  inset:-1.4rem;
+  border-radius:50%;
+  background:radial-gradient(circle,rgba(245,158,11,.24),rgba(220,38,38,.08) 48%,transparent 72%);
+  filter:blur(10px);
+  animation:orbitSolarPulse 2.8s ease-in-out infinite;
+}
+
+#authScreen .orbit-ring{
+  position:absolute;
+  border-radius:50%;
+  border:1px solid rgba(210,221,255,.14);
+  box-shadow:inset 0 0 18px rgba(124,111,247,.025),0 0 18px rgba(124,111,247,.025);
+  display:flex;
+  justify-content:center;
+  align-items:center;
+}
+#authScreen .orbit-ring::after{
+  content:'';
+  position:absolute;
+  inset:-1px;
+  border-radius:50%;
+  border-top:1px solid rgba(124,111,247,.16);
+  border-right:1px solid transparent;
+}
+
+#authScreen .orbit-ring-mercury{width:9rem;height:9rem;z-index:7}
+#authScreen .orbit-ring-venus{width:13rem;height:13rem;z-index:6}
+#authScreen .orbit-ring-earth{width:18rem;height:18rem;z-index:5}
+#authScreen .orbit-ring-mars{width:24rem;height:24rem;z-index:4}
+
+#authScreen .orbit-planet{
+  position:absolute;
+  border-radius:50%;
+  z-index:9;
+  transform-style:preserve-3d;
+}
+#authScreen .orbit-mercury{
+  width:.8rem;height:.8rem;
+  background:linear-gradient(135deg,#e5e7eb,#8b95a5);
+  box-shadow:0 0 14px rgba(156,163,175,.45);
+  --solar-orbit:9rem;
+  animation:orbitSolarPlanet 4.4s linear infinite;
+}
+#authScreen .orbit-venus{
+  width:1.08rem;height:1.08rem;
+  background:linear-gradient(135deg,#fff1bd,#f0b94b 58%,#b96f2e);
+  box-shadow:0 0 17px rgba(252,211,77,.46);
+  --solar-orbit:13rem;
+  animation:orbitSolarPlanet 6.8s linear infinite;
+}
+#authScreen .orbit-earth{
+  width:1.32rem;height:1.32rem;
+  background:radial-gradient(circle at 35% 35%,#95d8ff 0 12%,#2f7ee6 35%,#1faa78 56%,#1754aa 75%);
+  box-shadow:0 0 20px rgba(96,165,250,.55);
+  --solar-orbit:18rem;
+  animation:orbitSolarPlanet 9.2s linear infinite;
+}
+#authScreen .orbit-moon{
+  position:absolute;
+  left:50%;top:50%;
+  width:.42rem;height:.42rem;
+  border-radius:50%;
+  background:#d7dde7;
+  box-shadow:0 0 5px rgba(255,255,255,.35);
+  --moon-orbit:1.35rem;
+  animation:orbitSolarMoon 1.9s linear infinite;
+}
+#authScreen .orbit-mars{
+  width:1.05rem;height:1.05rem;
+  background:linear-gradient(135deg,#fb8a79,#d34832 60%,#8f2e24);
+  box-shadow:0 0 18px rgba(220,38,38,.45);
+  --solar-orbit:24rem;
+  animation:orbitSolarPlanet 12s linear infinite;
+}
+
+#authScreen .orbit-iss{
+  position:absolute;
+  width:.72rem;height:.3rem;
+  background:#eef2f7;
+  border-radius:2px;
+  box-shadow:0 0 12px rgba(255,255,255,.58);
+  z-index:10;
+  --iss-orbit:9.7rem;
+  animation:orbitSolarIss 5.1s linear infinite;
+}
+#authScreen .orbit-iss-panels{
+  position:absolute;
+  left:50%;top:50%;
+  width:1.45rem;height:.13rem;
+  background:linear-gradient(90deg,#4338ca,#60a5fa,#93c5fd,#4338ca);
+  transform:translate(-50%,-50%);
+  box-shadow:0 0 7px rgba(96,165,250,.45);
+}
+#authScreen .orbit-iss::after{
+  content:'';
+  position:absolute;
+  inset:-2px;
+  border-radius:3px;
+  background:#fff;
+  opacity:0;
+  animation:orbitSolarFlare 1.6s ease-in-out infinite;
+}
+
+#authScreen .orbit-solar-stars{
+  position:absolute;
+  inset:-2rem;
+  z-index:1;
+  transform:rotateX(-64deg) rotateZ(12deg);
+}
+#authScreen .orbit-solar-star{
+  position:absolute;
+  width:.2rem;height:.2rem;
+  background:#fff;
+  border-radius:50%;
+  box-shadow:0 0 9px rgba(255,255,255,.7);
+}
+#authScreen .orbit-solar-star:nth-child(1){top:17%;left:18%;animation:orbitSolarPing 2.2s ease-in-out infinite}
+#authScreen .orbit-solar-star:nth-child(2){top:71%;left:22%;animation:orbitSolarPing 3s ease-in-out infinite .45s}
+#authScreen .orbit-solar-star:nth-child(3){top:26%;right:13%;animation:orbitSolarPing 2.6s ease-in-out infinite .7s}
+#authScreen .orbit-solar-star:nth-child(4){bottom:18%;right:22%;animation:orbitSolarPing 2.9s ease-in-out infinite .3s}
+#authScreen .orbit-solar-star:nth-child(5){top:49%;right:3%;animation:orbitSolarPing 2.4s ease-in-out infinite .85s}
+
+@keyframes orbitSolarPlanet{
+  from{transform:rotate(0deg) translateX(calc(var(--solar-orbit)/2)) rotate(0deg) rotateX(-64deg) rotateZ(12deg)}
+  to{transform:rotate(360deg) translateX(calc(var(--solar-orbit)/2)) rotate(-360deg) rotateX(-64deg) rotateZ(12deg)}
+}
+@keyframes orbitSolarMoon{
+  from{transform:translate(-50%,-50%) rotate(0deg) translateX(var(--moon-orbit))}
+  to{transform:translate(-50%,-50%) rotate(360deg) translateX(var(--moon-orbit))}
+}
+@keyframes orbitSolarIss{
+  from{transform:rotate(0deg) translateX(var(--iss-orbit)) rotate(0deg) rotateX(-64deg) rotateZ(12deg)}
+  to{transform:rotate(360deg) translateX(var(--iss-orbit)) rotate(-360deg) rotateX(-64deg) rotateZ(12deg)}
+}
+@keyframes orbitSolarFlare{0%,100%{opacity:0}50%{opacity:.28}}
+@keyframes orbitSolarPulse{0%,100%{filter:brightness(1);transform:rotateX(-64deg) rotateZ(12deg) scale(1)}50%{filter:brightness(1.08);transform:rotateX(-64deg) rotateZ(12deg) scale(1.035)}}
+@keyframes orbitSolarPing{0%,55%{transform:scale(1);opacity:.9}100%{transform:scale(2.6);opacity:0}}
+@keyframes orbitSolarSpin{to{transform:rotate(360deg)}}
+
+/* ---------- Responsividade ---------- */
+@media(max-width:980px){
+  #authScreen .auth-layout{
+    grid-template-columns:minmax(0,.95fr) minmax(390px,1.05fr);
+    gap:2rem;
+    padding:2.5rem;
+  }
+  #authScreen .orbit-solar-stage{width:min(43vw,27rem)}
+  #authScreen .auth-visual-copy{display:none}
+}
+
+@media(max-width:760px){
+  #authScreen::before{
+    background:radial-gradient(circle at 50% 40%,rgba(124,111,247,.12),transparent 42%),rgba(4,6,11,.36);
+  }
+  #authScreen .auth-layout{
+    min-height:100vh;
+    grid-template-columns:1fr;
+    place-items:center;
+    padding:1.25rem;
+  }
+  #authScreen .auth-visual{
+    position:absolute;
+    inset:0;
+    z-index:1;
+    opacity:.16;
+    overflow:hidden;
+  }
+  #authScreen .orbit-solar-stage{width:34rem;max-width:none}
+  #authScreen .auth-visual-copy{display:none}
+  #authScreen .auth-wrap{
+    z-index:5;
+    max-width:420px;
+    padding:.5rem;
+  }
+  #authScreen .auth-card{
+    background:rgba(10,13,21,.92);
+  }
+  #authScreen .sky-moon{display:none}
+}
+
+@media(max-width:480px){
+  #authScreen .auth-layout{padding:.8rem}
+  #authScreen .auth-wrap{padding:.2rem}
+  #authScreen .auth-card{padding:1.45rem}
+  #authScreen .auth-wordmark{font-size:2.55rem}
+  #authScreen .orbit-solar-stage{width:28rem}
+}
+
+@media(prefers-reduced-motion:reduce){
+  #authScreen .orbit-solar-system *,
+  #authScreen .orbit-solar-system *::before,
+  #authScreen .orbit-solar-system *::after{
+    animation-duration:.01ms !important;
+    animation-iteration-count:1 !important;
+  }
+}
+</style>
+
 </head>
 <body>
 
@@ -1175,7 +1548,46 @@ button{font-family:var(--font-body);cursor:pointer}
     <div class="meteor m1"></div><div class="meteor m2"></div><div class="meteor m3"></div>
     <div class="sky-moon"></div>
   </div>
-  <div class="auth-wrap">
+  <div class="auth-layout">
+    <section class="auth-visual" aria-hidden="true">
+      <div class="orbit-solar-stage">
+        <div class="orbit-solar-system">
+          <div class="orbit-sun"><div class="orbit-corona"></div></div>
+
+          <div class="orbit-ring orbit-ring-mercury">
+            <div class="orbit-planet orbit-mercury"></div>
+          </div>
+
+          <div class="orbit-ring orbit-ring-venus">
+            <div class="orbit-planet orbit-venus"></div>
+          </div>
+
+          <div class="orbit-ring orbit-ring-earth">
+            <div class="orbit-planet orbit-earth"><div class="orbit-moon"></div></div>
+            <div class="orbit-iss"><div class="orbit-iss-panels"></div></div>
+          </div>
+
+          <div class="orbit-ring orbit-ring-mars">
+            <div class="orbit-planet orbit-mars"></div>
+          </div>
+
+          <div class="orbit-solar-stars">
+            <span class="orbit-solar-star"></span>
+            <span class="orbit-solar-star"></span>
+            <span class="orbit-solar-star"></span>
+            <span class="orbit-solar-star"></span>
+            <span class="orbit-solar-star"></span>
+          </div>
+        </div>
+      </div>
+      <div class="auth-visual-copy">
+        <span class="auth-visual-kicker">● Orbit Intelligence</span>
+        <h1 class="auth-visual-title">Dados em movimento.<br>Decisões em órbita.</h1>
+        <p class="auth-visual-text">Uma experiência visual inspirada em sistemas orbitais para acompanhar análises, campanhas e indicadores em um único ambiente.</p>
+      </div>
+    </section>
+
+    <div class="auth-wrap">
     <div class="auth-logo-area">
       <span class="auth-wordmark">Orbit</span>
       <span class="auth-tagline">Analytics · Enterprise Edition</span>
@@ -1211,6 +1623,7 @@ button{font-family:var(--font-body);cursor:pointer}
         <a onclick="switchTab('forgot')">Esqueci minha senha</a> &nbsp;·&nbsp; Orbit Analytics
       </div>
     </div>
+  </div>
   </div>
 </div>
 
