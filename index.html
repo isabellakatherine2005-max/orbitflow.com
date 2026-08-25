@@ -1824,6 +1824,196 @@ button:disabled{cursor:not-allowed}
 @media(prefers-reduced-motion:reduce){.btn-primary.is-loading::before,.btn-analyze.is-loading::before,.toast.t-loading .toast-icon{animation-duration:1.4s}}
 </style>
 
+
+<style id="orbit-cnpj-reference-screen-v2">
+/* =========================================================
+   CONSULTA CNPJ — layout alinhado ao mockup enviado
+   Mantém o backend Supabase/Edge Function existente.
+========================================================= */
+#page-cnpj{padding:1.45rem 1.6rem 2rem;background:linear-gradient(180deg,color-mix(in srgb,var(--bg) 96%,#080f21 4%),var(--bg));}
+.cnpj-reference-page{display:flex;flex-direction:column;gap:1.15rem;max-width:1540px;margin:0 auto;}
+.cnpj-page-heading{display:flex;align-items:center;justify-content:space-between;gap:1rem;padding:.1rem .15rem .15rem;}
+.cnpj-page-heading h1{font-family:var(--font-display);font-size:1.78rem;line-height:1.1;letter-spacing:-.035em;color:var(--text);margin:0;}
+.cnpj-page-heading p{font-size:.88rem;color:var(--text-2);margin-top:.3rem;}
+.cnpj-reference-page .card,.cnpj-ref-card{background:linear-gradient(145deg,color-mix(in srgb,var(--surface) 94%,#101a32 6%),var(--surface));border:1px solid color-mix(in srgb,var(--border) 84%,#52638b 16%);box-shadow:0 18px 55px rgba(0,0,0,.13);}
+
+/* Busca */
+.cnpj-search-card{padding:1.35rem 1.45rem 1.25rem;border-radius:14px;}
+.cnpj-search-head{margin:0 0 1.05rem;display:block;}
+.cnpj-search-title{font-family:var(--font-display);font-size:1.08rem;font-weight:700;color:var(--text);letter-spacing:-.015em;}
+.cnpj-search-desc{font-size:.78rem;color:var(--text-2);margin-top:.2rem;max-width:none;}
+.cnpj-search-label{font-size:.78rem;font-weight:700;color:var(--text);display:block;margin-bottom:.45rem;}
+.cnpj-search-controls{display:grid;grid-template-columns:minmax(300px,1fr) 172px 210px;gap:.8rem;align-items:stretch;}
+.cnpj-input-wrap{position:relative;min-width:0;}
+.cnpj-input-leading{position:absolute;left:1.05rem;top:50%;transform:translateY(-50%);width:20px;height:20px;color:#8a79ff;pointer-events:none;display:grid;place-items:center;}
+.cnpj-input-leading svg,.cnpj-input-valid svg{width:18px;height:18px;}
+#page-cnpj #cnpjSearchInput{height:54px;width:100%;padding:0 3.2rem 0 3rem;border-radius:10px;border:1px solid color-mix(in srgb,var(--border-2) 88%,#51607c 12%);background:linear-gradient(135deg,color-mix(in srgb,var(--surface-2) 94%,#18213a 6%),var(--surface-2));color:var(--text);font-size:.93rem;box-shadow:inset 0 1px 0 rgba(255,255,255,.015);}
+#page-cnpj #cnpjSearchInput:focus{outline:none;border-color:#7159e8;box-shadow:0 0 0 3px rgba(113,89,232,.15);}
+#page-cnpj #cnpjSearchInput.invalid{border-color:var(--danger);box-shadow:0 0 0 3px var(--danger-dim);}
+.cnpj-input-valid{position:absolute;right:1.05rem;top:50%;transform:translateY(-50%);width:21px;height:21px;border:2px solid #17c96a;border-radius:50%;color:#17c96a;display:grid;place-items:center;opacity:0;transition:.18s ease;pointer-events:none;}
+.cnpj-input-valid.show{opacity:1;}
+.cnpj-clear-btn,.cnpj-consult-btn{height:54px;border-radius:10px;font-family:var(--font-body);font-size:.84rem;font-weight:650;display:inline-flex;align-items:center;justify-content:center;gap:.55rem;transition:var(--transition);}
+.cnpj-clear-btn{background:transparent;border:1px solid var(--border-2);color:var(--text-2);}
+.cnpj-clear-btn:hover{border-color:color-mix(in srgb,var(--primary) 55%,var(--border-2));color:var(--text);background:var(--surface-2);}
+.cnpj-consult-btn{border:0;color:#fff;background:linear-gradient(135deg,#7a5af8 0%,#5c3bd7 100%);box-shadow:0 8px 25px rgba(104,72,225,.25);}
+.cnpj-consult-btn:hover:not(:disabled){filter:brightness(1.08);transform:translateY(-1px);box-shadow:0 10px 30px rgba(104,72,225,.32);}
+.cnpj-consult-btn:disabled{opacity:.62;cursor:wait;transform:none;}
+.cnpj-clear-btn svg,.cnpj-consult-btn svg{width:17px;height:17px;}
+.cnpj-help-line{display:flex;align-items:center;gap:.5rem;margin-top:.78rem;font-size:.72rem;color:var(--text-2);}
+.cnpj-help-line svg{width:16px;height:16px;color:#8b78ff;flex:0 0 auto;}
+
+/* Loader solicitado */
+.cnpj-loader{display:none;min-height:310px;align-items:center;justify-content:center;flex-direction:column;gap:1rem;padding:2.4rem;border:1px solid var(--border);border-radius:14px;background:linear-gradient(145deg,var(--surface),color-mix(in srgb,var(--surface) 90%,#121a32 10%));}
+.cnpj-loader.show{display:flex;}
+.cnpj-loader strong{font-family:var(--font-display);font-size:1rem;color:var(--text);margin-top:.2rem;}
+.cnpj-loader span.cnpj-loader-sub{font-size:.76rem;color:var(--text-muted);margin-top:-.55rem;}
+.spinner {
+  background-image: linear-gradient(rgb(186, 66, 255) 35%,rgb(0, 225, 255));
+  width: 100px;
+  height: 100px;
+  animation: spinning82341 1.7s linear infinite, hue 1s ease-in-out infinite;
+  text-align: center;
+  border-radius: 50px;
+  filter: blur(1px);
+  box-shadow: 0px -5px 20px 0px rgb(186, 66, 255), 0px 5px 20px 0px rgb(0, 225, 255);
+}
+.spinner1 {
+  background-color: rgb(36, 36, 36);
+  width: 100px;
+  height: 100px;
+  border-radius: 50px;
+  filter: blur(10px);
+}
+@keyframes spinning82341 { to { transform: rotate(360deg); } }
+@keyframes hue { 0% { filter: hue-rotate(0deg); } 100% { filter: hue-rotate(360deg); } }
+[data-theme="light"] .spinner1{background-color:#f2f4f9;}
+
+/* Resultado */
+.cnpj-dashboard-grid{display:grid;grid-template-columns:minmax(0,2.15fr) minmax(300px,.92fr);gap:1.15rem;align-items:start;}
+.cnpj-result-main,.cnpj-side-stack{min-width:0;}
+.cnpj-result-card{padding:1.15rem 1.2rem 1rem;border-radius:14px;overflow:visible;}
+.cnpj-result-toolbar{display:flex;align-items:center;justify-content:space-between;gap:1rem;flex-wrap:wrap;margin-bottom:.95rem;padding:.05rem .05rem 0;}
+.cnpj-result-title-row{display:flex;align-items:center;gap:.7rem;flex-wrap:wrap;}
+.cnpj-result-title{font-family:var(--font-display);font-size:1.02rem;font-weight:700;color:var(--text);}
+.cnpj-consult-status{display:inline-flex;align-items:center;gap:.36rem;border-radius:999px;padding:.33rem .58rem;font-size:.64rem;font-weight:600;background:rgba(20,173,96,.12);border:1px solid rgba(20,173,96,.18);color:#24c878;white-space:nowrap;}
+.cnpj-consult-status.error{background:var(--danger-dim);border-color:rgba(240,87,79,.2);color:var(--danger);}
+.cnpj-toolbar-actions{display:flex;gap:.55rem;align-items:center;}
+.cnpj-action-btn,.cnpj-export-menu>summary{height:36px;padding:0 .85rem;border:1px solid var(--border-2);border-radius:8px;background:transparent;color:var(--text-2);display:inline-flex;align-items:center;justify-content:center;gap:.45rem;font-family:var(--font-body);font-size:.72rem;font-weight:550;cursor:pointer;list-style:none;}
+.cnpj-action-btn:hover,.cnpj-export-menu>summary:hover{background:var(--surface-2);border-color:color-mix(in srgb,var(--primary) 50%,var(--border-2));color:var(--text);}
+.cnpj-action-btn svg,.cnpj-export-menu svg{width:15px;height:15px;}
+.cnpj-export-menu{position:relative;}
+.cnpj-export-menu>summary::-webkit-details-marker{display:none;}
+.cnpj-export-pop{position:absolute;right:0;top:42px;z-index:15;min-width:150px;padding:.42rem;background:var(--surface);border:1px solid var(--border-2);border-radius:9px;box-shadow:0 16px 40px rgba(0,0,0,.28);}
+.cnpj-export-pop button{display:flex;width:100%;border:0;background:transparent;color:var(--text-2);font-size:.75rem;padding:.55rem .65rem;border-radius:7px;text-align:left;}
+.cnpj-export-pop button:hover{background:var(--primary-dim);color:var(--primary);}
+
+.cnpj-company-panel{border:1px solid var(--border);border-radius:12px;padding:1rem 1.05rem .85rem;background:linear-gradient(145deg,color-mix(in srgb,var(--surface-2) 80%,transparent),color-mix(in srgb,var(--surface) 97%,#10182c 3%));}
+.cnpj-company-hero{display:flex;align-items:center;gap:1.05rem;margin-bottom:1rem;}
+.cnpj-building-mark{width:82px;height:82px;flex:0 0 82px;border-radius:13px;display:grid;place-items:center;background:linear-gradient(135deg,#7a5af8,#5231d2);box-shadow:0 8px 22px rgba(98,67,221,.28);color:#d8d0ff;}
+.cnpj-building-mark svg{width:38px;height:38px;}
+.cnpj-company-identity{min-width:0;}
+.cnpj-company-name{font-family:var(--font-display);font-size:1.48rem;font-weight:700;line-height:1.18;color:var(--text);letter-spacing:-.035em;word-break:break-word;}
+.cnpj-company-badges{display:flex;align-items:center;gap:.48rem;flex-wrap:wrap;margin-top:.55rem;}
+.cnpj-pill{display:inline-flex;align-items:center;gap:.35rem;padding:.32rem .52rem;border-radius:8px;border:1px solid var(--border);background:var(--surface-2);font-size:.68rem;color:var(--text-2);}
+.cnpj-pill svg{width:14px;height:14px;color:#8b78ff;}
+.cnpj-status-pill{padding:.28rem .54rem;border-radius:999px;font-size:.62rem;font-weight:750;letter-spacing:.04em;text-transform:uppercase;background:rgba(17,175,91,.12);color:#25c874;border:1px solid rgba(17,175,91,.13);}
+.cnpj-status-pill.inactive{background:rgba(219,120,0,.13);color:#ff8c17;border-color:rgba(219,120,0,.18);}
+.cnpj-main-columns{display:grid;grid-template-columns:minmax(300px,.95fr) minmax(300px,1.2fr);gap:.9rem;}
+.cnpj-detail-box,.cnpj-cnae-box{border:1px solid var(--border);border-radius:10px;overflow:hidden;background:color-mix(in srgb,var(--surface) 84%,transparent);}
+.cnpj-detail-row{display:grid;grid-template-columns:170px minmax(0,1fr);gap:.8rem;padding:.67rem .78rem;border-bottom:1px solid var(--border);font-size:.74rem;align-items:center;}
+.cnpj-detail-row:last-child{border-bottom:0;}
+.cnpj-detail-label{color:var(--text-2);}
+.cnpj-detail-value{color:var(--text);font-weight:500;min-width:0;overflow-wrap:anywhere;}
+.cnpj-inline-status{display:inline-flex;align-items:center;border-radius:6px;padding:.17rem .42rem;font-size:.61rem;font-weight:750;text-transform:uppercase;background:rgba(17,175,91,.12);color:#25c874;}
+.cnpj-inline-status.inactive{background:rgba(219,120,0,.13);color:#ff8c17;}
+.cnpj-cnae-box{padding:.82rem .9rem;}
+.cnpj-cnae-title{font-family:var(--font-display);font-size:.82rem;font-weight:700;color:var(--text);margin-bottom:.7rem;}
+.cnpj-cnae-label{font-size:.67rem;color:var(--text-2);margin:.2rem 0 .45rem;}
+.cnpj-cnae-line{display:grid;grid-template-columns:auto minmax(0,1fr);gap:.7rem;align-items:start;padding:.34rem 0;}
+.cnpj-cnae-code{display:inline-flex;align-items:center;justify-content:center;padding:.32rem .48rem;border-radius:6px;background:rgba(104,75,222,.14);color:#a99cff;font-size:.64rem;white-space:nowrap;}
+.cnpj-cnae-desc{font-size:.68rem;line-height:1.45;color:var(--text-2);}
+.cnpj-source-line{display:flex;align-items:center;gap:.48rem;margin-top:.7rem;color:var(--text-2);font-size:.68rem;}
+.cnpj-source-line svg{width:16px;height:16px;color:#8a79ff;}
+
+/* Complementos preservam dados e ações que já existiam */
+.cnpj-extra-details{margin-top:.85rem;border-top:1px solid var(--border);padding-top:.75rem;}
+.cnpj-extra-details>summary{cursor:pointer;color:var(--primary);font-size:.72rem;font-weight:650;list-style:none;display:flex;align-items:center;gap:.4rem;width:max-content;}
+.cnpj-extra-details>summary::-webkit-details-marker{display:none;}
+.cnpj-extra-grid{display:grid;grid-template-columns:1fr 1fr;gap:.75rem;margin-top:.75rem;}
+.cnpj-extra-card{border:1px solid var(--border);border-radius:9px;padding:.75rem;background:var(--surface);min-width:0;}
+.cnpj-extra-card.full{grid-column:1/-1;}
+.cnpj-extra-title{font-size:.7rem;font-weight:700;color:var(--text);margin-bottom:.45rem;}
+.cnpj-extra-line{font-size:.67rem;color:var(--text-2);line-height:1.55;overflow-wrap:anywhere;}
+.cnpj-extra-line+.cnpj-extra-line{margin-top:.22rem;}
+.cnpj-map-btn{display:inline-flex;align-items:center;gap:.36rem;margin-top:.5rem;padding:.4rem .55rem;border-radius:7px;background:var(--primary-dim);border:1px solid rgba(124,111,247,.2);color:var(--primary);font-size:.66rem;font-weight:650;text-decoration:none;}
+.cnpj-partner-mini{padding:.45rem 0;border-bottom:1px solid var(--border);}
+.cnpj-partner-mini:last-child{border-bottom:0;}
+.cnpj-partner-mini strong{display:block;font-size:.68rem;color:var(--text);}
+.cnpj-partner-mini span{display:block;font-size:.64rem;color:var(--text-muted);margin-top:.12rem;}
+
+/* Coluna lateral */
+.cnpj-side-stack{display:flex;flex-direction:column;gap:1rem;}
+.cnpj-side-panel{padding:1rem 1.05rem;border-radius:14px;}
+.cnpj-side-panel-head{display:flex;align-items:center;justify-content:space-between;gap:.6rem;margin-bottom:.7rem;}
+.cnpj-side-panel-title{font-family:var(--font-display);font-size:.9rem;font-weight:700;color:var(--text);}
+.cnpj-history-toggle{height:32px;padding:0 .7rem;border-radius:7px;background:transparent;border:1px solid var(--border-2);color:var(--text-2);font-size:.67rem;}
+.cnpj-history-toggle:hover{color:var(--text);background:var(--surface-2);}
+.cnpj-history-list{display:flex;flex-direction:column;gap:.02rem;}
+.cnpj-history-item{display:grid;grid-template-columns:30px minmax(0,1fr) auto;gap:.55rem;align-items:center;padding:.58rem .08rem;border-bottom:1px solid var(--border);cursor:pointer;}
+.cnpj-history-item:last-child{border-bottom:0;}
+.cnpj-history-item:hover .cnpj-history-company{color:var(--primary);}
+.cnpj-history-icon{width:30px;height:30px;border-radius:8px;display:grid;place-items:center;background:var(--primary-dim);color:#8b78ff;}
+.cnpj-history-icon svg{width:15px;height:15px;}
+.cnpj-history-cnpj{font-size:.69rem;color:var(--text);font-weight:520;white-space:nowrap;overflow:hidden;text-overflow:ellipsis;}
+.cnpj-history-company{font-size:.64rem;color:var(--text-2);margin-top:.08rem;white-space:nowrap;overflow:hidden;text-overflow:ellipsis;transition:.15s;}
+.cnpj-history-meta{text-align:right;min-width:76px;}
+.cnpj-history-status{display:inline-flex;border-radius:999px;padding:.18rem .38rem;font-size:.56rem;font-weight:750;text-transform:uppercase;background:rgba(17,175,91,.12);color:#25c874;}
+.cnpj-history-status.inactive{background:rgba(219,120,0,.13);color:#ff8c17;}
+.cnpj-history-time{display:block;font-size:.57rem;color:var(--text-muted);margin-top:.18rem;white-space:nowrap;}
+.cnpj-history-empty{font-size:.7rem;color:var(--text-muted);padding:.85rem .1rem;line-height:1.5;}
+.cnpj-tips-title-row{display:flex;align-items:center;gap:.55rem;margin-bottom:.65rem;}
+.cnpj-tips-title-row svg{width:21px;height:21px;color:#8b78ff;}
+.cnpj-tips-list{margin:0;padding-left:1rem;color:var(--text-2);font-size:.7rem;line-height:1.75;}
+
+.cnpj-security-strip{display:flex;align-items:center;gap:.9rem;padding:.85rem 1rem;border-radius:12px;border:1px solid rgba(124,111,247,.55);background:linear-gradient(90deg,rgba(86,66,176,.18),rgba(71,53,143,.2));}
+.cnpj-security-icon{width:40px;height:40px;border-radius:50%;display:grid;place-items:center;background:rgba(124,111,247,.12);color:#a99cff;flex:0 0 auto;}
+.cnpj-security-icon svg{width:20px;height:20px;}
+.cnpj-security-title{font-size:.72rem;font-weight:700;color:#b7aaff;}
+.cnpj-security-text{font-size:.65rem;color:var(--text-2);margin-top:.08rem;}
+
+/* Estado inicial / erro */
+#page-cnpj .cnpj-placeholder{min-height:240px;padding:2rem;border:1px dashed var(--border-2);border-radius:14px;background:var(--surface);font-size:.78rem;color:var(--text-muted);display:flex;flex-direction:column;align-items:center;justify-content:center;text-align:center;}
+#page-cnpj .cnpj-placeholder strong{font-family:var(--font-display);font-size:1rem;color:var(--text);margin:.55rem 0 .28rem;}
+#page-cnpj .cnpj-placeholder span{font-size:.76rem;color:var(--text-muted);max-width:520px;}
+#page-cnpj .cnpj-placeholder::after{display:none!important;content:none!important;}
+#page-cnpj .cnpj-placeholder .empty-state-icon{width:38px;height:38px;color:#8b78ff;}
+
+@media(max-width:1180px){
+  .cnpj-dashboard-grid{grid-template-columns:1fr;}
+  .cnpj-side-stack{display:grid;grid-template-columns:1fr 1fr;}
+}
+@media(max-width:900px){
+  .cnpj-search-controls{grid-template-columns:1fr 140px;}
+  .cnpj-consult-btn{grid-column:1/-1;}
+  .cnpj-main-columns{grid-template-columns:1fr;}
+}
+@media(max-width:680px){
+  #page-cnpj{padding:1rem;}
+  .cnpj-page-heading h1{font-size:1.42rem;}
+  .cnpj-search-controls{grid-template-columns:1fr;}
+  .cnpj-clear-btn,.cnpj-consult-btn{grid-column:auto;}
+  .cnpj-result-toolbar{align-items:flex-start;}
+  .cnpj-toolbar-actions{width:100%;}
+  .cnpj-action-btn,.cnpj-export-menu{flex:1;}
+  .cnpj-export-menu>summary{width:100%;}
+  .cnpj-company-hero{align-items:flex-start;}
+  .cnpj-building-mark{width:62px;height:62px;flex-basis:62px;}
+  .cnpj-company-name{font-size:1.12rem;}
+  .cnpj-detail-row{grid-template-columns:1fr;gap:.2rem;}
+  .cnpj-extra-grid,.cnpj-side-stack{grid-template-columns:1fr;display:grid;}
+}
+</style>
+
 </head>
 <body>
 
@@ -2047,31 +2237,61 @@ button:disabled{cursor:not-allowed}
         </div>
       </div>
 
-
-
-      <!-- ══ CONSULTA CNPJ — PREVIEW LOCAL ══ -->
+      <!-- ══ CONSULTA CNPJ — NOVO LAYOUT ══ -->
       <div class="page" id="page-cnpj">
-        <div class="cnpj-shell">
-          <div class="card cnpj-search-card">
-            <div class="cnpj-search-head">
-              <div>
-                <div class="cnpj-search-title">Consulta de CNPJ</div>
-                <div class="cnpj-search-desc">Consulte os dados cadastrais de uma empresa informando o CNPJ abaixo.</div>
-              </div>
-            </div>
-            <div class="cnpj-search-row">
-              <div class="form-group">
-                <label class="form-label">CNPJ</label>
-                <input class="form-input" id="cnpjSearchInput" inputmode="text" autocomplete="off" maxlength="18" placeholder="00.000.000/0000-00" onkeydown="if(event.key==='Enter')consultarCnpj()">
-              </div>
-              <button class="btn-analyze" id="btnCnpjSearch" onclick="consultarCnpj()" style="height:42px">Consultar</button>
+        <div class="cnpj-reference-page">
+          <div class="cnpj-page-heading">
+            <div>
+              <h1>Consulta CNPJ</h1>
+              <p>Consulte os dados cadastrais de empresas</p>
             </div>
           </div>
 
-          <div class="cnpj-loader" id="cnpjLoader"><span class="cnpj-spinner"></span><span>Consultando CNPJ...</span></div>
+          <section class="card cnpj-search-card cnpj-ref-card">
+            <div class="cnpj-search-head">
+              <div class="cnpj-search-title">Consultar empresa</div>
+              <div class="cnpj-search-desc">Digite o CNPJ da empresa para consultar os dados cadastrais.</div>
+            </div>
+
+            <label class="cnpj-search-label" for="cnpjSearchInput">CNPJ</label>
+            <div class="cnpj-search-controls">
+              <div class="cnpj-input-wrap">
+                <span class="cnpj-input-leading" aria-hidden="true">
+                  <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8"><rect x="5" y="3" width="14" height="18" rx="2"/><path d="M9 7h2M13 7h2M9 11h2M13 11h2M9 15h2M13 15h2M10 21v-3h4v3"/></svg>
+                </span>
+                <input class="form-input" id="cnpjSearchInput" inputmode="text" autocomplete="off" maxlength="18" placeholder="00.000.000/0000-00" onkeydown="if(event.key==='Enter')consultarCnpj()">
+                <span class="cnpj-input-valid" id="cnpjInputValid" aria-hidden="true">
+                  <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.3"><path d="m7 12 3 3 7-7"/></svg>
+                </span>
+              </div>
+
+              <button class="cnpj-clear-btn" type="button" onclick="limparConsultaCnpj()">
+                <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8"><path d="M3 6h18M8 6V4h8v2M19 6l-1 14H6L5 6M10 10v6M14 10v6"/></svg>
+                Limpar
+              </button>
+
+              <button class="cnpj-consult-btn" id="btnCnpjSearch" type="button" onclick="consultarCnpj()">
+                <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><circle cx="11" cy="11" r="7"/><path d="m20 20-4-4"/></svg>
+                <span class="cnpj-btn-label">Consultar</span>
+              </button>
+            </div>
+
+            <div class="cnpj-help-line">
+              <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8"><path d="M12 22s8-4 8-10V5l-8-3-8 3v7c0 6 8 10 8 10Z"/><path d="m9 12 2 2 4-4"/></svg>
+              Digite com ou sem pontuação. Ex.: 33000167000101
+            </div>
+          </section>
+
+          <div class="cnpj-loader" id="cnpjLoader" aria-live="polite">
+            <div class="spinner"><div class="spinner1"></div></div>
+            <strong>Consultando CNPJ...</strong>
+            <span class="cnpj-loader-sub">Buscando os dados cadastrais da empresa.</span>
+          </div>
+
           <div id="cnpjResultArea"></div>
         </div>
       </div>
+
 
       <!-- ══ ANALYSIS ══ -->
       <div class="page" id="page-analysis">
@@ -4192,6 +4412,8 @@ const CNPJ_LOOKUP_CONFIG = {
 
 let _cnpjPreviewInitialized = false;
 let _lastCnpjData = null;
+let _cnpjHistory = [];
+let _cnpjHistoryExpanded = false;
 
 function cnpjCompact(value) {
   return String(value || '').toUpperCase().replace(/[^0-9A-Z]/g, '').slice(0, 14);
@@ -4280,26 +4502,26 @@ async function cnpjCopyFullRecord() {
 function cnpjSetLoading(loading) {
   document.getElementById('cnpjLoader')?.classList.toggle('show', loading);
   const btn = document.getElementById('btnCnpjSearch');
-  if (btn) {
-    btn.disabled = loading;
-    btn.textContent = loading ? 'Consultando...' : 'Consultar CNPJ';
-  }
+  const label = btn?.querySelector('.cnpj-btn-label');
+  const input = document.getElementById('cnpjSearchInput');
+  const clearBtn = document.querySelector('#page-cnpj .cnpj-clear-btn');
+  if (btn) btn.disabled = loading;
+  if (label) label.textContent = loading ? 'Consultando...' : 'Consultar';
+  if (input) input.disabled = loading;
+  if (clearBtn) clearBtn.disabled = loading;
   const result = document.getElementById('cnpjResultArea');
   if (result) result.style.display = loading ? 'none' : 'block';
 }
 
 function cnpjSetStatus(ok, text) {
-  const badge = document.getElementById('cnpjModeBadge');
-  const dot = document.getElementById('cnpjStatusDot');
-  const label = document.getElementById('cnpjStatusText');
-  if (!badge || !dot || !label) return;
-  badge.textContent = ok ? 'API via Supabase' : 'API indisponível';
-  badge.style.background = ok ? 'var(--accent-dim)' : 'var(--danger-dim)';
-  badge.style.color = ok ? 'var(--accent)' : 'var(--danger)';
-  badge.style.borderColor = ok ? 'rgba(0,229,176,.22)' : 'rgba(240,87,79,.25)';
-  dot.classList.toggle('api', ok);
-  dot.style.background = ok ? 'var(--accent)' : 'var(--danger)';
-  label.textContent = text;
+  const status = document.getElementById('cnpjConsultStatus');
+  if (!status) return;
+  status.classList.toggle('error', !ok);
+  const now = new Date();
+  const stamp = now.toLocaleDateString('pt-BR') + ' às ' + now.toLocaleTimeString('pt-BR', {hour:'2-digit', minute:'2-digit'});
+  status.innerHTML = ok
+    ? `<span aria-hidden="true">✓</span> Consulta realizada em ${cnpjEscape(stamp)}`
+    : `<span aria-hidden="true">!</span> ${cnpjEscape(text || 'Falha na consulta')}`;
 }
 
 function cnpjInfoItem(icon, html) {
@@ -4313,10 +4535,136 @@ function cnpjRenderSimpleList(items, emptyText) {
   `).join('')}</tbody></table></div>`;
 }
 
-function cnpjRender(data) {
+
+function cnpjFormatCnae(code) {
+  const digits = String(code || '').replace(/\D/g, '');
+  if (digits.length !== 7) return String(code || '—');
+  return `${digits.slice(0,2)}.${digits.slice(2,4)}-${digits.slice(4,5)}-${digits.slice(5,7)}`;
+}
+
+function cnpjStatusIsActive(status) {
+  return /\bATIVA\b/i.test(String(status || '')) && !/INATIVA|BAIXADA|SUSPENSA|INAPTA/i.test(String(status || ''));
+}
+
+function cnpjHistoryAdd(data) {
+  if (!data?.cnpj) return;
+  _cnpjHistory = _cnpjHistory.filter(item => cnpjCompact(item.cnpj) !== cnpjCompact(data.cnpj));
+  _cnpjHistory.unshift({
+    cnpj: data.cnpj,
+    razaoSocial: data.razaoSocial || data.nomeFantasia || 'Empresa consultada',
+    status: data.status || 'Não informada',
+    at: Date.now()
+  });
+  _cnpjHistory = _cnpjHistory.slice(0, 12);
+}
+
+function cnpjHistoryWhen(ts) {
+  const d = new Date(ts);
+  const now = new Date();
+  const startToday = new Date(now.getFullYear(), now.getMonth(), now.getDate()).getTime();
+  const startDate = new Date(d.getFullYear(), d.getMonth(), d.getDate()).getTime();
+  const diffDays = Math.round((startToday - startDate) / 86400000);
+  const hour = d.toLocaleTimeString('pt-BR', {hour:'2-digit', minute:'2-digit'});
+  if (diffDays === 0) return `Hoje, ${hour}`;
+  if (diffDays === 1) return `Ontem, ${hour}`;
+  return d.toLocaleDateString('pt-BR');
+}
+
+function cnpjHistoryHtml() {
+  if (!_cnpjHistory.length) {
+    return `<div class="cnpj-history-empty">As consultas realizadas nesta sessão aparecerão aqui.</div>`;
+  }
+  const items = _cnpjHistoryExpanded ? _cnpjHistory : _cnpjHistory.slice(0,5);
+  return items.map(item => {
+    const active = cnpjStatusIsActive(item.status);
+    return `<div class="cnpj-history-item" role="button" tabindex="0" onclick="cnpjSearchFromHistory('${cnpjEscape(item.cnpj)}')" onkeydown="if(event.key==='Enter')cnpjSearchFromHistory('${cnpjEscape(item.cnpj)}')">
+      <span class="cnpj-history-icon" aria-hidden="true"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8"><rect x="5" y="3" width="14" height="18" rx="2"/><path d="M9 7h2M13 7h2M9 11h2M13 11h2M10 21v-4h4v4"/></svg></span>
+      <span style="min-width:0"><span class="cnpj-history-cnpj">${cnpjEscape(item.cnpj)}</span><span class="cnpj-history-company">${cnpjEscape(item.razaoSocial)}</span></span>
+      <span class="cnpj-history-meta"><span class="cnpj-history-status ${active ? '' : 'inactive'}">${cnpjEscape(item.status || '—')}</span><span class="cnpj-history-time">${cnpjEscape(cnpjHistoryWhen(item.at))}</span></span>
+    </div>`;
+  }).join('');
+}
+
+function cnpjToggleHistory() {
+  _cnpjHistoryExpanded = !_cnpjHistoryExpanded;
+  cnpjRender(_lastCnpjData, { skipHistoryAdd:true });
+}
+
+function cnpjSearchFromHistory(cnpj) {
+  const input = document.getElementById('cnpjSearchInput');
+  if (!input) return;
+  input.value = cnpjFormat(cnpj);
+  consultarCnpj();
+}
+
+function limparConsultaCnpj() {
+  const input = document.getElementById('cnpjSearchInput');
+  if (input) {
+    input.value = '';
+    input.classList.remove('invalid');
+    input.focus();
+  }
+  document.getElementById('cnpjInputValid')?.classList.remove('show');
+  _lastCnpjData = null;
+  cnpjRenderPlaceholder('Pronto para consultar', 'Digite um CNPJ válido acima para buscar os dados cadastrais da empresa.');
+}
+
+function cnpjCsvEscape(value) {
+  const s = String(value ?? '');
+  return /[;"\n\r]/.test(s) ? `"${s.replace(/"/g,'""')}"` : s;
+}
+
+function cnpjExportCurrent(format = 'csv') {
+  const data = _lastCnpjData;
+  if (!data) return toast('Faça uma consulta antes de exportar.', 'warn');
+  const safeName = (data.razaoSocial || 'empresa').normalize('NFD').replace(/[\u0300-\u036f]/g,'').replace(/[^a-z0-9]+/gi,'_').replace(/^_|_$/g,'').toLowerCase();
+  let blob, filename;
+  if (format === 'json') {
+    blob = new Blob([JSON.stringify(data, null, 2)], {type:'application/json;charset=utf-8;'});
+    filename = `cnpj_${safeName || 'empresa'}.json`;
+  } else {
+    const address = data.endereco || {};
+    const rows = [
+      ['Campo','Valor'],
+      ['CNPJ', data.cnpj],
+      ['Razão Social', data.razaoSocial],
+      ['Nome Fantasia', data.nomeFantasia],
+      ['Situação Cadastral', data.status],
+      ['Data de Abertura', data.abertura],
+      ['Natureza Jurídica', data.natureza],
+      ['Porte', data.porte],
+      ['Capital Social', data.capitalSocial],
+      ['Município', address.municipio],
+      ['UF', address.uf],
+      ['Endereço', cnpjEnderecoLinha(address)],
+      ['Telefone', data.telefone],
+      ['E-mail', data.email],
+      ['Regime Tributário', data.regime]
+    ];
+    (Array.isArray(data.atividades) ? data.atividades : []).forEach((a,i) => rows.push([`CNAE ${i+1}`, `${cnpjFormatCnae(a.cnae)} - ${a.descricao || ''}`]));
+    const csv = rows.map(row => row.map(cnpjCsvEscape).join(';')).join('\r\n');
+    blob = new Blob(['\ufeff' + csv], {type:'text/csv;charset=utf-8;'});
+    filename = `cnpj_${safeName || 'empresa'}.csv`;
+  }
+  const url = URL.createObjectURL(blob);
+  const a = document.createElement('a');
+  a.href = url;
+  a.download = filename;
+  document.body.appendChild(a);
+  a.click();
+  a.remove();
+  setTimeout(() => URL.revokeObjectURL(url), 1000);
+  toast('Arquivo exportado com sucesso.', 'success');
+}
+
+function cnpjRender(data, options = {}) {
+  if (!data) return;
   _lastCnpjData = data;
+  if (!options.skipHistoryAdd) cnpjHistoryAdd(data);
+
   const root = document.getElementById('cnpjResultArea');
-  if (!root || !data) return;
+  if (!root) return;
+
   const address = data.endereco || {};
   const mapUrl = cnpjMapsUrl(address);
   const addressLine = cnpjEnderecoLinha(address);
@@ -4324,99 +4672,162 @@ function cnpjRender(data) {
   const partners = Array.isArray(data.socios) ? data.socios : [];
   const ies = Array.isArray(data.inscricoesEstaduais) ? data.inscricoesEstaduais : [];
   const suframa = Array.isArray(data.suframa) ? data.suframa : [];
-  const active = /\bATIVA\b/i.test(String(data.status || ''));
+  const active = cnpjStatusIsActive(data.status);
+  const principal = activities.find(a => String(a.tipo || '').toLowerCase().includes('principal')) || activities[0] || null;
+  const secundarias = activities.filter(a => a !== principal).slice(0, 6);
+  const matriz = String(data.administracao || data.matrizFilial || '').trim() || 'Matriz/Filial não informado';
+  const municipioUf = [address.municipio, address.uf].filter(Boolean).join(' / ') || 'Não informado';
+  const source = data.fonte || 'Receita Federal do Brasil';
 
-  const activityRows = activities.length ? activities.map(a => `
-    <tr>
-      <td>${cnpjEscape(a.cnae || '—')}</td>
-      <td class="${String(a.tipo || '').toLowerCase().includes('principal') ? 'cnpj-type-main' : ''}">${cnpjEscape(a.tipo || '—')}</td>
-      <td>${cnpjEscape(a.descricao || '—')}</td>
-    </tr>`).join('') : `<tr><td colspan="3" class="cnpj-empty">Nenhuma atividade econômica retornada pela fonte.</td></tr>`;
+  const partnerHtml = partners.length
+    ? partners.slice(0,12).map(p => `<div class="cnpj-partner-mini"><strong>${cnpjEscape(p.nome || '—')}</strong><span>${cnpjEscape(p.cargo || 'Sócio / Administrador')}${p.detalhe ? ' · ' + cnpjEscape(p.detalhe) : ''}</span></div>`).join('')
+    : `<div class="cnpj-extra-line">Nenhum sócio ou administrador retornado pela fonte.</div>`;
 
-  const partnerRows = partners.length ? partners.map(p => `
-    <div class="cnpj-partner">
-      <div class="cnpj-partner-name">${cnpjEscape(p.nome || '—')}</div>
-      <div class="cnpj-partner-meta">
-        <span>${cnpjEscape(p.cargo || 'Sócio / Administrador')}</span>
-        ${p.detalhe ? `<span>${cnpjEscape(p.detalhe)}</span>` : ''}
-      </div>
-    </div>`).join('') : `<div class="cnpj-empty">Nenhum sócio/administrador retornado pela fonte.</div>`;
+  const ieText = ies.length
+    ? ies.map(item => cnpjEscape(typeof item === 'string' ? item : (item.descricao || item.nome || item.valor || JSON.stringify(item)))).join('<br>')
+    : 'Não informado pela fonte atual.';
+  const suframaText = suframa.length
+    ? suframa.map(item => cnpjEscape(typeof item === 'string' ? item : (item.descricao || item.nome || item.valor || JSON.stringify(item)))).join('<br>')
+    : 'Não informado pela fonte atual.';
+
+  const now = new Date();
+  const stamp = now.toLocaleDateString('pt-BR') + ' às ' + now.toLocaleTimeString('pt-BR', {hour:'2-digit', minute:'2-digit'});
 
   root.innerHTML = `
-    <div class="cnpj-result-grid">
-      <div class="cnpj-stack">
-        <div class="card cnpj-company-card">
-          <div class="cnpj-company-main">
-            <div class="cnpj-company-top">
-              <div>
-                <div class="cnpj-company-name">${cnpjEscape(data.razaoSocial || 'Razão social não informada')}</div>
-                ${data.nomeFantasia ? `<div style="font-size:.78rem;color:var(--text-muted);margin-top:.25rem">${cnpjEscape(data.nomeFantasia)}</div>` : ''}
-                <div class="cnpj-company-cnpj">
-                  <span>${cnpjEscape(data.cnpj || '')}</span>
-                  <button class="cnpj-copy" data-copy="${cnpjEscape(data.cnpj || '')}" onclick="cnpjCopy(this.dataset.copy)" title="Copiar CNPJ" aria-label="Copiar CNPJ">⧉</button>
+    <div class="cnpj-dashboard-grid">
+      <div class="cnpj-result-main">
+        <section class="card cnpj-result-card">
+          <div class="cnpj-result-toolbar">
+            <div class="cnpj-result-title-row">
+              <div class="cnpj-result-title">Resultado da consulta</div>
+              <span class="cnpj-consult-status" id="cnpjConsultStatus"><span aria-hidden="true">✓</span> Consulta realizada em ${cnpjEscape(stamp)}</span>
+            </div>
+            <div class="cnpj-toolbar-actions">
+              <button class="cnpj-action-btn" type="button" onclick="cnpjCopy('${cnpjEscape(data.cnpj || '')}')">
+                <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8"><rect x="9" y="9" width="11" height="11" rx="2"/><path d="M5 15H4a2 2 0 0 1-2-2V4a2 2 0 0 1 2-2h9a2 2 0 0 1 2 2v1"/></svg>
+                Copiar CNPJ
+              </button>
+              <details class="cnpj-export-menu">
+                <summary>
+                  <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8"><path d="M12 3v12M8 11l4 4 4-4"/><path d="M5 17v3h14v-3"/></svg>
+                  Exportar
+                  <span aria-hidden="true">⌄</span>
+                </summary>
+                <div class="cnpj-export-pop">
+                  <button type="button" onclick="cnpjExportCurrent('csv')">Exportar CSV</button>
+                  <button type="button" onclick="cnpjExportCurrent('json')">Exportar JSON</button>
                 </div>
-                <div class="cnpj-active ${active ? '' : 'inactive'}">${cnpjEscape(data.status || 'Situação não informada')} <span style="color:var(--text-muted);font-weight:400">${data.abertura ? '· desde ' + cnpjEscape(data.abertura) : ''}</span></div>
-              </div>
-              <div class="cnpj-company-actions">
-                <button class="cnpj-copy-full" type="button" onclick="cnpjCopyFullRecord()" aria-label="Copiar ficha completa da empresa" title="Copiar ficha completa">⧉ Copiar Ficha Completa</button>
-              </div>
-            </div>
-            <div class="cnpj-company-columns">
-              <div class="cnpj-info-list">
-                ${cnpjInfoItem('◇', cnpjEscape(data.natureza || 'Natureza jurídica não informada'))}
-                ${cnpjInfoItem('◎', cnpjEscape(data.administracao || data.matrizFilial || 'Identificação matriz/filial não informada'))}
-                ${data.porte ? cnpjInfoItem('▤', 'Porte: ' + cnpjEscape(data.porte)) : ''}
-                ${cnpjInfoItem('R$', cnpjEscape(data.capitalSocial || 'Capital social não informado'))}
-                ${cnpjInfoItem('@', data.email ? `<a class="cnpj-link" href="mailto:${cnpjEscape(data.email)}">${cnpjEscape(data.email)}</a> <button class="cnpj-copy" data-copy="${cnpjEscape(data.email)}" onclick="cnpjCopy(this.dataset.copy)" aria-label="Copiar e-mail" title="Copiar e-mail">⧉</button>` : 'E-mail não informado')}
-                ${cnpjInfoItem('☎', data.telefone ? `<a class="cnpj-link" href="tel:${cnpjEscape(String(data.telefone).replace(/[^+\d]/g,''))}">${cnpjEscape(data.telefone)}</a>` : 'Telefone não informado')}
-              </div>
-              <div class="cnpj-info-list">
-                ${cnpjInfoItem('⌖', address.logradouro ? `${cnpjEscape(address.logradouro)} ${cnpjEscape(address.numero || '')}` : 'Logradouro não informado')}
-                ${cnpjInfoItem('⌂', cnpjEscape(address.bairro || 'Bairro não informado'))}
-                ${cnpjInfoItem('◫', `${cnpjEscape(address.municipio || 'Município não informado')}${address.uf ? ' · ' + cnpjEscape(address.uf) : ''}${address.cep ? ' · ' + cnpjEscape(address.cep) : ''}`)}
-                ${address.complemento ? cnpjInfoItem('▣', cnpjEscape(address.complemento)) : ''}
-                ${addressLine ? cnpjInfoItem('↗', `<a class="cnpj-map-btn" href="${mapUrl}" target="_blank" rel="noopener noreferrer">Abrir no Google Maps</a>`) : ''}
-              </div>
+              </details>
             </div>
           </div>
-          <div class="cnpj-card-footer">${cnpjEscape(data.fonte || 'Dados carregados na consulta')}</div>
-        </div>
 
-        <div class="card cnpj-tabs-card">
-          <div class="cnpj-tabs">
-            <button class="cnpj-tab active" data-cnpj-tab="atividades" onclick="cnpjSwitchTab('atividades')">Atividades Econômicas</button>
-            <button class="cnpj-tab" data-cnpj-tab="ie" onclick="cnpjSwitchTab('ie')">Inscrições Estaduais</button>
-            <button class="cnpj-tab" data-cnpj-tab="suframa" onclick="cnpjSwitchTab('suframa')">SUFRAMA</button>
-          </div>
-          <div class="cnpj-tab-panel active" id="cnpj-tab-atividades">
-            <div class="cnpj-table-wrap">
-              <table class="cnpj-table">
-                <thead><tr><th>CNAE</th><th>Tipo</th><th>Descrição</th></tr></thead>
-                <tbody>${activityRows}</tbody>
-              </table>
+          <div class="cnpj-company-panel">
+            <div class="cnpj-company-hero">
+              <div class="cnpj-building-mark" aria-hidden="true">
+                <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.7"><rect x="4" y="3" width="12" height="18" rx="1.5"/><path d="M8 7h2M12 7h2M8 11h2M12 11h2M8 15h2M12 15h2M9 21v-3h3v3M16 9h4v12h-4M18 13h1M18 17h1"/></svg>
+              </div>
+              <div class="cnpj-company-identity">
+                <div style="display:flex;align-items:center;gap:.55rem;flex-wrap:wrap">
+                  <div class="cnpj-company-name">${cnpjEscape(data.razaoSocial || 'Razão social não informada')}</div>
+                  <span class="cnpj-status-pill ${active ? '' : 'inactive'}">${cnpjEscape(data.status || '—')}</span>
+                </div>
+                <div class="cnpj-company-badges">
+                  <span class="cnpj-pill"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8"><rect x="5" y="3" width="14" height="18" rx="2"/><path d="M9 7h2M13 7h2M9 11h2M13 11h2"/></svg>${cnpjEscape(data.cnpj || 'CNPJ não informado')}</span>
+                  <span class="cnpj-pill"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8"><circle cx="12" cy="12" r="9"/><path d="M8 12h8M12 8v8"/></svg>${cnpjEscape(matriz)}</span>
+                </div>
+              </div>
             </div>
+
+            <div class="cnpj-main-columns">
+              <div class="cnpj-detail-box">
+                <div class="cnpj-detail-row"><span class="cnpj-detail-label">Razão Social</span><span class="cnpj-detail-value">${cnpjEscape(data.razaoSocial || 'Não informada')}</span></div>
+                <div class="cnpj-detail-row"><span class="cnpj-detail-label">Nome Fantasia</span><span class="cnpj-detail-value">${cnpjEscape(data.nomeFantasia || 'Não informado')}</span></div>
+                <div class="cnpj-detail-row"><span class="cnpj-detail-label">Situação Cadastral</span><span class="cnpj-detail-value"><span class="cnpj-inline-status ${active ? '' : 'inactive'}">${cnpjEscape(data.status || '—')}</span></span></div>
+                <div class="cnpj-detail-row"><span class="cnpj-detail-label">Data de Abertura</span><span class="cnpj-detail-value">${cnpjEscape(data.abertura || 'Não informada')}</span></div>
+                <div class="cnpj-detail-row"><span class="cnpj-detail-label">Natureza Jurídica</span><span class="cnpj-detail-value">${cnpjEscape(data.natureza || 'Não informada')}</span></div>
+                <div class="cnpj-detail-row"><span class="cnpj-detail-label">Porte</span><span class="cnpj-detail-value">${cnpjEscape(data.porte || 'Não informado')}</span></div>
+                <div class="cnpj-detail-row"><span class="cnpj-detail-label">Capital Social</span><span class="cnpj-detail-value">${cnpjEscape(data.capitalSocial || 'Não informado')}</span></div>
+                <div class="cnpj-detail-row"><span class="cnpj-detail-label">Município / UF</span><span class="cnpj-detail-value">${cnpjEscape(municipioUf)}</span></div>
+              </div>
+
+              <div class="cnpj-cnae-box">
+                <div class="cnpj-cnae-title">Atividades (CNAE)</div>
+                <div class="cnpj-cnae-label">CNAE principal</div>
+                ${principal ? `<div class="cnpj-cnae-line"><span class="cnpj-cnae-code">${cnpjEscape(cnpjFormatCnae(principal.cnae))}</span><span class="cnpj-cnae-desc">${cnpjEscape(principal.descricao || 'Descrição não informada')}</span></div>` : `<div class="cnpj-extra-line">Nenhuma atividade principal retornada.</div>`}
+                <div class="cnpj-cnae-label" style="margin-top:.8rem">CNAEs secundários</div>
+                ${secundarias.length ? secundarias.map(a => `<div class="cnpj-cnae-line"><span class="cnpj-cnae-code">${cnpjEscape(cnpjFormatCnae(a.cnae))}</span><span class="cnpj-cnae-desc">${cnpjEscape(a.descricao || 'Descrição não informada')}</span></div>`).join('') : `<div class="cnpj-extra-line">Nenhum CNAE secundário retornado.</div>`}
+              </div>
+            </div>
+
+            <details class="cnpj-extra-details">
+              <summary><span aria-hidden="true">＋</span> Ver dados complementares</summary>
+              <div class="cnpj-extra-grid">
+                <div class="cnpj-extra-card">
+                  <div class="cnpj-extra-title">Contato e endereço</div>
+                  <div class="cnpj-extra-line"><strong>Telefone:</strong> ${cnpjEscape(data.telefone || 'Não informado')}</div>
+                  <div class="cnpj-extra-line"><strong>E-mail:</strong> ${cnpjEscape(data.email || 'Não informado')}</div>
+                  <div class="cnpj-extra-line"><strong>Endereço:</strong> ${cnpjEscape(addressLine || 'Não informado')}</div>
+                  ${addressLine ? `<a class="cnpj-map-btn" href="${mapUrl}" target="_blank" rel="noopener noreferrer">Abrir no Google Maps ↗</a>` : ''}
+                </div>
+                <div class="cnpj-extra-card">
+                  <div class="cnpj-extra-title">Dados fiscais adicionais</div>
+                  <div class="cnpj-extra-line"><strong>Regime tributário:</strong> ${cnpjEscape(data.regime || 'Não informado')}</div>
+                  <div class="cnpj-extra-line"><strong>Inscrições Estaduais:</strong><br>${ieText}</div>
+                  <div class="cnpj-extra-line"><strong>SUFRAMA:</strong><br>${suframaText}</div>
+                </div>
+                <div class="cnpj-extra-card full">
+                  <div class="cnpj-extra-title">Sócios e Administradores</div>
+                  ${partnerHtml}
+                </div>
+                <div class="cnpj-extra-card full" style="display:flex;justify-content:flex-end">
+                  <button class="cnpj-action-btn" type="button" onclick="cnpjCopyFullRecord()">Copiar ficha completa</button>
+                </div>
+              </div>
+            </details>
           </div>
-          <div class="cnpj-tab-panel" id="cnpj-tab-ie">${cnpjRenderSimpleList(ies, 'A BrasilAPI não fornece inscrições estaduais neste endpoint.')}</div>
-          <div class="cnpj-tab-panel" id="cnpj-tab-suframa">${cnpjRenderSimpleList(suframa, 'A BrasilAPI não fornece dados SUFRAMA neste endpoint.')}</div>
-        </div>
+
+          <div class="cnpj-source-line">
+            <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8"><circle cx="12" cy="12" r="9"/><path d="M12 11v5M12 8h.01"/></svg>
+            Fonte: ${cnpjEscape(source)}
+          </div>
+        </section>
       </div>
 
-      <div class="cnpj-stack">
-        <div class="card cnpj-side-card">
-          <div class="cnpj-side-title">Regime Tributário</div>
-          <div class="cnpj-tax-body"><span class="cnpj-tax-icon">▦</span><span>${cnpjEscape(data.regime || 'Não informado pela fonte')}</span></div>
-          <div class="cnpj-card-footer">${cnpjEscape(data.fonte || 'Dados carregados na consulta')}</div>
-        </div>
-        <div class="card cnpj-side-card">
-          <div class="cnpj-side-title">Sócios e Administradores</div>
-          <div class="cnpj-partners">${partnerRows}</div>
-          <div class="cnpj-card-footer">${cnpjEscape(data.fonte || 'Dados carregados na consulta')}</div>
-        </div>
+      <aside class="cnpj-side-stack">
+        <section class="card cnpj-side-panel">
+          <div class="cnpj-side-panel-head">
+            <div class="cnpj-side-panel-title">Últimas consultas</div>
+            <button class="cnpj-history-toggle" type="button" onclick="cnpjToggleHistory()">${_cnpjHistoryExpanded ? 'Ver recentes' : 'Ver histórico'}</button>
+          </div>
+          <div class="cnpj-history-list">${cnpjHistoryHtml()}</div>
+        </section>
+
+        <section class="card cnpj-side-panel">
+          <div class="cnpj-tips-title-row">
+            <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8"><path d="M12 22s8-4 8-10V5l-8-3-8 3v7c0 6 8 10 8 10Z"/><path d="m9 12 2 2 4-4"/></svg>
+            <div class="cnpj-side-panel-title">Dicas</div>
+          </div>
+          <ul class="cnpj-tips-list">
+            <li>Digite o CNPJ com ou sem pontuação.</li>
+            <li>Verifique se o CNPJ possui 14 caracteres.</li>
+            <li>Os dados exibidos são retornados pela fonte integrada ao backend.</li>
+          </ul>
+        </section>
+      </aside>
+    </div>
+
+    <div class="cnpj-security-strip">
+      <div class="cnpj-security-icon" aria-hidden="true">
+        <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8"><rect x="5" y="10" width="14" height="10" rx="2"/><path d="M8 10V7a4 4 0 0 1 8 0v3M12 14v2"/></svg>
+      </div>
+      <div>
+        <div class="cnpj-security-title">Segurança e privacidade</div>
+        <div class="cnpj-security-text">O histórico mostrado nesta tela existe apenas durante esta sessão do navegador.</div>
       </div>
     </div>`;
 }
 
-function cnpjRenderPlaceholder(title = 'Consulta pronta para uso', body = 'Digite um CNPJ válido ou clique em “Consultar Petrobras”. O frontend chamará a Edge Function consulta-cnpj do seu projeto Supabase.') {
+function cnpjRenderPlaceholder(title = 'Pronto para consultar', body = 'Digite um CNPJ válido acima para buscar os dados cadastrais da empresa.') {
   const root = document.getElementById('cnpjResultArea');
   if (!root) return;
   root.innerHTML = `<div class="cnpj-placeholder">
@@ -4476,11 +4887,13 @@ async function consultarCnpj() {
   cnpjSetLoading(true);
   try {
     const data = await cnpjFetch(cnpj);
+    document.getElementById('cnpjInputValid')?.classList.add('show');
     cnpjRender(data);
     cnpjSetStatus(true, 'Consulta concluída via Supabase Edge Function e BrasilAPI.');
     toast('CNPJ consultado com sucesso.', 'success');
   } catch (err) {
     console.error(err);
+    document.getElementById('cnpjInputValid')?.classList.remove('show');
     cnpjRenderPlaceholder('Não foi possível consultar o CNPJ', err.message || 'Verifique o backend e tente novamente.');
     cnpjSetStatus(false, err.message || 'Falha na consulta.');
     toast(err.message || 'Erro ao consultar CNPJ.', 'error');
@@ -4519,11 +4932,13 @@ function initCnpjPreview() {
     input.addEventListener('input', () => {
       input.value = cnpjFormat(input.value);
       input.classList.remove('invalid');
+      const valid = cnpjIsValid(cnpjCompact(input.value));
+      document.getElementById('cnpjInputValid')?.classList.toggle('show', valid);
     });
     input.value = '33.000.167/0001-01';
+    document.getElementById('cnpjInputValid')?.classList.toggle('show', cnpjIsValid(cnpjCompact(input.value)));
   }
   cnpjRenderPlaceholder();
-  cnpjSetStatus(true, 'Frontend configurado para chamar a Edge Function \"consulta-cnpj\".');
 }
 </script>
 </body>
