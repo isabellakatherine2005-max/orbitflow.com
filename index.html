@@ -1756,6 +1756,74 @@ button{font-family:var(--font-body);cursor:pointer}
 }
 </style>
 
+
+<style id="orbit-action-feedback-ux">
+/* ═══════════════════════════════════════════════════
+   UX/UI — FEEDBACK DE AÇÃO, ACESSIBILIDADE E POLIMENTO
+═══════════════════════════════════════════════════ */
+body{transition:background-color .3s ease,color .3s ease}
+.sidebar,.topbar,.card,.card-sm,.kpi-dash-card,.quick-card,.history-card,.form-input,.form-select,.filter-input,.filter-select,.field-input,.btn-icon,.nav-item{
+  transition:background-color .3s ease,color .3s ease,border-color .3s ease,box-shadow .2s ease,transform .2s ease,opacity .2s ease;
+}
+
+/* Spinners reutilizáveis */
+@keyframes orbitSpin{to{transform:rotate(360deg)}}
+.btn-primary.is-loading,.btn-analyze.is-loading,.btn-logout-sm.is-loading{
+  display:inline-flex;align-items:center;justify-content:center;gap:.55rem;
+}
+.btn-primary.is-loading::before,.btn-analyze.is-loading::before,.btn-logout-sm.is-loading::before{
+  content:'';width:14px;height:14px;border:2px solid rgba(255,255,255,.35);border-top-color:#fff;border-radius:50%;animation:orbitSpin .7s linear infinite;flex:0 0 auto;
+}
+.auth-form.is-processing>div{opacity:.5;pointer-events:none;transition:opacity .18s ease}
+.auth-form.is-processing .field-input{cursor:wait}
+
+/* Gerador: feedback de processamento */
+#btnProcessCampaign.is-loading{min-width:145px}
+
+/* Tabelas: zebra striping */
+#campaignPreviewBody tr:nth-child(even) td,.cnpj-table tbody tr:nth-child(even) td{background:color-mix(in srgb,var(--surface-2) 72%,transparent)}
+#campaignPreviewBody tr:hover td,.cnpj-table tbody tr:hover td{background:var(--primary-dim)}
+
+/* Histórico: busca com limpar + ordenação */
+.history-search-wrap{position:relative;min-width:250px;flex:1;max-width:420px}
+.history-search-wrap .filter-input{width:100%;padding-right:2.3rem}
+.history-clear-btn{position:absolute;right:.45rem;top:50%;transform:translateY(-50%);width:27px;height:27px;border:0;border-radius:7px;background:transparent;color:var(--text-muted);display:none;align-items:center;justify-content:center;font-size:1rem;line-height:1;cursor:pointer}
+.history-clear-btn.visible{display:flex}
+.history-clear-btn:hover{background:var(--surface-3);color:var(--text)}
+
+/* Empty states */
+.history-empty{border:1px dashed var(--border);border-radius:var(--radius);background:color-mix(in srgb,var(--surface) 85%,transparent)}
+.empty-state-icon{width:56px;height:56px;margin:0 auto 1rem;color:var(--primary);opacity:.32}
+.cnpj-placeholder{min-height:190px;display:flex;flex-direction:column;align-items:center;justify-content:center}
+.cnpj-placeholder .empty-state-icon{display:block}
+
+/* CNPJ — ação de copiar ficha */
+.cnpj-company-actions{display:flex;align-items:center;gap:.55rem;flex-wrap:wrap;justify-content:flex-end}
+.cnpj-copy-full{display:inline-flex;align-items:center;gap:.45rem;padding:.55rem .75rem;border-radius:9px;border:1px solid var(--border-2);background:var(--surface-2);color:var(--text-2);font-family:var(--font-body);font-size:.74rem;font-weight:600;cursor:pointer;white-space:nowrap}
+.cnpj-copy-full:hover{border-color:var(--primary);color:var(--primary);background:var(--primary-dim)}
+
+/* Toast persistente / processamento */
+.toast.t-loading{color:var(--primary);border-color:rgba(124,111,247,.3)}
+.toast.t-loading .toast-icon{width:14px;height:14px;border:2px solid var(--border-2);border-top-color:var(--primary);border-radius:50%;animation:orbitSpin .7s linear infinite;font-size:0;flex:0 0 auto}
+.toast.is-updating{animation:none}
+
+/* Scroll to top */
+.scroll-top-btn{position:fixed;right:1.35rem;bottom:1.35rem;z-index:900;width:42px;height:42px;border-radius:12px;border:1px solid var(--border-2);background:color-mix(in srgb,var(--surface) 92%,transparent);color:var(--text-2);box-shadow:0 10px 30px rgba(0,0,0,.22);display:flex;align-items:center;justify-content:center;cursor:pointer;opacity:0;visibility:hidden;transform:translateY(10px);transition:opacity .2s ease,transform .2s ease,visibility .2s ease,background-color .2s ease;border-color .2s ease;backdrop-filter:blur(10px)}
+.scroll-top-btn.visible{opacity:1;visibility:visible;transform:none}
+.scroll-top-btn:hover{color:var(--primary);border-color:var(--primary);background:var(--primary-dim)}
+.toast-area{bottom:4.7rem}
+
+/* Acessibilidade/movimento */
+button:disabled{cursor:not-allowed}
+@media(max-width:680px){
+  .history-search-wrap{min-width:100%;max-width:none;width:100%}
+  .scroll-top-btn{right:1rem;bottom:1rem}
+  .toast-area{right:1rem;left:1rem;bottom:4.4rem}.toast{width:100%}
+  .cnpj-company-top{flex-direction:column}.cnpj-company-actions{width:100%;justify-content:flex-start}
+}
+@media(prefers-reduced-motion:reduce){.btn-primary.is-loading::before,.btn-analyze.is-loading::before,.toast.t-loading .toast-icon{animation-duration:1.4s}}
+</style>
+
 </head>
 <body>
 
@@ -1821,7 +1889,7 @@ button{font-family:var(--font-body);cursor:pointer}
       <div id="loginForm" class="auth-form">
         <div><label class="field-label">E-mail</label><input class="field-input" type="email" id="loginEmail" placeholder="seu@email.com"></div>
         <div><label class="field-label">Senha</label><input class="field-input" type="password" id="loginPass" placeholder="••••••••" onkeydown="if(event.key==='Enter')doLogin()"></div>
-        <button class="btn-primary" id="btnLogin" onclick="doLogin()">Entrar</button>
+        <button class="btn-primary" id="btnLogin" onclick="doLogin()" aria-live="polite">Entrar</button>
       </div>
       <div id="signupForm" class="auth-form" style="display:none">
         <div><label class="field-label">E-mail</label><input class="field-input" type="email" id="signupEmail" placeholder="seu@email.com"></div>
@@ -1911,7 +1979,7 @@ button{font-family:var(--font-body);cursor:pointer}
             <div class="profile-name" id="sideProfileName">—</div>
             <div class="profile-role">Enterprise User</div>
           </div>
-          <button class="btn-logout-sm" onclick="event.stopPropagation();doLogout()" title="Sair">
+          <button class="btn-logout-sm" id="btnLogout" onclick="event.stopPropagation();doLogout()" title="Sair" aria-label="Sair da conta">
             <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5" stroke-linecap="round" stroke-linejoin="round"><path d="M9 21H5a2 2 0 0 1-2-2V5a2 2 0 0 1 2-2h4"/><polyline points="16 17 21 12 16 7"/><line x1="21" y1="12" x2="9" y2="12"/></svg>
           </button>
         </div>
@@ -1928,7 +1996,7 @@ button{font-family:var(--font-body);cursor:pointer}
         </div>
         <div class="topbar-right">
           <div class="live-dot">LIVE</div>
-          <button class="btn-icon" id="btnTheme" onclick="toggleTheme()" title="Alternar tema">
+          <button class="btn-icon" id="btnTheme" onclick="toggleTheme()" title="Alternar tema" aria-label="Alternar tema claro ou escuro">
             <svg id="themeIcon" width="15" height="15" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5" stroke-linecap="round" stroke-linejoin="round"><circle cx="12" cy="12" r="5"/><line x1="12" y1="1" x2="12" y2="3"/><line x1="12" y1="21" x2="12" y2="23"/><line x1="4.22" y1="4.22" x2="5.64" y2="5.64"/><line x1="18.36" y1="18.36" x2="19.78" y2="19.78"/><line x1="1" y1="12" x2="3" y2="12"/><line x1="21" y1="12" x2="23" y2="12"/><line x1="4.22" y1="19.78" x2="5.64" y2="18.36"/><line x1="18.36" y1="5.64" x2="19.78" y2="4.22"/></svg>
           </button>
         </div>
@@ -2268,12 +2336,21 @@ button{font-family:var(--font-body);cursor:pointer}
           </div>
         </div>
         <div class="history-filters">
-          <input class="filter-input" type="text" id="filterSearch" placeholder="🔍 Buscar empresa ou campanha..." oninput="applyFilters()">
-          <select class="filter-select" id="filterRate" onchange="applyFilters()">
+          <div class="history-search-wrap">
+            <input class="filter-input" type="text" id="filterSearch" placeholder="🔍 Buscar empresa ou campanha..." oninput="updateHistoryClear();applyFilters()" aria-label="Buscar empresa ou campanha no histórico">
+            <button class="history-clear-btn" id="historyClearBtn" type="button" onclick="clearHistorySearch()" aria-label="Limpar busca do histórico" title="Limpar busca">×</button>
+          </div>
+          <select class="filter-select" id="filterRate" onchange="applyFilters()" aria-label="Filtrar histórico por taxa de entrega">
             <option value="">Todos os resultados</option>
             <option value="good">✅ Sucesso (&gt;70%)</option>
             <option value="warn">⚠️ Atenção (50-70%)</option>
             <option value="bad">🔴 Crítico (&lt;50%)</option>
+          </select>
+          <select class="filter-select" id="filterSort" onchange="applyFilters()" aria-label="Ordenar histórico">
+            <option value="date_desc">Mais recentes</option>
+            <option value="rate_desc">Melhor taxa de entrega</option>
+            <option value="rate_asc">Pior taxa de entrega</option>
+            <option value="date_asc">Mais antigas</option>
           </select>
           <span class="filter-count" id="filterCount"></span>
         </div>
@@ -2358,7 +2435,7 @@ button{font-family:var(--font-body);cursor:pointer}
   <div class="compare-bar" id="compareBar">
     <span id="compareBarTxt">2 campanhas selecionadas</span>
     <button onclick="openCompareModal()">📊 Comparar</button>
-    <button onclick="clearCompare()" style="background:rgba(255,255,255,.12)">✕</button>
+    <button onclick="clearCompare()" style="background:rgba(255,255,255,.12)" aria-label="Limpar seleção de comparação">✕</button>
   </div>
 </div>
 
@@ -2367,7 +2444,7 @@ button{font-family:var(--font-body);cursor:pointer}
   <div class="modal-box">
     <div class="modal-header">
       <div class="modal-title"><span>🔍</span><span id="errorLinesTitle">Linhas com erro</span></div>
-      <button class="modal-close" onclick="closeErrorLines()">✕</button>
+      <button class="modal-close" onclick="closeErrorLines()" aria-label="Fechar modal de linhas com erro">✕</button>
     </div>
     <div class="modal-body">
       <p class="modal-desc" id="errorLinesDesc"></p>
@@ -2384,7 +2461,7 @@ button{font-family:var(--font-body);cursor:pointer}
   <div class="modal-box" style="max-width:780px">
     <div class="modal-header">
       <div class="modal-title"><span>📊</span><span>Comparativo de Campanhas</span></div>
-      <button class="modal-close" onclick="closeCompareModal()">✕</button>
+      <button class="modal-close" onclick="closeCompareModal()" aria-label="Fechar comparativo de campanhas">✕</button>
     </div>
     <div class="modal-body" id="compareModalBody"></div>
     <div class="modal-footer">
@@ -2393,6 +2470,9 @@ button{font-family:var(--font-body);cursor:pointer}
   </div>
 </div>
 
+<button class="scroll-top-btn" id="scrollTopBtn" type="button" onclick="scrollMainToTop()" aria-label="Voltar ao topo" title="Voltar ao topo">
+  <svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5" stroke-linecap="round" stroke-linejoin="round"><polyline points="18 15 12 9 6 15"/></svg>
+</button>
 <div class="toast-area" id="toastArea"></div>
 
 <script src="https://unpkg.com/@supabase/supabase-js@2/dist/umd/supabase.js"></script>
@@ -2431,15 +2511,59 @@ const _sb = window.supabase.createClient(SUPABASE_URL, SUPABASE_ANON);
 /* ═══════════════════════════════════════════════════
    TOAST
 ═══════════════════════════════════════════════════ */
-function toast(msg, type = 'success') {
+function toast(msg, type = 'success', options = {}) {
   const area = document.getElementById('toastArea');
-  const el   = document.createElement('div');
-  el.className = `toast t-${type}`;
-  const icons = { success: '✓', error: '✕', warn: '⚠' };
-  el.innerHTML = `<span>${icons[type] || '✓'}</span> ${msg}`;
+  if (!area) return null;
+  const el = document.createElement('div');
+  const isLoading = !!options.loading;
+  el.className = `toast ${isLoading ? 't-loading' : `t-${type}`}`;
+  el.setAttribute('role', type === 'error' ? 'alert' : 'status');
+  el.setAttribute('aria-live', type === 'error' ? 'assertive' : 'polite');
+
+  const icon = document.createElement('span');
+  icon.className = 'toast-icon';
+  icon.textContent = isLoading ? '' : ({ success:'✓', error:'✕', warn:'⚠' }[type] || '✓');
+  const text = document.createElement('span');
+  text.className = 'toast-text';
+  text.textContent = String(msg ?? '');
+  el.append(icon, text);
   area.appendChild(el);
-  setTimeout(() => el.style.opacity = '0', 3000);
-  setTimeout(() => el.remove(), 3500);
+
+  if (!options.persistent) scheduleToastRemoval(el, options.duration || 3000);
+  return el;
+}
+
+function scheduleToastRemoval(el, duration = 3000) {
+  if (!el) return;
+  clearTimeout(el._fadeTimer); clearTimeout(el._removeTimer);
+  el._fadeTimer = setTimeout(() => { if (el.isConnected) el.style.opacity = '0'; }, duration);
+  el._removeTimer = setTimeout(() => el.remove(), duration + 500);
+}
+
+function updateToast(el, msg, type = 'success', options = {}) {
+  if (!el || !el.isConnected) return toast(msg, type, options);
+  clearTimeout(el._fadeTimer); clearTimeout(el._removeTimer);
+  el.style.opacity = '1';
+  el.className = `toast ${options.loading ? 't-loading' : `t-${type}`} is-updating`;
+  const icon = el.querySelector('.toast-icon');
+  const text = el.querySelector('.toast-text');
+  if (icon) icon.textContent = options.loading ? '' : ({ success:'✓', error:'✕', warn:'⚠' }[type] || '✓');
+  if (text) text.textContent = String(msg ?? '');
+  if (!options.persistent) scheduleToastRemoval(el, options.duration || 3000);
+  return el;
+}
+
+function getFileExtension(file) {
+  const name = String(file?.name || '');
+  const i = name.lastIndexOf('.');
+  return i >= 0 ? name.slice(i + 1).toLowerCase() : '';
+}
+
+function validateFileExtension(file, allowed, label = 'arquivo') {
+  const ext = getFileExtension(file);
+  if (allowed.includes(ext)) return true;
+  toast(`Formato inválido para ${label}. Permitidos: ${allowed.map(e => '.' + e).join(', ')}.`, 'error');
+  return false;
 }
 
 /* ═══════════════════════════════════════════════════
@@ -2500,29 +2624,43 @@ async function doResetPassword() {
 }
 
 async function doLogin() {
-  const email = document.getElementById('loginEmail').value.trim();
-  const pass  = document.getElementById('loginPass').value;
+  const emailEl = document.getElementById('loginEmail');
+  const passEl  = document.getElementById('loginPass');
+  const email = emailEl.value.trim();
+  const pass  = passEl.value;
 
   if (!email || !pass) return showMsg('Preencha e-mail e senha.', 'error');
 
   const btn = document.getElementById('btnLogin');
+  const form = document.getElementById('loginForm');
+  clearMsg();
   btn.disabled = true;
+  btn.classList.add('is-loading');
   btn.textContent = 'Entrando...';
+  form.classList.add('is-processing');
+  emailEl.disabled = true;
+  passEl.disabled = true;
+  form.setAttribute('aria-busy', 'true');
 
-  const { data, error } = await _sb.auth.signInWithPassword({
-    email,
-    password: pass
-  });
-
-  btn.disabled = false;
-  btn.textContent = 'Entrar';
-
-  if (error) {
-    console.error('Erro login Supabase:', error);
-    return showMsg('Erro: ' + error.message, 'error');
+  try {
+    const { data, error } = await _sb.auth.signInWithPassword({ email, password: pass });
+    if (error) {
+      console.error('Erro login Supabase:', error);
+      return showMsg('Erro: ' + error.message, 'error');
+    }
+    enterApp(data.user.email);
+  } catch (err) {
+    console.error('Falha de rede no login:', err);
+    showMsg('Não foi possível entrar agora. Verifique sua conexão e tente novamente.', 'error');
+  } finally {
+    btn.disabled = false;
+    btn.classList.remove('is-loading');
+    btn.textContent = 'Entrar';
+    form.classList.remove('is-processing');
+    emailEl.disabled = false;
+    passEl.disabled = false;
+    form.removeAttribute('aria-busy');
   }
-
-  enterApp(data.user.email);
 }
 
 async function doSignup() {
@@ -2539,10 +2677,25 @@ async function doSignup() {
 }
 
 async function doLogout() {
-  await _sb.auth.signOut();
-  document.getElementById('appScreen').style.display = 'none';
-  document.getElementById('authScreen').style.display = 'flex';
+  // Atualização otimista: a interface responde imediatamente ao clique.
+  const app = document.getElementById('appScreen');
+  const auth = document.getElementById('authScreen');
+  const logoutBtn = document.getElementById('btnLogout');
+  if (logoutBtn) { logoutBtn.disabled = true; logoutBtn.setAttribute('aria-busy', 'true'); }
+  app.style.display = 'none';
+  auth.style.display = 'block';
   switchTab('login');
+  clearMsg();
+
+  try {
+    const { error } = await _sb.auth.signOut();
+    if (error) throw error;
+  } catch (err) {
+    console.error('Erro logout Supabase:', err);
+    toast('A tela foi encerrada, mas houve falha ao confirmar o logout no servidor. Verifique sua conexão.', 'warn', { duration: 5000 });
+  } finally {
+    if (logoutBtn) { logoutBtn.disabled = false; logoutBtn.removeAttribute('aria-busy'); }
+  }
 }
 
 function enterApp(email) {
@@ -2695,6 +2848,9 @@ async function updateDashboard(email) {
 
   document.getElementById('dashLineWrap').innerHTML = '<canvas id="dashLineChart"></canvas>';
   const lCtx = document.getElementById('dashLineChart').getContext('2d');
+  const lineFill = lCtx.createLinearGradient(0, 0, 0, 240);
+  lineFill.addColorStop(0, 'rgba(124,111,247,.30)');
+  lineFill.addColorStop(1, 'rgba(124,111,247,.02)');
   if (dashLineChart) dashLineChart.destroy();
   dashLineChart = new Chart(lCtx, {
     type: 'line',
@@ -2703,14 +2859,17 @@ async function updateDashboard(email) {
       datasets: [{
         data: lineData,
         borderColor: '#7c6ff7',
-        backgroundColor: 'rgba(124,111,247,0.10)',
+        backgroundColor: lineFill,
         borderWidth: 2.5, fill: true, tension: 0.45,
         pointBackgroundColor: '#7c6ff7', pointRadius: 4, pointHoverRadius: 6
       }]
     },
     options: {
       maintainAspectRatio: false,
-      plugins: { legend: { display: false } },
+      plugins: {
+        legend: { display: false },
+        tooltip: { callbacks: { label: c => `Taxa: ${Number(c.raw).toFixed(1)}%` } }
+      },
       scales: {
         x: { ticks:{ color:tickColor, font:{size:10} }, grid:{ color:gridColor } },
         y: { ticks:{ color:tickColor, font:{size:10}, callback: v => v + '%' }, grid:{ color:gridColor }, min:0, max:100 }
@@ -2729,16 +2888,25 @@ async function updateDashboard(email) {
 
   document.getElementById('dashBarWrap').innerHTML = '<canvas id="dashBarChart"></canvas>';
   const bCtx = document.getElementById('dashBarChart').getContext('2d');
+  const barGradients = barData.map(v => {
+    const g = bCtx.createLinearGradient(0, 0, 0, 210);
+    const top = v >= 70 ? 'rgba(0,229,176,.90)' : v >= 50 ? 'rgba(245,166,35,.90)' : 'rgba(240,87,79,.90)';
+    const bottom = v >= 70 ? 'rgba(0,229,176,.25)' : v >= 50 ? 'rgba(245,166,35,.25)' : 'rgba(240,87,79,.25)';
+    g.addColorStop(0, top); g.addColorStop(1, bottom); return g;
+  });
   if (dashBarChart) dashBarChart.destroy();
   dashBarChart = new Chart(bCtx, {
     type: 'bar',
     data: {
       labels: barLabels,
-      datasets: [{ data: barData, backgroundColor: barColors, borderRadius: 7, borderSkipped: false }]
+      datasets: [{ data: barData, backgroundColor: barGradients, borderRadius: 7, borderSkipped: false }]
     },
     options: {
       maintainAspectRatio: false,
-      plugins: { legend: { display: false } },
+      plugins: {
+        legend: { display: false },
+        tooltip: { callbacks: { label: c => `Taxa: ${Number(c.raw).toFixed(1)}%` } }
+      },
       scales: {
         x: { ticks:{ color:tickColor, font:{size:10} }, grid:{ color:gridColor } },
         y: { ticks:{ color:tickColor, font:{size:10}, callback: v => v + '%' }, grid:{ color:gridColor }, min:0, max:100 }
@@ -2778,6 +2946,15 @@ document.getElementById('csvFile').addEventListener('change', function () {
   warning.classList.remove('show');
   if (this.files && this.files[0]) {
     const file = this.files[0];
+    if (!validateFileExtension(file, ['csv'], 'Nova Análise')) {
+      this.value = '';
+      txt.textContent = 'Importar arquivo CSV';
+      label.classList.remove('has-file');
+      warning.textContent = 'Selecione um arquivo .csv válido.';
+      warning.classList.add('show');
+      checkForm();
+      return;
+    }
     txt.textContent = file.name;
     label.classList.add('has-file');
     if (file.size > 20 * 1024 * 1024) {
@@ -2874,6 +3051,7 @@ function processar() {
   if (!validateForm()) return;
   const file = document.getElementById('csvFile').files[0];
   if (!file) return;
+  if (!validateFileExtension(file, ['csv'], 'Nova Análise')) return;
   const btn = document.getElementById('btnGo');
   btn.disabled = true; btn.textContent = 'Processando...';
   const reader = new FileReader();
@@ -3001,21 +3179,31 @@ function render(total, sucesso, falha, det) {
      de sucesso. ${sucesso.toLocaleString('pt-BR')} de ${total.toLocaleString('pt-BR')} envios bem-sucedidos.`;
 
   const ctx = document.getElementById('mainChart').getContext('2d');
+  const successGrad = ctx.createLinearGradient(0, 0, 0, 190);
+  successGrad.addColorStop(0, 'rgba(0,229,176,1)'); successGrad.addColorStop(1, 'rgba(0,168,128,.55)');
+  const failGrad = ctx.createLinearGradient(0, 0, 0, 190);
+  failGrad.addColorStop(0, 'rgba(240,87,79,1)'); failGrad.addColorStop(1, 'rgba(217,48,37,.55)');
   if (chartMain) chartMain.destroy();
   chartMain = new Chart(ctx, {
     type: 'doughnut',
     data: {
       labels: ['Sucesso','Falha'],
-      datasets: [{ data: [sucesso, falha], backgroundColor: ['#00e5b0','#f0574f'], hoverOffset:14, borderWidth:0, borderRadius:7 }]
+      datasets: [{ data: [sucesso, falha], backgroundColor: [successGrad,failGrad], hoverOffset:14, borderWidth:0, borderRadius:7 }]
     },
     options: {
       maintainAspectRatio: false,
-      plugins: { legend: { position:'bottom', labels:{ color:'#8896aa', font:{ family:'DM Sans', size:11 } } } },
+      plugins: { legend: { position:'bottom', labels:{ color:'#8896aa', font:{ family:'DM Sans', size:11 } } }, tooltip:{ callbacks:{ label:c => `${c.label}: ${Number(c.raw).toLocaleString('pt-BR')} (${pct(Number(c.raw), total)})` } } },
       cutout: '76%'
     }
   });
 
   const bCtx = document.getElementById('barChart').getContext('2d');
+  const analysisBarColors = [
+    ['rgba(0,229,176,.95)','rgba(0,168,128,.28)'],
+    ['rgba(0,229,176,.70)','rgba(0,168,128,.18)'],
+    ['rgba(124,111,247,.95)','rgba(91,82,214,.28)'],
+    ['rgba(245,166,35,.95)','rgba(224,146,10,.25)']
+  ].map(([top,bottom]) => { const g=bCtx.createLinearGradient(0,0,0,210); g.addColorStop(0,top); g.addColorStop(1,bottom); return g; });
   if (chartBar) chartBar.destroy();
   chartBar = new Chart(bCtx, {
     type: 'bar',
@@ -3023,13 +3211,16 @@ function render(total, sucesso, falha, det) {
       labels: ['Entregue','Enviado','Visualizado','Respondido'],
       datasets: [{
         data: [det.entregue, det.enviado, det.visualizado, det.respondido],
-        backgroundColor: ['rgba(0,229,176,.7)','rgba(0,229,176,.4)','rgba(124,111,247,.7)','rgba(245,166,35,.7)'],
+        backgroundColor: analysisBarColors,
         borderRadius: 7, borderSkipped: false
       }]
     },
     options: {
       maintainAspectRatio: false,
-      plugins: { legend: { display: false } },
+      plugins: {
+        legend: { display: false },
+        tooltip: { callbacks: { label: c => `${c.label}: ${Number(c.raw).toLocaleString('pt-BR')} (${pct(Number(c.raw), total)})` } }
+      },
       scales: {
         x: { ticks:{ color:'#5a6a82', font:{size:10} }, grid:{ color:'rgba(255,255,255,0.04)' } },
         y: { ticks:{ color:'#5a6a82', font:{size:10} }, grid:{ color:'rgba(255,255,255,0.04)' } }
@@ -3101,20 +3292,48 @@ function applyFilters() {
   renderHistory();
 }
 
+function updateHistoryClear() {
+  const input = document.getElementById('filterSearch');
+  const btn = document.getElementById('historyClearBtn');
+  if (btn) btn.classList.toggle('visible', !!input?.value);
+}
+
+function clearHistorySearch() {
+  const input = document.getElementById('filterSearch');
+  if (!input) return;
+  input.value = '';
+  updateHistoryClear();
+  applyFilters();
+  input.focus();
+}
+
 function renderHistory() {
   const search     = (document.getElementById('filterSearch')?.value || '').toLowerCase();
   const rateFilter = document.getElementById('filterRate')?.value || '';
+  const sortMode   = document.getElementById('filterSort')?.value || 'date_desc';
+  updateHistoryClear();
 
   let filtered = _historyAll.filter(h => {
     const matchText = !search ||
-      h.company.toLowerCase().includes(search) ||
-      h.campaign.toLowerCase().includes(search);
+      String(h.company || '').toLowerCase().includes(search) ||
+      String(h.campaign || '').toLowerCase().includes(search);
     const t = parseFloat(h.taxa);
     const matchRate = !rateFilter ||
       (rateFilter === 'good' && t > 70) ||
       (rateFilter === 'warn' && t >= 50 && t <= 70) ||
       (rateFilter === 'bad'  && t < 50);
     return matchText && matchRate;
+  });
+
+  filtered.sort((a, b) => {
+    const rateA = Number.parseFloat(a.taxa) || 0;
+    const rateB = Number.parseFloat(b.taxa) || 0;
+    const dateA = new Date(a.created_at).getTime() || 0;
+    const dateB = new Date(b.created_at).getTime() || 0;
+    if (sortMode === 'rate_desc') return rateB - rateA;
+    if (sortMode === 'rate_asc') return rateA - rateB;
+    if (sortMode === 'date_asc') return dateA - dateB;
+    return dateB - dateA;
   });
 
   const total  = filtered.length;
@@ -3128,8 +3347,8 @@ function renderHistory() {
 
   if (!paged.length) {
     grid.innerHTML = `<div class="history-empty">
-      <svg width="44" height="44" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.5"><circle cx="12" cy="12" r="10"/><polyline points="12 6 12 12 16 14"/></svg>
-      <p>${_historyAll.length ? 'Nenhum resultado para os filtros.' : 'Nenhuma análise ainda.'}</p>
+      <svg class="empty-state-icon" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.5" aria-hidden="true"><circle cx="12" cy="12" r="10"/><polyline points="12 6 12 12 16 14"/></svg>
+      <p>${_historyAll.length ? 'Nenhum resultado para os filtros. Ajuste a busca ou limpe os filtros.' : 'Nenhuma análise ainda. Faça sua primeira análise para começar o histórico.'}</p>
     </div>`;
     document.getElementById('pagination').innerHTML = '';
     return;
@@ -3453,14 +3672,7 @@ function closeCompareModal() {
   document.getElementById('compareModal').classList.remove('open');
 }
 
-['errorLinesModal','compareModal'].forEach(id => {
-  document.getElementById(id).addEventListener('click', function(e) {
-    if (e.target === this) {
-      this.classList.remove('open');
-      if (id === 'compareModal') { _cmpBarCharts.forEach(c=>c.destroy()); _cmpBarCharts=[]; }
-    }
-  });
-});
+// UX: cliques no backdrop não fecham modais. O fechamento ocorre apenas pelos botões explícitos.
 
 /* ═══════════════════════════════════════════════════
    EXPORT CSV
@@ -3508,6 +3720,7 @@ async function exportarPDF() {
   const orig = btn.innerHTML;
   btn.disabled = true;
   btn.innerHTML = '… Gerando PDF';
+  const pdfToast = toast('Gerando documento...', 'warn', { persistent:true, loading:true });
   try {
     const { jsPDF } = window.jspdf;
     const comp    = document.getElementById('companyName').value || '—';
@@ -3636,10 +3849,10 @@ async function exportarPDF() {
       pdf.text(`Orbit Analytics · Relatório confidencial · Pág. ${i}/${tp}`, pdfW/2, pageH-5, {align:'center'});
     }
     pdf.save(`Orbit_${comp}_${camp}.pdf`);
-    toast('PDF exportado!');
+    updateToast(pdfToast, 'Documento gerado com sucesso.', 'success');
   } catch (err) {
     console.error(err);
-    toast('Erro ao gerar PDF.', 'error');
+    updateToast(pdfToast, 'Erro ao gerar PDF.', 'error', { duration:4500 });
   } finally {
     btn.disabled = false;
     btn.innerHTML = orig;
@@ -3673,6 +3886,12 @@ if (campaignFileInput) {
     const txt = document.getElementById('campaignFileTxt');
     const label = document.getElementById('campaignFileLabel');
     if (file) {
+      if (!validateFileExtension(file, ['csv','xls','xlsx'], 'Gerador de Campanhas')) {
+        campaignFileInput.value = '';
+        txt.textContent = 'Selecionar XLS / XLSX / CSV';
+        label.classList.remove('has-file');
+        return;
+      }
       txt.textContent = file.name;
       label.classList.add('has-file');
     } else {
@@ -3800,12 +4019,14 @@ function campaignReasonPush(row, reason, extra='') {
 async function processCampaignFile() {
   const file = document.getElementById('campaignFile').files?.[0];
   if (!file) return toast('Selecione a base para processar.', 'warn');
+  if (!validateFileExtension(file, ['csv','xls','xlsx'], 'Gerador de Campanhas')) return;
   const camp = document.getElementById('campGenName').value.trim();
   if (!camp) return toast('Informe o nome da campanha.', 'warn');
 
   const btn = document.getElementById('btnProcessCampaign');
   const status = document.getElementById('campaignStatus');
-  btn.disabled = true; btn.textContent = 'Processando...';
+  btn.disabled = true; btn.classList.add('is-loading'); btn.textContent = 'Processando...';
+  btn.setAttribute('aria-busy', 'true');
   status.style.display = 'none';
 
   try {
@@ -3876,7 +4097,8 @@ async function processCampaignFile() {
     status.style.display = 'block'; status.classList.add('show'); status.style.color='var(--danger)';
     toast(err.message || 'Erro ao processar arquivo.', 'error');
   } finally {
-    btn.disabled = false; btn.textContent = 'Processar base';
+    btn.disabled = false; btn.classList.remove('is-loading'); btn.textContent = 'Processar base';
+    btn.removeAttribute('aria-busy');
   }
 }
 
@@ -3969,6 +4191,7 @@ const CNPJ_LOOKUP_CONFIG = {
 };
 
 let _cnpjPreviewInitialized = false;
+let _lastCnpjData = null;
 
 function cnpjCompact(value) {
   return String(value || '').toUpperCase().replace(/[^0-9A-Z]/g, '').slice(0, 14);
@@ -4039,6 +4262,21 @@ async function cnpjCopy(text) {
   }
 }
 
+async function cnpjCopyFullRecord() {
+  const data = _lastCnpjData;
+  if (!data) return toast('Faça uma consulta antes de copiar a ficha.', 'warn');
+  const address = data.endereco || {};
+  const endereco = cnpjEnderecoLinha(address) || 'Não informado';
+  const contato = [data.telefone, data.email].filter(Boolean).join(' · ') || 'Não informado';
+  const ficha = [
+    `Razão Social: ${data.razaoSocial || 'Não informada'}`,
+    `CNPJ: ${data.cnpj || 'Não informado'}`,
+    `Endereço: ${endereco}`,
+    `Contato: ${contato}`
+  ].join('\n');
+  await cnpjCopy(ficha);
+}
+
 function cnpjSetLoading(loading) {
   document.getElementById('cnpjLoader')?.classList.toggle('show', loading);
   const btn = document.getElementById('btnCnpjSearch');
@@ -4076,6 +4314,7 @@ function cnpjRenderSimpleList(items, emptyText) {
 }
 
 function cnpjRender(data) {
+  _lastCnpjData = data;
   const root = document.getElementById('cnpjResultArea');
   if (!root || !data) return;
   const address = data.endereco || {};
@@ -4114,9 +4353,12 @@ function cnpjRender(data) {
                 ${data.nomeFantasia ? `<div style="font-size:.78rem;color:var(--text-muted);margin-top:.25rem">${cnpjEscape(data.nomeFantasia)}</div>` : ''}
                 <div class="cnpj-company-cnpj">
                   <span>${cnpjEscape(data.cnpj || '')}</span>
-                  <button class="cnpj-copy" data-copy="${cnpjEscape(data.cnpj || '')}" onclick="cnpjCopy(this.dataset.copy)" title="Copiar CNPJ">⧉</button>
+                  <button class="cnpj-copy" data-copy="${cnpjEscape(data.cnpj || '')}" onclick="cnpjCopy(this.dataset.copy)" title="Copiar CNPJ" aria-label="Copiar CNPJ">⧉</button>
                 </div>
                 <div class="cnpj-active ${active ? '' : 'inactive'}">${cnpjEscape(data.status || 'Situação não informada')} <span style="color:var(--text-muted);font-weight:400">${data.abertura ? '· desde ' + cnpjEscape(data.abertura) : ''}</span></div>
+              </div>
+              <div class="cnpj-company-actions">
+                <button class="cnpj-copy-full" type="button" onclick="cnpjCopyFullRecord()" aria-label="Copiar ficha completa da empresa" title="Copiar ficha completa">⧉ Copiar Ficha Completa</button>
               </div>
             </div>
             <div class="cnpj-company-columns">
@@ -4125,7 +4367,7 @@ function cnpjRender(data) {
                 ${cnpjInfoItem('◎', cnpjEscape(data.administracao || data.matrizFilial || 'Identificação matriz/filial não informada'))}
                 ${data.porte ? cnpjInfoItem('▤', 'Porte: ' + cnpjEscape(data.porte)) : ''}
                 ${cnpjInfoItem('R$', cnpjEscape(data.capitalSocial || 'Capital social não informado'))}
-                ${cnpjInfoItem('@', data.email ? `<a class="cnpj-link" href="mailto:${cnpjEscape(data.email)}">${cnpjEscape(data.email)}</a> <button class="cnpj-copy" data-copy="${cnpjEscape(data.email)}" onclick="cnpjCopy(this.dataset.copy)">⧉</button>` : 'E-mail não informado')}
+                ${cnpjInfoItem('@', data.email ? `<a class="cnpj-link" href="mailto:${cnpjEscape(data.email)}">${cnpjEscape(data.email)}</a> <button class="cnpj-copy" data-copy="${cnpjEscape(data.email)}" onclick="cnpjCopy(this.dataset.copy)" aria-label="Copiar e-mail" title="Copiar e-mail">⧉</button>` : 'E-mail não informado')}
                 ${cnpjInfoItem('☎', data.telefone ? `<a class="cnpj-link" href="tel:${cnpjEscape(String(data.telefone).replace(/[^+\d]/g,''))}">${cnpjEscape(data.telefone)}</a>` : 'Telefone não informado')}
               </div>
               <div class="cnpj-info-list">
@@ -4177,7 +4419,10 @@ function cnpjRender(data) {
 function cnpjRenderPlaceholder(title = 'Consulta pronta para uso', body = 'Digite um CNPJ válido ou clique em “Consultar Petrobras”. O frontend chamará a Edge Function consulta-cnpj do seu projeto Supabase.') {
   const root = document.getElementById('cnpjResultArea');
   if (!root) return;
-  root.innerHTML = `<div class="cnpj-placeholder"><strong>${cnpjEscape(title)}</strong>${cnpjEscape(body)}</div>`;
+  root.innerHTML = `<div class="cnpj-placeholder">
+    <svg class="empty-state-icon" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.4" aria-hidden="true"><rect x="3" y="4" width="18" height="16" rx="2"/><path d="M7 8h10M7 12h5"/><circle cx="16.5" cy="14.5" r="2.5"/><path d="m18.3 16.3 2.2 2.2"/></svg>
+    <strong>${cnpjEscape(title)}</strong><span>${cnpjEscape(body)}</span>
+  </div>`;
 }
 
 function cnpjSwitchTab(tab) {
@@ -4243,6 +4488,21 @@ async function consultarCnpj() {
     cnpjSetLoading(false);
   }
 }
+
+function scrollMainToTop() {
+  const main = document.querySelector('.main-area');
+  if (main) main.scrollTo({ top:0, behavior:'smooth' });
+  else window.scrollTo({ top:0, behavior:'smooth' });
+}
+
+(function initScrollTopButton(){
+  const main = document.querySelector('.main-area');
+  const btn = document.getElementById('scrollTopBtn');
+  if (!main || !btn) return;
+  const sync = () => btn.classList.toggle('visible', main.scrollTop > 420);
+  main.addEventListener('scroll', sync, { passive:true });
+  sync();
+})();
 
 function carregarExemploCnpj() {
   const input = document.getElementById('cnpjSearchInput');
