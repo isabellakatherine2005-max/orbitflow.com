@@ -2014,6 +2014,196 @@ button:disabled{cursor:not-allowed}
 }
 </style>
 
+
+<style id="orbit-cnpj-dashboard-fixes-v3">
+/* =========================================================
+   MELHORIAS 27/08/2026
+   - Consulta CNPJ: hierarquia, alinhamento e light mode
+   - Dashboard: suporte visual aos dados diarios consolidados
+   ========================================================= */
+
+/* Consulta CNPJ — hierarquia e alinhamento */
+#page-cnpj .cnpj-company-panel{
+  padding:1.15rem;
+}
+#page-cnpj .cnpj-main-columns{
+  grid-template-columns:minmax(360px,.92fr) minmax(420px,1.28fr);
+  gap:1rem;
+  align-items:stretch;
+}
+#page-cnpj .cnpj-detail-box,
+#page-cnpj .cnpj-cnae-box{
+  min-width:0;
+  border-radius:12px;
+}
+#page-cnpj .cnpj-detail-row{
+  grid-template-columns:minmax(132px,38%) minmax(0,62%);
+  gap:1rem;
+  min-height:48px;
+  padding:.72rem .9rem;
+  align-items:center;
+}
+#page-cnpj .cnpj-detail-label{
+  color:var(--text-2);
+  font-size:.72rem;
+  font-weight:500;
+  line-height:1.35;
+}
+#page-cnpj .cnpj-detail-value{
+  color:var(--text);
+  font-size:.75rem;
+  font-weight:600;
+  line-height:1.45;
+  text-align:left;
+}
+#page-cnpj .cnpj-cnae-box{
+  padding:1rem 1.05rem;
+}
+#page-cnpj .cnpj-cnae-title{
+  font-size:.9rem;
+  margin-bottom:.85rem;
+}
+#page-cnpj .cnpj-cnae-label{
+  margin:.35rem 0 .45rem;
+  color:var(--text-2);
+  font-size:.69rem;
+  font-weight:600;
+}
+#page-cnpj .cnpj-cnae-line{
+  grid-template-columns:78px minmax(0,1fr);
+  gap:.8rem;
+  min-height:39px;
+  padding:.38rem 0;
+  align-items:start;
+}
+#page-cnpj .cnpj-cnae-code{
+  width:78px;
+  min-height:28px;
+  padding:.3rem .4rem;
+  font-size:.63rem;
+  font-weight:650;
+  font-variant-numeric:tabular-nums;
+}
+#page-cnpj .cnpj-cnae-desc{
+  padding-top:.25rem;
+  color:var(--text-2);
+  font-size:.71rem;
+  line-height:1.45;
+  overflow-wrap:anywhere;
+}
+
+/* Light mode — contraste e profundidade mais limpos */
+[data-theme="light"] #page-cnpj{
+  background:#f4f6fa;
+}
+[data-theme="light"] #page-cnpj .cnpj-reference-page .card,
+[data-theme="light"] #page-cnpj .cnpj-ref-card{
+  background:#ffffff;
+  border-color:#dfe5ee;
+  box-shadow:0 1px 2px rgba(15,23,42,.03), 0 10px 28px rgba(15,23,42,.045);
+}
+[data-theme="light"] #page-cnpj .cnpj-search-card,
+[data-theme="light"] #page-cnpj .cnpj-result-card,
+[data-theme="light"] #page-cnpj .cnpj-side-panel{
+  background:#ffffff;
+}
+[data-theme="light"] #page-cnpj #cnpjSearchInput{
+  background:#f8fafc;
+  border-color:#ccd5e2;
+  color:#0f172a;
+  box-shadow:none;
+}
+[data-theme="light"] #page-cnpj #cnpjSearchInput:focus{
+  background:#ffffff;
+  border-color:#635bff;
+  box-shadow:0 0 0 3px rgba(99,91,255,.11);
+}
+[data-theme="light"] #page-cnpj .cnpj-company-panel{
+  background:#fbfcfe;
+  border-color:#dfe5ee;
+}
+[data-theme="light"] #page-cnpj .cnpj-detail-box,
+[data-theme="light"] #page-cnpj .cnpj-cnae-box{
+  background:#ffffff;
+  border-color:#dde4ed;
+}
+[data-theme="light"] #page-cnpj .cnpj-detail-row{
+  border-bottom-color:#e5eaf1;
+}
+[data-theme="light"] #page-cnpj .cnpj-detail-label,
+[data-theme="light"] #page-cnpj .cnpj-cnae-label,
+[data-theme="light"] #page-cnpj .cnpj-cnae-desc,
+[data-theme="light"] #page-cnpj .cnpj-source-line,
+[data-theme="light"] #page-cnpj .cnpj-history-company,
+[data-theme="light"] #page-cnpj .cnpj-tips-list,
+[data-theme="light"] #page-cnpj .cnpj-security-text{
+  color:#475569;
+}
+[data-theme="light"] #page-cnpj .cnpj-detail-value,
+[data-theme="light"] #page-cnpj .cnpj-cnae-title,
+[data-theme="light"] #page-cnpj .cnpj-company-name,
+[data-theme="light"] #page-cnpj .cnpj-result-title,
+[data-theme="light"] #page-cnpj .cnpj-side-panel-title,
+[data-theme="light"] #page-cnpj .cnpj-history-cnpj{
+  color:#111827;
+}
+[data-theme="light"] #page-cnpj .cnpj-pill{
+  background:#f8fafc;
+  border-color:#dfe5ee;
+  color:#334155;
+}
+[data-theme="light"] #page-cnpj .cnpj-cnae-code{
+  background:#eeeafd;
+  color:#6557d9;
+}
+[data-theme="light"] #page-cnpj .cnpj-extra-card{
+  background:#ffffff;
+  border-color:#dfe5ee;
+}
+[data-theme="light"] #page-cnpj .cnpj-history-item{
+  border-bottom-color:#e5eaf1;
+}
+[data-theme="light"] #page-cnpj .cnpj-security-strip{
+  background:#f6f4ff;
+  border-color:#d8d1ff;
+}
+[data-theme="light"] #page-cnpj .cnpj-security-title{
+  color:#5c4fd4;
+}
+[data-theme="light"] #page-cnpj .cnpj-action-btn,
+[data-theme="light"] #page-cnpj .cnpj-export-menu>summary,
+[data-theme="light"] #page-cnpj .cnpj-history-toggle,
+[data-theme="light"] #page-cnpj .cnpj-clear-btn{
+  background:#ffffff;
+  border-color:#d7dee9;
+  color:#475569;
+}
+[data-theme="light"] #page-cnpj .cnpj-action-btn:hover,
+[data-theme="light"] #page-cnpj .cnpj-export-menu>summary:hover,
+[data-theme="light"] #page-cnpj .cnpj-history-toggle:hover,
+[data-theme="light"] #page-cnpj .cnpj-clear-btn:hover{
+  background:#f8fafc;
+  color:#111827;
+}
+[data-theme="light"] #page-cnpj .cnpj-export-pop{
+  background:#ffffff;
+  border-color:#dfe5ee;
+  box-shadow:0 18px 45px rgba(15,23,42,.14);
+}
+
+/* Dashboard — rótulos temporais mais legíveis */
+#dashLineWrap canvas{max-width:100%;}
+
+@media(max-width:900px){
+  #page-cnpj .cnpj-main-columns{grid-template-columns:1fr;}
+}
+@media(max-width:680px){
+  #page-cnpj .cnpj-detail-row{grid-template-columns:1fr;gap:.25rem;min-height:auto;}
+  #page-cnpj .cnpj-cnae-line{grid-template-columns:74px minmax(0,1fr);gap:.65rem;}
+  #page-cnpj .cnpj-cnae-code{width:74px;}
+}
+</style>
+
 </head>
 <body>
 
@@ -3055,15 +3245,40 @@ async function updateDashboard(email) {
       <div class="kdc-label">Taxa Média de Entrega</div>
     </div>`;
 
-  const tickColor = getComputedStyle(document.documentElement).getPropertyValue('--text-muted').trim() || '#5a6a82';
-  const gridColor = 'rgba(255,255,255,0.04)';
+  const rootStyles = getComputedStyle(document.documentElement);
+  const tickColor = rootStyles.getPropertyValue('--text-muted').trim() || '#5a6a82';
+  const isLightTheme = document.documentElement.getAttribute('data-theme') === 'light';
+  const gridColor = isLightTheme ? 'rgba(15,23,42,0.07)' : 'rgba(255,255,255,0.04)';
 
-  const reversedHist = [...hist].reverse().slice(-10);
-  const lineLabels = reversedHist.length
-    ? reversedHist.map(h => { const d = new Date(h.created_at); return `${d.getDate()}/${d.getMonth()+1}`; })
+  // Consolida as analises por dia para evitar rotulos repetidos no eixo X.
+  // Quando ha mais de uma analise no mesmo dia, o ponto representa a taxa media daquele dia.
+  const dailyMap = new Map();
+  [...hist].reverse().forEach(h => {
+    const d = new Date(h.created_at);
+    if (Number.isNaN(d.getTime())) return;
+    const key = `${d.getFullYear()}-${String(d.getMonth()+1).padStart(2,'0')}-${String(d.getDate()).padStart(2,'0')}`;
+    const taxa = parseFloat(h.taxa);
+    if (!Number.isFinite(taxa)) return;
+    if (!dailyMap.has(key)) dailyMap.set(key, { date:d, sum:0, count:0 });
+    const item = dailyMap.get(key);
+    item.sum += taxa;
+    item.count += 1;
+  });
+
+  const dailySeries = Array.from(dailyMap.values())
+    .sort((a,b) => a.date - b.date)
+    .slice(-10)
+    .map(item => ({
+      date: item.date,
+      value: item.sum / item.count,
+      count: item.count
+    }));
+
+  const lineLabels = dailySeries.length
+    ? dailySeries.map(item => `${String(item.date.getDate()).padStart(2,'0')}/${String(item.date.getMonth()+1).padStart(2,'0')}`)
     : ['Out','Nov','Dez','Jan','Fev','Mar','Abr'];
-  const lineData = reversedHist.length
-    ? reversedHist.map(h => parseFloat(h.taxa) || 0)
+  const lineData = dailySeries.length
+    ? dailySeries.map(item => Number(item.value.toFixed(2)))
     : [62,58,65,70,68,74,78];
 
   document.getElementById('dashLineWrap').innerHTML = '<canvas id="dashLineChart"></canvas>';
@@ -3088,10 +3303,26 @@ async function updateDashboard(email) {
       maintainAspectRatio: false,
       plugins: {
         legend: { display: false },
-        tooltip: { callbacks: { label: c => `Taxa: ${Number(c.raw).toFixed(1)}%` } }
+        tooltip: {
+          callbacks: {
+            title: items => items?.length ? `Dia ${items[0].label}` : '',
+            label: c => `Taxa media: ${Number(c.raw).toFixed(1)}%`,
+            afterLabel: c => dailySeries[c.dataIndex]?.count > 1 ? `${dailySeries[c.dataIndex].count} analises consolidadas` : '1 analise'
+          }
+        }
       },
       scales: {
-        x: { ticks:{ color:tickColor, font:{size:10} }, grid:{ color:gridColor } },
+        x: {
+          ticks:{
+            color:tickColor,
+            font:{size:10},
+            autoSkip:true,
+            maxRotation:0,
+            minRotation:0,
+            maxTicksLimit:8
+          },
+          grid:{ color:gridColor }
+        },
         y: { ticks:{ color:tickColor, font:{size:10}, callback: v => v + '%' }, grid:{ color:gridColor }, min:0, max:100 }
       }
     }
