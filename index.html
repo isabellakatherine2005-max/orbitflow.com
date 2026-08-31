@@ -6,7 +6,6 @@
 <title>Orbit Analytics | Enterprise</title>
 <script src="https://cdnjs.cloudflare.com/ajax/libs/Chart.js/4.4.1/chart.umd.min.js"></script>
 <script src="https://cdnjs.cloudflare.com/ajax/libs/jspdf/2.5.1/jspdf.umd.min.js"></script>
-<script src="https://cdnjs.cloudflare.com/ajax/libs/html2canvas/1.4.1/html2canvas.min.js"></script>
 <script src="https://cdn.jsdelivr.net/npm/xlsx@0.18.5/dist/xlsx.full.min.js"></script>
 <link href="https://fonts.googleapis.com/css2?family=Syne:wght@400;500;600;700;800&family=DM+Sans:ital,wght@0,300;0,400;0,500;0,600;1,400&display=swap" rel="stylesheet">
 <style>
@@ -6303,20 +6302,6 @@ function surveyExportSummary(){
   rows.push([''],['TEMAS DAS RESPOSTAS ABERTAS',''],['Tema','Menções','Interpretação / possível ação']);themes.forEach(t=>rows.push([t.label,t.count,t.action]));
   const csv=rows.map(r=>r.map(v=>{const s=String(v??'');return /[;"\n\r]/.test(s)?'"'+s.replace(/"/g,'""')+'"':s}).join(';')).join('\r\n');const blob=new Blob(['\ufeff'+csv],{type:'text/csv;charset=utf-8;'}),url=URL.createObjectURL(blob),a=document.createElement('a');a.href=url;a.download=`resumo_pesquisa_${_activeSurveyDivision}.csv`;document.body.appendChild(a);a.click();a.remove();setTimeout(()=>URL.revokeObjectURL(url),1000);toast('Resumo dinâmico exportado com sucesso.','success');
 }
-async function surveyExportPdfComplete(){
-  if(!_surveyRows.length)return toast('Importe uma pesquisa antes de gerar o PDF.','warn');if(typeof html2canvas!=='function')return toast('Não foi possível carregar o gerador visual do PDF.','error');if(!window.jspdf?.jsPDF)return toast('Não foi possível carregar o gerador de PDF.','error');
-  const page=document.querySelector('#page-survey .survey-page'),btn=document.getElementById('surveyPdfBtn');if(!page)return;
-  const originalBtnHtml=btn?.innerHTML,oldView=_surveyCurrentView,oldScrollTop=document.querySelector('.main-area')?.scrollTop||0;
-  try{
-    if(btn){btn.classList.add('is-loading');btn.textContent='Gerando PDF...';}toast('Preparando as duas páginas do dashboard em PDF...','loading');page.classList.add('survey-pdf-mode');surveyFitFirstTenComments();await new Promise(r=>requestAnimationFrame(()=>requestAnimationFrame(r)));
-    const theme=document.documentElement.getAttribute('data-theme')==='light'?'light':'dark',bg=theme==='light'?'#f7f8fc':'#07090e';
-    const canvas=await html2canvas(page,{backgroundColor:bg,scale:1.45,useCORS:true,allowTaint:false,logging:false,scrollX:0,scrollY:-window.scrollY,windowWidth:Math.max(document.documentElement.clientWidth,page.scrollWidth),onclone:(doc)=>{const clone=doc.querySelector('#page-survey .survey-page');if(clone){clone.classList.add('survey-pdf-mode');clone.style.maxWidth='1480px';clone.style.margin='0 auto';}doc.querySelectorAll('#page-survey .survey-comment-list,#page-survey .survey-themes-wrap').forEach(el=>{el.style.maxHeight='none';el.style.overflow='visible';});}});
-    const {jsPDF}=window.jspdf,pdf=new jsPDF({orientation:'portrait',unit:'mm',format:'a4',compress:true}),pageW=210,pageH=297,margin=8,usableW=pageW-margin*2,usableH=pageH-margin*2,imgW=usableW,pagePixelH=Math.floor(canvas.width*(usableH/imgW));let sy=0,pageIndex=0;
-    while(sy<canvas.height){const sliceH=Math.min(pagePixelH,canvas.height-sy),slice=document.createElement('canvas');slice.width=canvas.width;slice.height=sliceH;const ctx=slice.getContext('2d');ctx.fillStyle=bg;ctx.fillRect(0,0,slice.width,slice.height);ctx.drawImage(canvas,0,sy,canvas.width,sliceH,0,0,canvas.width,sliceH);const data=slice.toDataURL('image/jpeg',.93),drawH=sliceH*imgW/canvas.width;if(pageIndex>0)pdf.addPage();pdf.addImage(data,'JPEG',margin,margin,imgW,drawH,undefined,'FAST');pdf.setFont('helvetica','normal');pdf.setFontSize(7);pdf.setTextColor(theme==='light'?100:180);pdf.text(`Orbit Analytics · Pesquisa de Satisfação · Página ${pageIndex+1}`,margin,pageH-3.5);sy+=sliceH;pageIndex++;}
-    const stamp=new Date().toLocaleDateString('pt-BR').replaceAll('/','-');pdf.save(`dashboard_pesquisa_${_activeSurveyDivision}_${stamp}.pdf`);toast('PDF completo gerado com sucesso.','success');
-  }catch(err){console.error('Erro ao gerar PDF da pesquisa:',err);toast('Não foi possível gerar o PDF completo. Atualize a página e tente novamente.','error');}
-  finally{page.classList.remove('survey-pdf-mode');surveySetView(oldView);requestAnimationFrame(surveyFitFirstTenComments);if(btn){btn.classList.remove('is-loading');btn.innerHTML=originalBtnHtml||'Baixar PDF completo';}const main=document.querySelector('.main-area');if(main)main.scrollTop=oldScrollTop;}
-}
 function initSurveyDashboard(){
   if(!_surveyInitialized){
     _surveyInitialized=true;surveyRestoreDivisionData();const input=document.getElementById('surveyFileInput');
@@ -6513,12 +6498,174 @@ function surveyDownloadCurrent(){
   const matrix=[headers,..._surveyRows.map(r=>[r._dateRaw||r._date||'',r.id??'',r.cd??'',r.q1??'',r.q2??'',r.q3??'',r.q4??'',r.q5??'',r.q6??'',r.q7??'',r.q8??'',r.q9??'',r.q10??''])],ws=XLSX.utils.aoa_to_sheet(matrix);ws['!autofilter']={ref:`A1:M${matrix.length}`};ws['!cols']=[{wch:16},{wch:18},{wch:22},{wch:24},{wch:34},{wch:44},{wch:34},{wch:40},{wch:28},{wch:30},{wch:30},{wch:52},{wch:52}];const wb=XLSX.utils.book_new();XLSX.utils.book_append_sheet(wb,ws,'Report');const stamp=new Date().toLocaleDateString('pt-BR').replaceAll('/','-');XLSX.writeFile(wb,`resultado_pesquisa_${_activeSurveyDivision}_${stamp}.xlsx`);toast(`${_surveyRows.length.toLocaleString('pt-BR')} respostas exportadas.`, 'success');
 }
 
-/* PDF V4: força todas as sugestões e as duas visões durante a captura. */
+/* PDF V5: exportação nativa via HTML/CSS de impressão.
+   - textos permanecem selecionáveis no PDF;
+   - cards/tabelas evitam cortes entre páginas;
+   - canvases dos gráficos são preservados como PNG em alta qualidade;
+   - as duas visões do dashboard são incluídas no mesmo relatório. */
 async function surveyExportPdfComplete(){
-  if(!_surveyRows.length)return toast('Importe uma pesquisa antes de gerar o PDF.','warn');if(typeof html2canvas!=='function'||!window.jspdf?.jsPDF)return toast('Não foi possível carregar o gerador de PDF.','error');const page=document.querySelector('#page-survey .survey-page'),btn=document.getElementById('surveyPdfBtn');if(!page)return;const oldView=_surveyCurrentView,oldShowAll=_surveySuggestionShowAll,oldPage=_surveySuggestionPage,originalBtn=btn?.innerHTML,oldScroll=document.querySelector('.main-area')?.scrollTop||0;
-  try{if(btn){btn.classList.add('is-loading');btn.textContent='Gerando PDF...'}toast('Preparando o dashboard completo em PDF...','loading');_surveySuggestionShowAll=true;surveyRenderSuggestionPage();page.classList.add('survey-pdf-mode');await new Promise(r=>requestAnimationFrame(()=>requestAnimationFrame(r)));const theme=document.documentElement.getAttribute('data-theme')==='light'?'light':'dark',bg=theme==='light'?'#f7f8fc':'#07090e',canvas=await html2canvas(page,{backgroundColor:bg,scale:1.35,useCORS:true,allowTaint:false,logging:false,windowWidth:Math.max(document.documentElement.clientWidth,page.scrollWidth),onclone:(doc)=>{const clone=doc.querySelector('#page-survey .survey-page');if(clone)clone.classList.add('survey-pdf-mode');}}),{jsPDF}=window.jspdf,pdf=new jsPDF({orientation:'portrait',unit:'mm',format:'a4',compress:true}),pageW=210,pageH=297,margin=8,usableW=pageW-margin*2,usableH=pageH-margin*2,imgW=usableW,pagePixelH=Math.floor(canvas.width*(usableH/imgW));let sy=0,pi=0;while(sy<canvas.height){const sh=Math.min(pagePixelH,canvas.height-sy),slice=document.createElement('canvas');slice.width=canvas.width;slice.height=sh;const ctx=slice.getContext('2d');ctx.fillStyle=bg;ctx.fillRect(0,0,slice.width,slice.height);ctx.drawImage(canvas,0,sy,canvas.width,sh,0,0,canvas.width,sh);if(pi)pdf.addPage();pdf.addImage(slice.toDataURL('image/jpeg',.92),'JPEG',margin,margin,imgW,sh*imgW/canvas.width,undefined,'FAST');pdf.setFontSize(7);pdf.setTextColor(theme==='light'?100:180);pdf.text(`Orbit Analytics · Pesquisa de Satisfação · Página ${pi+1}`,margin,pageH-3.5);sy+=sh;pi++;}const stamp=new Date().toLocaleDateString('pt-BR').replaceAll('/','-');pdf.save(`dashboard_pesquisa_${_activeSurveyDivision}_${stamp}.pdf`);toast('PDF completo gerado com sucesso.','success');}
-  catch(err){console.error(err);toast('Não foi possível gerar o PDF completo.','error')}
-  finally{page.classList.remove('survey-pdf-mode');_surveySuggestionShowAll=oldShowAll;_surveySuggestionPage=oldPage;surveyRenderSuggestionPage();surveySetView(oldView);if(btn){btn.classList.remove('is-loading');btn.innerHTML=originalBtn||'Baixar PDF'}const main=document.querySelector('.main-area');if(main)main.scrollTop=oldScroll;}
+  if(!_surveyRows.length)return toast('Importe uma pesquisa antes de gerar o PDF.','warn');
+
+  const page=document.querySelector('#page-survey .survey-page');
+  const btn=document.getElementById('surveyPdfBtn');
+  if(!page)return;
+
+  // Abrir a janela imediatamente mantém a ação vinculada ao clique e evita bloqueio de popup.
+  const printWin=window.open('','_blank','width=1240,height=900');
+  if(!printWin)return toast('O navegador bloqueou a janela do PDF. Permita pop-ups para este site e tente novamente.','warn');
+
+  const oldView=_surveyCurrentView;
+  const oldShowAll=_surveySuggestionShowAll;
+  const oldPage=_surveySuggestionPage;
+  const originalBtn=btn?.innerHTML;
+  const main=document.querySelector('.main-area');
+  const oldScroll=main?.scrollTop||0;
+
+  try{
+    if(btn){btn.classList.add('is-loading');btn.textContent='Preparando PDF...';}
+    toast('Preparando relatório em alta qualidade...','loading');
+
+    // Garante conteúdo completo antes de clonar o relatório.
+    _surveySuggestionShowAll=true;
+    surveyRenderSuggestionPage();
+    page.classList.add('survey-pdf-mode');
+    surveyFitFirstTenComments();
+    await new Promise(r=>requestAnimationFrame(()=>requestAnimationFrame(r)));
+
+    const clone=page.cloneNode(true);
+    clone.classList.add('survey-pdf-mode','survey-print-document');
+
+    // No PDF, a seção 9 exibe somente 10 comentários como amostra.
+    // A interface do site continua com paginação e opção de visualizar todos.
+    const printSuggestionList=clone.querySelector('#surveySuggestionsList');
+    if(printSuggestionList){
+      [...printSuggestionList.children].slice(10).forEach(el=>el.remove());
+    }
+    const printSuggestionMeta=clone.querySelector('#surveySuggestionMeta');
+    if(printSuggestionMeta){
+      const suggestionTotal=_surveySuggestionItems.length;
+      const shown=Math.min(10,suggestionTotal);
+      printSuggestionMeta.textContent=suggestionTotal
+        ? `Amostra de ${shown} de ${suggestionTotal.toLocaleString('pt-BR')} comentário${suggestionTotal===1?'':'s'}`
+        : 'Nenhuma sugestão preenchida';
+    }
+    clone.querySelector('#surveySuggestionToggle')?.remove();
+    clone.querySelector('#surveySuggestionPagination')?.remove();
+
+    // cloneNode não copia o bitmap de <canvas>. Converte cada gráfico para imagem somente no PDF.
+    const sourceCanvases=[...page.querySelectorAll('canvas')];
+    const cloneCanvases=[...clone.querySelectorAll('canvas')];
+    sourceCanvases.forEach((canvas,i)=>{
+      const target=cloneCanvases[i];
+      if(!target)return;
+      try{
+        const img=document.createElement('img');
+        img.src=canvas.toDataURL('image/png',1);
+        img.alt=canvas.getAttribute('aria-label')||'Gráfico do relatório';
+        img.className='survey-print-chart';
+        img.style.width='100%';
+        img.style.height='auto';
+        img.style.display='block';
+        target.replaceWith(img);
+      }catch(err){
+        console.warn('Não foi possível converter um gráfico para o PDF:',err);
+      }
+    });
+
+    // Remove elementos que só fazem sentido na interface interativa.
+    clone.querySelectorAll('.survey-import-card,.survey-mode-tabs,.survey-view-tabs,.survey-data-toolbar,.survey-proto-tabs,.survey-header-tools,.survey-pagination,.survey-clear-btn,.survey-file-btn,.survey-demo-btn,.survey-export-btn,.survey-pdf-btn').forEach(el=>el.remove());
+    clone.querySelectorAll('.survey-comment-list,.survey-themes-wrap,.survey-table-wrap').forEach(el=>{
+      el.style.maxHeight='none';el.style.height='auto';el.style.overflow='visible';
+    });
+
+    const styleMarkup=[...document.querySelectorAll('style,link[rel="stylesheet"]')].map(el=>el.outerHTML).join('\n');
+    const division=SURVEY_DIVISION_LABELS[_activeSurveyDivision]||_activeSurveyDivision||'Pesquisa';
+    const generatedAt=new Date().toLocaleString('pt-BR');
+    const total=_surveyRows.length.toLocaleString('pt-BR');
+    const title='Dashboard Analítico - Pesquisa de Satisfação';
+
+    const printCss=`
+      <style id="orbit-native-pdf-print">
+        @page{size:A4 portrait;margin:12mm 11mm 14mm;}
+        html,body{background:#fff!important;color:#111827!important;-webkit-print-color-adjust:exact!important;print-color-adjust:exact!important;}
+        body{margin:0!important;padding:0!important;font-family:'DM Sans',Arial,sans-serif!important;overflow:visible!important;}
+        .orbit-print-shell{width:100%;max-width:none;margin:0 auto;}
+        .orbit-print-header{display:flex;align-items:flex-end;justify-content:space-between;gap:14px;border-bottom:2px solid #635bff;padding:0 0 8px;margin:0 0 11px;}
+        .orbit-print-brand{font-family:'Syne',Arial,sans-serif;font-size:20px;font-weight:800;color:#635bff;line-height:1;}
+        .orbit-print-title{font-family:'Syne',Arial,sans-serif;font-size:13px;font-weight:700;color:#111827;margin-top:4px;}
+        .orbit-print-meta{text-align:right;font-size:7.5pt;line-height:1.45;color:#64748b;}
+        .survey-print-document{max-width:none!important;width:100%!important;margin:0!important;padding:0!important;background:#fff!important;color:#111827!important;}
+        .survey-print-document>.survey-hero{margin-bottom:8px!important;}
+        .survey-print-document .survey-view{display:flex!important;flex-direction:column!important;gap:8px!important;margin-top:0!important;animation:none!important;}
+        .survey-print-document #surveyViewDetailed{break-before:page!important;page-break-before:always!important;margin-top:0!important;}
+        .survey-print-document .survey-page-section-label{margin:0 0 7px!important;padding:0 0 6px!important;border-bottom:1px solid #e5e7eb!important;border-top:0!important;break-after:avoid!important;page-break-after:avoid!important;}
+        .survey-print-document .survey-page-section-label h2{font-size:12pt!important;color:#111827!important;}
+        .survey-print-document .survey-page-section-label span{font-size:7pt!important;color:#64748b!important;}
+        .survey-print-document .survey-kpi-grid{grid-template-columns:repeat(4,minmax(0,1fr))!important;gap:7px!important;}
+        .survey-print-document .survey-kpi{min-height:0!important;padding:9px 10px!important;border:1px solid #e2e8f0!important;background:#fff!important;box-shadow:none!important;break-inside:avoid!important;page-break-inside:avoid!important;}
+        .survey-print-document .survey-kpi-value{font-size:18pt!important;color:#111827!important;}
+        .survey-print-document .survey-kpi-value.textual{font-size:9.5pt!important;}
+        .survey-print-document .survey-kpi-label{font-size:6.5pt!important;color:#64748b!important;}
+        .survey-print-document .survey-kpi-sub{font-size:6.5pt!important;color:#475569!important;}
+        .survey-print-document .survey-grid-2,.survey-print-document .survey-grid-equal,.survey-print-document .survey-cd-layout{gap:8px!important;align-items:start!important;}
+        .survey-print-document .survey-card,.survey-print-document .survey-details-toggle{padding:10px!important;border:1px solid #e2e8f0!important;background:#fff!important;box-shadow:none!important;break-inside:avoid!important;page-break-inside:avoid!important;}
+        .survey-print-document .survey-card-title{font-size:9.5pt!important;color:#111827!important;}
+        .survey-print-document .survey-card-sub,.survey-print-document .survey-comment-text,.survey-print-document .survey-theme-action{color:#475569!important;}
+        .survey-print-document .survey-chart{height:auto!important;min-height:0!important;}
+        .survey-print-chart{max-width:100%!important;max-height:64mm!important;object-fit:contain!important;margin:2px auto!important;break-inside:avoid!important;page-break-inside:avoid!important;}
+        .survey-print-document .survey-table-wrap{overflow:visible!important;border:1px solid #e2e8f0!important;break-inside:auto!important;page-break-inside:auto!important;}
+        .survey-print-document table{width:100%!important;border-collapse:collapse!important;font-size:6.6pt!important;}
+        .survey-print-document thead{display:table-header-group!important;}
+        .survey-print-document tfoot{display:table-footer-group!important;}
+        .survey-print-document tr{break-inside:avoid!important;page-break-inside:avoid!important;}
+        .survey-print-document th{position:static!important;background:#f8fafc!important;color:#475569!important;padding:5px 6px!important;border-bottom:1px solid #dbe2ea!important;white-space:normal!important;}
+        .survey-print-document td{position:static!important;background:#fff!important;color:#334155!important;padding:5px 6px!important;border-bottom:1px solid #e8edf3!important;vertical-align:top!important;}
+        .survey-print-document .survey-matrix-cell{min-width:0!important;}
+        .survey-print-document .survey-insight-list{grid-template-columns:repeat(2,minmax(0,1fr))!important;gap:6px!important;}
+        .survey-print-document .survey-insight,.survey-print-document .survey-comment,.survey-print-document .survey-dist-item,.survey-print-document .survey-dimension-row{background:#f8fafc!important;border-color:#e2e8f0!important;break-inside:avoid!important;page-break-inside:avoid!important;}
+        .survey-print-document .survey-comment-list,.survey-print-document .survey-themes-wrap{max-height:none!important;height:auto!important;overflow:visible!important;}
+        .survey-print-document .survey-details-toggle>summary{pointer-events:none!important;}
+        .survey-print-document .survey-details-toggle:not([open]) .survey-details-body{display:block!important;}
+        .survey-print-document details{open:true;}
+        .survey-print-document a{color:#4f46e5!important;text-decoration:none!important;}
+        .survey-print-document *{animation:none!important;transition:none!important;}
+        .orbit-print-footer{margin-top:10px;padding-top:6px;border-top:1px solid #e5e7eb;font-size:6.5pt;color:#94a3b8;text-align:center;}
+        @media print{
+          .orbit-print-shell{display:block!important;}
+          .survey-print-document .survey-view{display:flex!important;}
+        }
+      </style>`;
+
+    printWin.document.open();
+    printWin.document.write(`<!DOCTYPE html><html lang="pt-BR" data-theme="light"><head><meta charset="UTF-8"><meta name="viewport" content="width=device-width,initial-scale=1"><title>${title}</title>${styleMarkup}${printCss}</head><body><main class="orbit-print-shell"><header class="orbit-print-header"><div><div class="orbit-print-brand">Orbit Analytics</div><div class="orbit-print-title">${title}</div></div><div class="orbit-print-meta"><strong>${division}</strong><br>${total} respostas<br>Gerado em ${generatedAt}</div></header>${clone.outerHTML}<footer class="orbit-print-footer">Orbit Analytics · Relatório de Pesquisa de Satisfação</footer></main></body></html>`);
+    printWin.document.close();
+
+    // Força details abertos no documento impresso.
+    printWin.document.querySelectorAll('details').forEach(d=>d.open=true);
+
+    const images=[...printWin.document.images];
+    await Promise.all(images.map(img=>img.complete?Promise.resolve():new Promise(resolve=>{img.onload=img.onerror=resolve;})));
+    if(printWin.document.fonts?.ready)await printWin.document.fonts.ready;
+    await new Promise(r=>setTimeout(r,180));
+
+    printWin.focus();
+    printWin.onafterprint=()=>{try{printWin.close();}catch(e){}};
+    printWin.print();
+    toast('Relatório pronto. Na janela de impressão, escolha “Salvar como PDF”.','success');
+  }catch(err){
+    console.error('Erro ao preparar PDF nativo:',err);
+    try{printWin.close();}catch(e){}
+    toast('Não foi possível preparar o PDF. Atualize a página e tente novamente.','error');
+  }finally{
+    page.classList.remove('survey-pdf-mode');
+    _surveySuggestionShowAll=oldShowAll;
+    _surveySuggestionPage=oldPage;
+    surveyRenderSuggestionPage();
+    surveySetView(oldView);
+    requestAnimationFrame(surveyFitFirstTenComments);
+    if(btn){btn.classList.remove('is-loading');btn.innerHTML=originalBtn||'Baixar PDF';}
+    if(main)main.scrollTop=oldScroll;
+  }
 }
 
 </script>
