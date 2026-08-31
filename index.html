@@ -1,5 +1,5 @@
 <!DOCTYPE html>
-<html lang="pt-BR">
+<html lang="pt-BR" data-theme="light">
 <head>
 <meta charset="UTF-8">
 <meta name="viewport" content="width=device-width, initial-scale=1.0">
@@ -2367,6 +2367,421 @@ button:disabled{cursor:not-allowed}
 }
 </style>
 
+<link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700&display=swap" rel="stylesheet">
+
+<style id="orbit-corporate-ui-refinement">
+/* =========================================================
+   ORBIT ANALYTICS — REFINAMENTO VISUAL CORPORATIVO
+   Apenas UI: tipografia, cores, espacamento, bordas e estados.
+   Nenhuma regra de negocio, calculo, filtro ou integracao alterada.
+========================================================= */
+:root{
+  --font-display:'Inter',system-ui,-apple-system,BlinkMacSystemFont,'Segoe UI',sans-serif;
+  --font-body:'Inter',system-ui,-apple-system,BlinkMacSystemFont,'Segoe UI',sans-serif;
+}
+
+[data-theme="light"]{
+  --bg:#F8FAFC;
+  --surface:#FFFFFF;
+  --surface-2:#F8FAFC;
+  --surface-3:#F1F5F9;
+  --border:#E2E8F0;
+  --border-2:#CBD5E1;
+  --text:#0F172A;
+  --text-2:#475569;
+  --text-muted:#64748B;
+  --primary:#6D5DF6;
+  --primary-dim:rgba(109,93,246,.09);
+  --primary-glow:rgba(109,93,246,.18);
+  --accent:#10B981;
+  --accent-dim:#ECFDF5;
+  --accent-glow:rgba(16,185,129,.16);
+  --warning:#F59E0B;
+  --warning-dim:#FFF7ED;
+  --danger:#EF4444;
+  --danger-dim:#FEF2F2;
+}
+
+body{font-family:var(--font-body);letter-spacing:0;background:var(--bg);}
+h1,h2,h3,h4,h5,h6,.topbar-title,.section-title,.survey-title,.survey-card-title,.kdc-value,.kpi-value,.brand-name{font-family:var(--font-display)!important;}
+
+/* Sidebar corporativa, preservando estrutura e navegacao */
+.sidebar{background:#061329!important;border-right:1px solid rgba(148,163,184,.12)!important;box-shadow:8px 0 28px rgba(2,6,23,.08)!important;}
+.sidebar-brand{border-bottom-color:rgba(148,163,184,.12)!important;}
+.brand-name{color:#16D6B0!important;text-shadow:none!important;font-weight:700!important;letter-spacing:-.03em!important;}
+.brand-sub,.nav-section-label{color:#718096!important;}
+.nav-item{color:#CBD5E1!important;border:none!important;font-weight:500!important;}
+.nav-item svg{color:#94A3B8!important;opacity:1!important;}
+.nav-item:hover{background:rgba(109,93,246,.12)!important;color:#FFF!important;transform:none!important;}
+.nav-item:hover svg{color:#C4B5FD!important;}
+.nav-item.active{background:linear-gradient(135deg,#6D5DF6 0%,#5B34E8 100%)!important;color:#FFF!important;box-shadow:0 8px 20px rgba(109,93,246,.22)!important;}
+.nav-item.active svg{color:#FFF!important;}
+.nav-item.active::before{background:#FFF!important;width:3px!important;}
+.nav-item:focus-visible{outline:2px solid #A78BFA!important;outline-offset:2px!important;}
+.sidebar-profile{border-top-color:rgba(148,163,184,.12)!important;}
+.profile-name{color:#FFF!important;}
+.profile-role,.btn-logout-sm{color:#94A3B8!important;}
+.profile-card:hover{background:rgba(109,93,246,.08)!important;}
+
+/* Conteudo claro / SaaS BI */
+[data-theme="light"] .topbar{background:rgba(255,255,255,.94)!important;border-bottom-color:#E2E8F0!important;box-shadow:0 1px 0 rgba(15,23,42,.03)!important;}
+[data-theme="light"] .page{background:#F8FAFC;}
+[data-theme="light"] .card,[data-theme="light"] .survey-card,[data-theme="light"] .kpi-dash-card,[data-theme="light"] .quick-card,[data-theme="light"] .history-card{
+  background:#FFF!important;border-color:#E2E8F0!important;box-shadow:0 4px 16px rgba(15,23,42,.04)!important;
+}
+
+/* Titulos */
+#page-survey h1,.survey-page h1{font-size:28px!important;line-height:1.2!important;font-weight:700!important;letter-spacing:-.5px!important;color:#0F172A!important;}
+.survey-hero p,.survey-subtitle{font-size:14px!important;font-weight:400!important;color:#64748B!important;}
+.survey-card-title,.section-title{font-weight:600!important;color:#0F172A!important;letter-spacing:-.015em!important;}
+.survey-card-sub,.kdc-label,.kpi-sub,.survey-meta,.survey-file-status{color:#64748B!important;font-weight:400!important;}
+
+/* KPIs */
+.survey-kpi-card,.kpi-dash-card{border-radius:14px!important;}
+.survey-kpi-value,.kdc-value,.kpi-value{font-size:36px!important;font-weight:700!important;color:#0F172A!important;letter-spacing:-1px!important;line-height:1.05!important;}
+.survey-kpi-label,.kdc-label,.kpi-label{font-weight:500!important;}
+
+/* Cards e grids */
+.card,.survey-card,.kpi-dash-card,.quick-card,.history-card,.survey-import-card{border-radius:14px!important;}
+.card,.survey-card{padding:16px!important;}
+
+/* Abas */
+.survey-view-tab,.survey-mode-tab{font-family:var(--font-body)!important;font-weight:500!important;color:#64748B!important;}
+.survey-view-tab.active,.survey-mode-tab.active{color:#6D5DF6!important;font-weight:600!important;}
+.survey-view-tab.active::after,.survey-mode-tab.active::after{background:#6D5DF6!important;height:2px!important;}
+
+/* Botoes */
+.btn-primary,.btn-analyze,.survey-primary-btn,.survey-import-btn{
+  background:#6D5DF6!important;color:#FFF!important;border:none!important;border-radius:10px!important;font-weight:600!important;box-shadow:0 6px 18px rgba(109,93,246,.16)!important;
+}
+.btn-primary:hover:not(:disabled),.btn-analyze:hover:not(:disabled),.survey-primary-btn:hover:not(:disabled),.survey-import-btn:hover:not(:disabled){background:#5F50E8!important;filter:none!important;transform:translateY(-1px)!important;}
+.btn-new,.survey-secondary-btn,.survey-action-btn,.survey-pdf-btn,.survey-clear-btn{
+  background:#FFF!important;border:1px solid #CBD5E1!important;color:#334155!important;border-radius:10px!important;font-weight:500!important;box-shadow:none!important;
+}
+.btn-new:hover,.survey-secondary-btn:hover,.survey-action-btn:hover,.survey-pdf-btn:hover,.survey-clear-btn:hover{border-color:#A78BFA!important;background:#F8FAFC!important;color:#4F46E5!important;}
+
+/* Filtros */
+.survey-filter-toggle,.survey-filter-btn{background:#FFF!important;border:1px solid #C4B5FD!important;color:#6D5DF6!important;border-radius:10px!important;font-weight:600!important;}
+.survey-filter-toggle:hover,.survey-filter-btn:hover{background:#F5F3FF!important;}
+.survey-select,.form-select,.filter-select,.form-input,.filter-input,.field-input{border-radius:10px!important;border-color:#CBD5E1!important;background:#FFF!important;color:#0F172A!important;font-family:var(--font-body)!important;}
+.survey-select:focus,.form-select:focus,.filter-select:focus,.form-input:focus,.filter-input:focus,.field-input:focus{border-color:#6D5DF6!important;box-shadow:0 0 0 3px rgba(109,93,246,.10)!important;}
+
+/* Icones KPI semanticos */
+.survey-kpi-card:nth-child(2) .survey-kpi-icon{background:#ECFDF5!important;color:#10B981!important;}
+.survey-kpi-card:nth-child(3) .survey-kpi-icon{background:#ECFEFF!important;color:#14B8A6!important;}
+.survey-kpi-card:nth-child(4) .survey-kpi-icon{background:#FFF7ED!important;color:#F59E0B!important;}
+
+/* Barras de progresso */
+.survey-progress-track,.survey-dimension-bar,.progress-track{background:#E2E8F0!important;border-radius:999px!important;height:6px!important;}
+.survey-progress-fill,.survey-dimension-fill,.progress-fill{background:#6D5DF6!important;border-radius:999px!important;}
+
+/* Tabelas */
+.survey-table th,.cnpj-table th{font-weight:600!important;color:#475569!important;background:#F8FAFC!important;}
+.survey-table td,.cnpj-table td{color:#334155!important;}
+
+/* Graficos: tipografia e acabamento apenas */
+canvas{font-family:var(--font-body)!important;}
+
+/* Ritmo de espacamento */
+.survey-page{gap:24px!important;}
+.survey-kpi-grid{gap:16px!important;}
+.survey-card-head{margin-bottom:16px!important;}
+.survey-actions{gap:8px!important;}
+
+/* Dark mode: apenas tipografia mais corporativa, sem descaracterizar */
+:root:not([data-theme="light"]){
+  --primary:#7C6FF7;
+}
+:root:not([data-theme="light"]) body{font-family:var(--font-body)!important;}
+
+@media(max-width:680px){
+  #page-survey h1,.survey-page h1{font-size:24px!important;}
+  .survey-kpi-value,.kdc-value,.kpi-value{font-size:30px!important;}
+}
+</style>
+
+<style id="orbit-survey-brand-tabs-fix">
+/* Correção visual exclusiva: abas Osten / Dismatal / Vonder */
+#page-survey .survey-mode-tabs .survey-mode-tab{
+  color:#64748B !important;
+  opacity:1 !important;
+  -webkit-text-fill-color:currentColor !important;
+}
+#page-survey .survey-mode-tabs .survey-mode-tab:hover{
+  color:#334155 !important;
+  opacity:1 !important;
+}
+#page-survey .survey-mode-tabs .survey-mode-tab.active,
+#page-survey .survey-mode-tabs .survey-mode-tab[aria-selected="true"]{
+  background:#6D5DF6 !important;
+  color:#FFFFFF !important;
+  opacity:1 !important;
+  -webkit-text-fill-color:#FFFFFF !important;
+  text-shadow:none !important;
+  box-shadow:0 5px 16px rgba(109,93,246,.22) !important;
+}
+#page-survey .survey-mode-tabs .survey-mode-tab.active *,
+#page-survey .survey-mode-tabs .survey-mode-tab[aria-selected="true"] *{
+  color:#FFFFFF !important;
+  fill:currentColor !important;
+  stroke:currentColor !important;
+  opacity:1 !important;
+}
+[data-theme="light"] #page-survey .survey-mode-tabs .survey-mode-tab.active,
+[data-theme="light"] #page-survey .survey-mode-tabs .survey-mode-tab[aria-selected="true"]{
+  background:#6D5DF6 !important;
+  color:#FFFFFF !important;
+  -webkit-text-fill-color:#FFFFFF !important;
+}
+</style>
+
+<style id="orbit-dark-mode-system-wide">
+/* =========================================================
+   ORBIT — DARK MODE SYSTEM-WIDE REFINEMENT
+   Visual only: no business logic or behavior changes.
+========================================================= */
+:root:not([data-theme="light"]) {
+  --bg:#080C14 !important;
+  --surface:#0D1422 !important;
+  --surface-2:#111827 !important;
+  --surface-3:#172033 !important;
+  --border:#273449 !important;
+  --border-2:#334155 !important;
+  --text:#F8FAFC !important;
+  --text-2:#CBD5E1 !important;
+  --text-muted:#94A3B8 !important;
+  --primary:#6D5DF6 !important;
+  --primary-dim:rgba(109,93,246,.14) !important;
+  --primary-glow:rgba(109,93,246,.28) !important;
+  --accent:#34D399 !important;
+  --accent-dim:rgba(52,211,153,.12) !important;
+  --warning:#FBBF24 !important;
+  --warning-dim:rgba(251,191,36,.12) !important;
+  --danger:#F87171 !important;
+  --danger-dim:rgba(248,113,113,.12) !important;
+}
+
+:root:not([data-theme="light"]) body,
+:root:not([data-theme="light"]) .main-area,
+:root:not([data-theme="light"]) .page,
+:root:not([data-theme="light"]) #page-survey,
+:root:not([data-theme="light"]) #page-cnpj { background:#080C14 !important; color:#F8FAFC !important; }
+
+:root:not([data-theme="light"]) .topbar,
+:root:not([data-theme="light"]) .card,
+:root:not([data-theme="light"]) .card-sm,
+:root:not([data-theme="light"]) .kpi-dash-card,
+:root:not([data-theme="light"]) .quick-card,
+:root:not([data-theme="light"]) .history-card,
+:root:not([data-theme="light"]) .profile-header-section,
+:root:not([data-theme="light"]) .survey-card,
+:root:not([data-theme="light"]) .survey-kpi,
+:root:not([data-theme="light"]) .survey-import-card,
+:root:not([data-theme="light"]) .survey-source-bar,
+:root:not([data-theme="light"]) .survey-view-tabs,
+:root:not([data-theme="light"]) .survey-details-toggle,
+:root:not([data-theme="light"]) .survey-data-toolbar,
+:root:not([data-theme="light"]) .cnpj-ref-card,
+:root:not([data-theme="light"]) .cnpj-result-card,
+:root:not([data-theme="light"]) .cnpj-company-panel,
+:root:not([data-theme="light"]) .modal-box,
+:root:not([data-theme="light"]) .toast {
+  background:#0D1422 !important;
+  border-color:#273449 !important;
+  color:#F8FAFC !important;
+  box-shadow:0 12px 34px rgba(0,0,0,.24) !important;
+}
+
+:root:not([data-theme="light"]) h1,
+:root:not([data-theme="light"]) h2,
+:root:not([data-theme="light"]) h3,
+:root:not([data-theme="light"]) .section-title,
+:root:not([data-theme="light"]) .topbar-title,
+:root:not([data-theme="light"]) .survey-card-title,
+:root:not([data-theme="light"]) .survey-kpi-value,
+:root:not([data-theme="light"]) .survey-kpi-title,
+:root:not([data-theme="light"]) .survey-hero h1,
+:root:not([data-theme="light"]) .cnpj-page-heading h1,
+:root:not([data-theme="light"]) .cnpj-company-name,
+:root:not([data-theme="light"]) .cnpj-result-title,
+:root:not([data-theme="light"]) .modal-title { color:#F8FAFC !important; }
+
+:root:not([data-theme="light"]) p,
+:root:not([data-theme="light"]) .dash-date,
+:root:not([data-theme="light"]) .dash-subtitle,
+:root:not([data-theme="light"]) .kdc-label,
+:root:not([data-theme="light"]) .qc-desc,
+:root:not([data-theme="light"]) .survey-card-sub,
+:root:not([data-theme="light"]) .survey-kpi-sub,
+:root:not([data-theme="light"]) .survey-source-compact,
+:root:not([data-theme="light"]) .survey-comment-text,
+:root:not([data-theme="light"]) .survey-comment-cd,
+:root:not([data-theme="light"]) .survey-theme-example,
+:root:not([data-theme="light"]) .cnpj-search-desc,
+:root:not([data-theme="light"]) .cnpj-help-line,
+:root:not([data-theme="light"]) .cnpj-detail-label,
+:root:not([data-theme="light"]) .cnpj-history-company,
+:root:not([data-theme="light"]) .cnpj-history-time,
+:root:not([data-theme="light"]) .profile-role { color:#94A3B8 !important; }
+
+:root:not([data-theme="light"]) label,
+:root:not([data-theme="light"]) .form-label,
+:root:not([data-theme="light"]) .field-label,
+:root:not([data-theme="light"]) .survey-filter-label,
+:root:not([data-theme="light"]) .survey-analysis-select-group>span { color:#CBD5E1 !important; }
+
+:root:not([data-theme="light"]) input,
+:root:not([data-theme="light"]) select,
+:root:not([data-theme="light"]) textarea,
+:root:not([data-theme="light"]) .form-input,
+:root:not([data-theme="light"]) .form-select,
+:root:not([data-theme="light"]) .filter-input,
+:root:not([data-theme="light"]) .filter-select,
+:root:not([data-theme="light"]) .field-input,
+:root:not([data-theme="light"]) .survey-select,
+:root:not([data-theme="light"]) #page-cnpj #cnpjSearchInput {
+  background:#111827 !important;
+  color:#F8FAFC !important;
+  border-color:#334155 !important;
+  caret-color:#F8FAFC !important;
+}
+:root:not([data-theme="light"]) input::placeholder,
+:root:not([data-theme="light"]) textarea::placeholder { color:#64748B !important; opacity:1 !important; }
+:root:not([data-theme="light"]) select option { background:#111827 !important; color:#F8FAFC !important; }
+:root:not([data-theme="light"]) input:focus,
+:root:not([data-theme="light"]) select:focus,
+:root:not([data-theme="light"]) textarea:focus { border-color:#6D5DF6 !important; box-shadow:0 0 0 3px rgba(109,93,246,.18) !important; outline:none !important; }
+:root:not([data-theme="light"]) input:disabled,
+:root:not([data-theme="light"]) select:disabled,
+:root:not([data-theme="light"]) textarea:disabled,
+:root:not([data-theme="light"]) button:disabled { opacity:.55 !important; color:#94A3B8 !important; }
+
+:root:not([data-theme="light"]) .btn-new,
+:root:not([data-theme="light"]) .btn-cancel,
+:root:not([data-theme="light"]) .change-pass-btn,
+:root:not([data-theme="light"]) .survey-export-btn,
+:root:not([data-theme="light"]) .survey-pdf-btn,
+:root:not([data-theme="light"]) .survey-demo-btn,
+:root:not([data-theme="light"]) .survey-filter-trigger,
+:root:not([data-theme="light"]) .cnpj-clear-btn,
+:root:not([data-theme="light"]) .cnpj-action-btn,
+:root:not([data-theme="light"]) .cnpj-export-menu>summary {
+  background:#111827 !important; color:#CBD5E1 !important; border-color:#334155 !important;
+}
+:root:not([data-theme="light"]) .btn-new:hover,
+:root:not([data-theme="light"]) .btn-cancel:hover,
+:root:not([data-theme="light"]) .change-pass-btn:hover,
+:root:not([data-theme="light"]) .survey-export-btn:hover,
+:root:not([data-theme="light"]) .survey-pdf-btn:hover,
+:root:not([data-theme="light"]) .survey-demo-btn:hover,
+:root:not([data-theme="light"]) .survey-filter-trigger:hover,
+:root:not([data-theme="light"]) .cnpj-clear-btn:hover,
+:root:not([data-theme="light"]) .cnpj-action-btn:hover,
+:root:not([data-theme="light"]) .cnpj-export-menu>summary:hover {
+  background:#172033 !important; color:#F8FAFC !important; border-color:#6D5DF6 !important;
+}
+
+:root:not([data-theme="light"]) .survey-mode-tab{color:#94A3B8 !important;background:transparent !important;opacity:1 !important;}
+:root:not([data-theme="light"]) .survey-mode-tab:hover{color:#F8FAFC !important;background:#172033 !important;}
+:root:not([data-theme="light"]) .survey-mode-tab.active{background:#6D5DF6 !important;color:#FFFFFF !important;opacity:1 !important;box-shadow:0 5px 16px rgba(109,93,246,.28) !important;}
+:root:not([data-theme="light"]) .survey-view-tab{color:#94A3B8 !important;}
+:root:not([data-theme="light"]) .survey-view-tab:hover{color:#F8FAFC !important;}
+:root:not([data-theme="light"]) .survey-view-tab.active{color:#A78BFA !important;}
+
+:root:not([data-theme="light"]) table,
+:root:not([data-theme="light"]) .survey-data-table,
+:root:not([data-theme="light"]) .survey-question-table,
+:root:not([data-theme="light"]) .survey-matrix-table,
+:root:not([data-theme="light"]) .cnpj-table { color:#CBD5E1 !important; }
+:root:not([data-theme="light"]) table th,
+:root:not([data-theme="light"]) .survey-data-table th,
+:root:not([data-theme="light"]) .survey-question-table th,
+:root:not([data-theme="light"]) .survey-matrix-table th,
+:root:not([data-theme="light"]) .cnpj-table th { background:#111827 !important;color:#CBD5E1 !important;border-color:#273449 !important;}
+:root:not([data-theme="light"]) table td,
+:root:not([data-theme="light"]) .survey-data-table td,
+:root:not([data-theme="light"]) .survey-question-table td,
+:root:not([data-theme="light"]) .survey-matrix-table td,
+:root:not([data-theme="light"]) .cnpj-table td { color:#CBD5E1 !important;border-color:#273449 !important;background:#0D1422 !important;}
+:root:not([data-theme="light"]) table tbody tr:hover td,
+:root:not([data-theme="light"]) .cnpj-table tbody tr:hover td { background:#172033 !important; }
+:root:not([data-theme="light"]) .survey-question-table td:first-child,
+:root:not([data-theme="light"]) .survey-matrix-table td:first-child { background:#0D1422 !important;color:#F8FAFC !important; }
+:root:not([data-theme="light"]) .survey-heat-table .survey-cell-score{color:#F8FAFC !important;}
+
+:root:not([data-theme="light"]) .history-card:hover,
+:root:not([data-theme="light"]) .quick-card:hover,
+:root:not([data-theme="light"]) .kpi-dash-card:hover { border-color:#334155 !important; background:#111827 !important; }
+:root:not([data-theme="light"]) .history-empty,
+:root:not([data-theme="light"]) .survey-empty,
+:root:not([data-theme="light"]) .cnpj-placeholder { background:#0D1422 !important;color:#94A3B8 !important;border-color:#334155 !important;}
+:root:not([data-theme="light"]) .cnpj-placeholder strong { color:#F8FAFC !important; }
+
+:root:not([data-theme="light"]) .badge-success,
+:root:not([data-theme="light"]) .hc-badge.good,
+:root:not([data-theme="light"]) .cnpj-status-pill,
+:root:not([data-theme="light"]) .cnpj-inline-status,
+:root:not([data-theme="light"]) .survey-live-status { color:#34D399 !important;background:rgba(52,211,153,.12) !important;border-color:rgba(52,211,153,.25) !important;}
+:root:not([data-theme="light"]) .hc-badge.warn,
+:root:not([data-theme="light"]) .cnpj-status-pill.inactive,
+:root:not([data-theme="light"]) .cnpj-inline-status.inactive { color:#FBBF24 !important;background:rgba(251,191,36,.12) !important;border-color:rgba(251,191,36,.25) !important;}
+:root:not([data-theme="light"]) .badge-fail,
+:root:not([data-theme="light"]) .hc-badge.bad,
+:root:not([data-theme="light"]) .field-error { color:#F87171 !important; }
+
+:root:not([data-theme="light"]) a,
+:root:not([data-theme="light"]) .cnpj-link,
+:root:not([data-theme="light"]) .survey-link-btn { color:#A78BFA !important; }
+:root:not([data-theme="light"]) a:hover,
+:root:not([data-theme="light"]) .cnpj-link:hover,
+:root:not([data-theme="light"]) .survey-link-btn:hover { color:#C4B5FD !important; }
+
+:root:not([data-theme="light"]) .page-btn,
+:root:not([data-theme="light"]) .survey-pagination>button,
+:root:not([data-theme="light"]) .survey-page-number { background:#111827 !important;color:#94A3B8 !important;border-color:#334155 !important;}
+:root:not([data-theme="light"]) .page-btn:hover,
+:root:not([data-theme="light"]) .survey-pagination>button:hover,
+:root:not([data-theme="light"]) .survey-page-number:hover { color:#F8FAFC !important;border-color:#6D5DF6 !important;background:#172033 !important;}
+:root:not([data-theme="light"]) .page-btn.active,
+:root:not([data-theme="light"]) .survey-page-number.active { background:#6D5DF6 !important;color:#fff !important;border-color:#6D5DF6 !important;}
+
+:root:not([data-theme="light"]) .modal-overlay{background:rgba(2,6,23,.78) !important;backdrop-filter:blur(6px);}
+:root:not([data-theme="light"]) .modal-header,
+:root:not([data-theme="light"]) .modal-footer{border-color:#273449 !important;}
+:root:not([data-theme="light"]) .modal-close{color:#94A3B8 !important;}
+:root:not([data-theme="light"]) .modal-close:hover{color:#F87171 !important;background:rgba(248,113,113,.10) !important;}
+
+:root:not([data-theme="light"]) .toast.t-success{color:#34D399 !important;border-color:rgba(52,211,153,.3) !important;}
+:root:not([data-theme="light"]) .toast.t-warn{color:#FBBF24 !important;border-color:rgba(251,191,36,.3) !important;}
+:root:not([data-theme="light"]) .toast.t-error{color:#F87171 !important;border-color:rgba(248,113,113,.3) !important;}
+:root:not([data-theme="light"]) .toast.t-loading{color:#A78BFA !important;border-color:rgba(167,139,250,.3) !important;}
+
+:root:not([data-theme="light"]) .btn-icon{background:#111827 !important;border-color:#334155 !important;color:#94A3B8 !important;}
+:root:not([data-theme="light"]) .btn-icon:hover{background:#172033 !important;border-color:#6D5DF6 !important;color:#F8FAFC !important;}
+:root:not([data-theme="light"]) svg{stroke:currentColor;}
+
+:root:not([data-theme="light"]) .skeleton{background:linear-gradient(90deg,#111827 25%,#172033 50%,#111827 75%) !important;background-size:800px 100% !important;}
+:root:not([data-theme="light"]) .file-upload-area{background:#111827 !important;border-color:#334155 !important;color:#94A3B8 !important;}
+:root:not([data-theme="light"]) .file-upload-area:hover{background:rgba(109,93,246,.12) !important;border-color:#6D5DF6 !important;color:#A78BFA !important;}
+
+:root:not([data-theme="light"]) .cnpj-detail-box,
+:root:not([data-theme="light"]) .cnpj-cnae-box,
+:root:not([data-theme="light"]) .cnpj-export-pop{background:#0D1422 !important;border-color:#273449 !important;color:#CBD5E1 !important;}
+:root:not([data-theme="light"]) .cnpj-detail-value,
+:root:not([data-theme="light"]) .cnpj-history-cnpj,
+:root:not([data-theme="light"]) .cnpj-partner-name{color:#F8FAFC !important;}
+:root:not([data-theme="light"]) .cnpj-cnae-code{background:rgba(109,93,246,.18) !important;color:#C4B5FD !important;}
+
+/* Canvas-based charts inherit colors through JS; this ensures surrounding labels/legends remain readable. */
+:root:not([data-theme="light"]) canvas{filter:none !important;}
+
+/* Focus hierarchy for all interactive controls */
+:root:not([data-theme="light"]) button:focus-visible,
+:root:not([data-theme="light"]) input:focus-visible,
+:root:not([data-theme="light"]) select:focus-visible,
+:root:not([data-theme="light"]) textarea:focus-visible,
+:root:not([data-theme="light"]) [tabindex]:focus-visible { outline:2px solid #A78BFA !important;outline-offset:2px !important; }
+</style>
 </head>
 <body>
 
@@ -2544,9 +2959,6 @@ button:disabled{cursor:not-allowed}
         </div>
         <div class="topbar-right">
           <div class="live-dot">LIVE</div>
-          <button class="btn-icon" id="btnTheme" onclick="toggleTheme()" title="Alternar tema" aria-label="Alternar tema claro ou escuro">
-            <svg id="themeIcon" width="15" height="15" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5" stroke-linecap="round" stroke-linejoin="round"><circle cx="12" cy="12" r="5"/><line x1="12" y1="1" x2="12" y2="3"/><line x1="12" y1="21" x2="12" y2="23"/><line x1="4.22" y1="4.22" x2="5.64" y2="5.64"/><line x1="18.36" y1="18.36" x2="19.78" y2="19.78"/><line x1="1" y1="12" x2="3" y2="12"/><line x1="21" y1="12" x2="23" y2="12"/><line x1="4.22" y1="19.78" x2="5.64" y2="18.36"/><line x1="18.36" y1="5.64" x2="19.78" y2="4.22"/></svg>
-          </button>
         </div>
       </div>
 
@@ -4298,28 +4710,11 @@ async function doChangePassword() {
 }
 
 /* ═══════════════════════════════════════════════════
-   THEME
+   THEME — FIXO EM MODO CLARO
 ═══════════════════════════════════════════════════ */
-function toggleTheme() {
-  const html    = document.documentElement;
-  const isLight = html.getAttribute('data-theme') === 'light';
-  html.setAttribute('data-theme', isLight ? 'dark' : 'light');
-  localStorage.setItem('orbit_theme', isLight ? 'dark' : 'light');
-  updateThemeIcon(!isLight);
-  _dashCache = null;
-  if (typeof _surveyRows !== 'undefined' && _surveyRows.length && typeof surveyRender === 'function') requestAnimationFrame(surveyRender);
-}
-function updateThemeIcon(isLight) {
-  const icon = document.getElementById('themeIcon');
-  if (!icon) return;
-  icon.innerHTML = isLight
-    ? '<path d="M21 12.79A9 9 0 1 1 11.21 3 7 7 0 0 0 21 12.79z"/>'
-    : '<circle cx="12" cy="12" r="5"/><line x1="12" y1="1" x2="12" y2="3"/><line x1="12" y1="21" x2="12" y2="23"/><line x1="4.22" y1="4.22" x2="5.64" y2="5.64"/><line x1="18.36" y1="18.36" x2="19.78" y2="19.78"/><line x1="1" y1="12" x2="3" y2="12"/><line x1="21" y1="12" x2="23" y2="12"/><line x1="4.22" y1="19.78" x2="5.64" y2="18.36"/><line x1="18.36" y1="5.64" x2="19.78" y2="4.22"/>';
-}
 (function () {
-  const saved = localStorage.getItem('orbit_theme') || 'dark';
-  document.documentElement.setAttribute('data-theme', saved);
-  updateThemeIcon(saved === 'light');
+  document.documentElement.setAttribute('data-theme', 'light');
+  try { localStorage.removeItem('orbit_theme'); } catch (e) {}
 })();
 
 /* ═══════════════════════════════════════════════════
