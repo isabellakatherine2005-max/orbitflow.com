@@ -6,6 +6,7 @@
 <title>Orbit Analytics | Enterprise</title>
 <script src="https://cdnjs.cloudflare.com/ajax/libs/Chart.js/4.4.1/chart.umd.min.js"></script>
 <script src="https://cdnjs.cloudflare.com/ajax/libs/jspdf/2.5.1/jspdf.umd.min.js"></script>
+<script src="https://cdnjs.cloudflare.com/ajax/libs/html2canvas/1.4.1/html2canvas.min.js"></script>
 <script src="https://cdn.jsdelivr.net/npm/xlsx@0.18.5/dist/xlsx.full.min.js"></script>
 <link href="https://fonts.googleapis.com/css2?family=Syne:wght@400;500;600;700;800&family=DM+Sans:ital,wght@0,300;0,400;0,500;0,600;1,400&display=swap" rel="stylesheet">
 <style>
@@ -723,7 +724,7 @@ button{font-family:var(--font-body);cursor:pointer}
     position: sticky;
     top: 0;
     z-index: 15;
-    background: color-mix(in srgb, var(--surface) 92%, transparent);
+    background: var(--surface);
     backdrop-filter: blur(14px);
     -webkit-backdrop-filter: blur(14px);
   }
@@ -1781,7 +1782,7 @@ body{transition:background-color .3s ease,color .3s ease}
 #btnProcessCampaign.is-loading{min-width:145px}
 
 /* Tabelas: zebra striping */
-#campaignPreviewBody tr:nth-child(even) td,.cnpj-table tbody tr:nth-child(even) td{background:color-mix(in srgb,var(--surface-2) 72%,transparent)}
+#campaignPreviewBody tr:nth-child(even) td,.cnpj-table tbody tr:nth-child(even) td{background:var(--surface-2)}
 #campaignPreviewBody tr:hover td,.cnpj-table tbody tr:hover td{background:var(--primary-dim)}
 
 /* Histórico: busca com limpar + ordenação */
@@ -1792,7 +1793,7 @@ body{transition:background-color .3s ease,color .3s ease}
 .history-clear-btn:hover{background:var(--surface-3);color:var(--text)}
 
 /* Empty states */
-.history-empty{border:1px dashed var(--border);border-radius:var(--radius);background:color-mix(in srgb,var(--surface) 85%,transparent)}
+.history-empty{border:1px dashed var(--border);border-radius:var(--radius);background:var(--surface)}
 .empty-state-icon{width:56px;height:56px;margin:0 auto 1rem;color:var(--primary);opacity:.32}
 .cnpj-placeholder{min-height:190px;display:flex;flex-direction:column;align-items:center;justify-content:center}
 .cnpj-placeholder .empty-state-icon{display:block}
@@ -1808,7 +1809,7 @@ body{transition:background-color .3s ease,color .3s ease}
 .toast.is-updating{animation:none}
 
 /* Scroll to top */
-.scroll-top-btn{position:fixed;right:1.35rem;bottom:1.35rem;z-index:900;width:42px;height:42px;border-radius:12px;border:1px solid var(--border-2);background:color-mix(in srgb,var(--surface) 92%,transparent);color:var(--text-2);box-shadow:0 10px 30px rgba(0,0,0,.22);display:flex;align-items:center;justify-content:center;cursor:pointer;opacity:0;visibility:hidden;transform:translateY(10px);transition:opacity .2s ease,transform .2s ease,visibility .2s ease,background-color .2s ease;border-color .2s ease;backdrop-filter:blur(10px)}
+.scroll-top-btn{position:fixed;right:1.35rem;bottom:1.35rem;z-index:900;width:42px;height:42px;border-radius:12px;border:1px solid var(--border-2);background:var(--surface);color:var(--text-2);box-shadow:0 10px 30px rgba(0,0,0,.22);display:flex;align-items:center;justify-content:center;cursor:pointer;opacity:0;visibility:hidden;transform:translateY(10px);transition:opacity .2s ease,transform .2s ease,visibility .2s ease,background-color .2s ease;border-color .2s ease;backdrop-filter:blur(10px)}
 .scroll-top-btn.visible{opacity:1;visibility:visible;transform:none}
 .scroll-top-btn:hover{color:var(--primary);border-color:var(--primary);background:var(--primary-dim)}
 .toast-area{bottom:4.7rem}
@@ -1830,12 +1831,12 @@ button:disabled{cursor:not-allowed}
    CONSULTA CNPJ — layout alinhado ao mockup enviado
    Mantém o backend Supabase/Edge Function existente.
 ========================================================= */
-#page-cnpj{padding:1.45rem 1.6rem 2rem;background:linear-gradient(180deg,color-mix(in srgb,var(--bg) 96%,#080f21 4%),var(--bg));}
+#page-cnpj{padding:1.45rem 1.6rem 2rem;background:var(--bg);}
 .cnpj-reference-page{display:flex;flex-direction:column;gap:1.15rem;max-width:1540px;margin:0 auto;}
 .cnpj-page-heading{display:flex;align-items:center;justify-content:space-between;gap:1rem;padding:.1rem .15rem .15rem;}
 .cnpj-page-heading h1{font-family:var(--font-display);font-size:1.78rem;line-height:1.1;letter-spacing:-.035em;color:var(--text);margin:0;}
 .cnpj-page-heading p{font-size:.88rem;color:var(--text-2);margin-top:.3rem;}
-.cnpj-reference-page .card,.cnpj-ref-card{background:linear-gradient(145deg,color-mix(in srgb,var(--surface) 94%,#101a32 6%),var(--surface));border:1px solid color-mix(in srgb,var(--border) 84%,#52638b 16%);box-shadow:0 18px 55px rgba(0,0,0,.13);}
+.cnpj-reference-page .card,.cnpj-ref-card{background:var(--surface);border:1px solid var(--border);box-shadow:0 18px 55px rgba(0,0,0,.13);}
 
 /* Busca */
 .cnpj-search-card{padding:1.35rem 1.45rem 1.25rem;border-radius:14px;}
@@ -1847,14 +1848,14 @@ button:disabled{cursor:not-allowed}
 .cnpj-input-wrap{position:relative;min-width:0;}
 .cnpj-input-leading{position:absolute;left:1.05rem;top:50%;transform:translateY(-50%);width:20px;height:20px;color:#8a79ff;pointer-events:none;display:grid;place-items:center;}
 .cnpj-input-leading svg,.cnpj-input-valid svg{width:18px;height:18px;}
-#page-cnpj #cnpjSearchInput{height:54px;width:100%;padding:0 3.2rem 0 3rem;border-radius:10px;border:1px solid color-mix(in srgb,var(--border-2) 88%,#51607c 12%);background:linear-gradient(135deg,color-mix(in srgb,var(--surface-2) 94%,#18213a 6%),var(--surface-2));color:var(--text);font-size:.93rem;box-shadow:inset 0 1px 0 rgba(255,255,255,.015);}
+#page-cnpj #cnpjSearchInput{height:54px;width:100%;padding:0 3.2rem 0 3rem;border-radius:10px;border:1px solid var(--border-2);background:var(--surface-2);color:var(--text);font-size:.93rem;box-shadow:inset 0 1px 0 rgba(255,255,255,.015);}
 #page-cnpj #cnpjSearchInput:focus{outline:none;border-color:#7159e8;box-shadow:0 0 0 3px rgba(113,89,232,.15);}
 #page-cnpj #cnpjSearchInput.invalid{border-color:var(--danger);box-shadow:0 0 0 3px var(--danger-dim);}
 .cnpj-input-valid{position:absolute;right:1.05rem;top:50%;transform:translateY(-50%);width:21px;height:21px;border:2px solid #17c96a;border-radius:50%;color:#17c96a;display:grid;place-items:center;opacity:0;transition:.18s ease;pointer-events:none;}
 .cnpj-input-valid.show{opacity:1;}
 .cnpj-clear-btn,.cnpj-consult-btn{height:54px;border-radius:10px;font-family:var(--font-body);font-size:.84rem;font-weight:650;display:inline-flex;align-items:center;justify-content:center;gap:.55rem;transition:var(--transition);}
 .cnpj-clear-btn{background:transparent;border:1px solid var(--border-2);color:var(--text-2);}
-.cnpj-clear-btn:hover{border-color:color-mix(in srgb,var(--primary) 55%,var(--border-2));color:var(--text);background:var(--surface-2);}
+.cnpj-clear-btn:hover{border-color:var(--primary);color:var(--text);background:var(--surface-2);}
 .cnpj-consult-btn{border:0;color:#fff;background:linear-gradient(135deg,#7a5af8 0%,#5c3bd7 100%);box-shadow:0 8px 25px rgba(104,72,225,.25);}
 .cnpj-consult-btn:hover:not(:disabled){filter:brightness(1.08);transform:translateY(-1px);box-shadow:0 10px 30px rgba(104,72,225,.32);}
 .cnpj-consult-btn:disabled{opacity:.62;cursor:wait;transform:none;}
@@ -1863,7 +1864,7 @@ button:disabled{cursor:not-allowed}
 .cnpj-help-line svg{width:16px;height:16px;color:#8b78ff;flex:0 0 auto;}
 
 /* Loader solicitado */
-.cnpj-loader{display:none;min-height:310px;align-items:center;justify-content:center;flex-direction:column;gap:1rem;padding:2.4rem;border:1px solid var(--border);border-radius:14px;background:linear-gradient(145deg,var(--surface),color-mix(in srgb,var(--surface) 90%,#121a32 10%));}
+.cnpj-loader{display:none;min-height:310px;align-items:center;justify-content:center;flex-direction:column;gap:1rem;padding:2.4rem;border:1px solid var(--border);border-radius:14px;background:var(--surface);}
 .cnpj-loader.show{display:flex;}
 .cnpj-loader strong{font-family:var(--font-display);font-size:1rem;color:var(--text);margin-top:.2rem;}
 .cnpj-loader span.cnpj-loader-sub{font-size:.76rem;color:var(--text-muted);margin-top:-.55rem;}
@@ -1899,7 +1900,7 @@ button:disabled{cursor:not-allowed}
 .cnpj-consult-status.error{background:var(--danger-dim);border-color:rgba(240,87,79,.2);color:var(--danger);}
 .cnpj-toolbar-actions{display:flex;gap:.55rem;align-items:center;}
 .cnpj-action-btn,.cnpj-export-menu>summary{height:36px;padding:0 .85rem;border:1px solid var(--border-2);border-radius:8px;background:transparent;color:var(--text-2);display:inline-flex;align-items:center;justify-content:center;gap:.45rem;font-family:var(--font-body);font-size:.72rem;font-weight:550;cursor:pointer;list-style:none;}
-.cnpj-action-btn:hover,.cnpj-export-menu>summary:hover{background:var(--surface-2);border-color:color-mix(in srgb,var(--primary) 50%,var(--border-2));color:var(--text);}
+.cnpj-action-btn:hover,.cnpj-export-menu>summary:hover{background:var(--surface-2);border-color:var(--primary);color:var(--text);}
 .cnpj-action-btn svg,.cnpj-export-menu svg{width:15px;height:15px;}
 .cnpj-export-menu{position:relative;}
 .cnpj-export-menu>summary::-webkit-details-marker{display:none;}
@@ -1907,7 +1908,7 @@ button:disabled{cursor:not-allowed}
 .cnpj-export-pop button{display:flex;width:100%;border:0;background:transparent;color:var(--text-2);font-size:.75rem;padding:.55rem .65rem;border-radius:7px;text-align:left;}
 .cnpj-export-pop button:hover{background:var(--primary-dim);color:var(--primary);}
 
-.cnpj-company-panel{border:1px solid var(--border);border-radius:12px;padding:1rem 1.05rem .85rem;background:linear-gradient(145deg,color-mix(in srgb,var(--surface-2) 80%,transparent),color-mix(in srgb,var(--surface) 97%,#10182c 3%));}
+.cnpj-company-panel{border:1px solid var(--border);border-radius:12px;padding:1rem 1.05rem .85rem;background:linear-gradient(145deg,var(--surface-2),var(--surface));}
 .cnpj-company-hero{display:flex;align-items:center;gap:1.05rem;margin-bottom:1rem;}
 .cnpj-building-mark{width:82px;height:82px;flex:0 0 82px;border-radius:13px;display:grid;place-items:center;background:linear-gradient(135deg,#7a5af8,#5231d2);box-shadow:0 8px 22px rgba(98,67,221,.28);color:#d8d0ff;}
 .cnpj-building-mark svg{width:38px;height:38px;}
@@ -1919,7 +1920,7 @@ button:disabled{cursor:not-allowed}
 .cnpj-status-pill{padding:.28rem .54rem;border-radius:999px;font-size:.62rem;font-weight:750;letter-spacing:.04em;text-transform:uppercase;background:rgba(17,175,91,.12);color:#25c874;border:1px solid rgba(17,175,91,.13);}
 .cnpj-status-pill.inactive{background:rgba(219,120,0,.13);color:#ff8c17;border-color:rgba(219,120,0,.18);}
 .cnpj-main-columns{display:grid;grid-template-columns:minmax(300px,.95fr) minmax(300px,1.2fr);gap:.9rem;}
-.cnpj-detail-box,.cnpj-cnae-box{border:1px solid var(--border);border-radius:10px;overflow:hidden;background:color-mix(in srgb,var(--surface) 84%,transparent);}
+.cnpj-detail-box,.cnpj-cnae-box{border:1px solid var(--border);border-radius:10px;overflow:hidden;background:var(--surface);}
 .cnpj-detail-row{display:grid;grid-template-columns:170px minmax(0,1fr);gap:.8rem;padding:.67rem .78rem;border-bottom:1px solid var(--border);font-size:.74rem;align-items:center;}
 .cnpj-detail-row:last-child{border-bottom:0;}
 .cnpj-detail-label{color:var(--text-2);}
@@ -2015,192 +2016,354 @@ button:disabled{cursor:not-allowed}
 </style>
 
 
-<style id="orbit-cnpj-dashboard-fixes-v3">
+<style id="orbit-survey-dashboard-styles">
+/* ═══════════════════════════════════════════════════
+   PESQUISA DE SATISFAÇÃO — DASHBOARD DINÂMICO V3
+   Planilha → interpretação → agrupamento → cálculo → visualização
+═══════════════════════════════════════════════════ */
+#page-survey{background:var(--bg)}
+.survey-page{display:flex;flex-direction:column;gap:1rem;max-width:1480px;margin:0 auto}
+.survey-hero{display:flex;align-items:flex-start;justify-content:space-between;gap:1rem;flex-wrap:wrap;padding:.2rem 0 .1rem}
+.survey-hero h1{font-family:var(--font-display);font-size:clamp(1.55rem,2.3vw,1.95rem);letter-spacing:-.04em;line-height:1.1;margin:0;color:var(--text)}
+.survey-hero p{font-size:.8rem;color:var(--text-muted);margin-top:.42rem;max-width:820px;line-height:1.55}
+.survey-dynamic-badge{display:inline-flex;align-items:center;gap:.45rem;padding:.42rem .7rem;border-radius:999px;border:1px solid rgba(0,168,128,.24);background:var(--accent-dim);color:var(--accent);font-size:.64rem;font-weight:750;white-space:nowrap}
+.survey-dynamic-badge::before{content:'';width:7px;height:7px;border-radius:50%;background:currentColor;box-shadow:0 0 0 4px var(--accent-dim)}
+.survey-mode-tabs{display:flex;gap:.35rem;padding:4px;background:var(--surface-2);border:1px solid var(--border);border-radius:11px;width:max-content;max-width:100%;overflow:auto}
+.survey-mode-tab{border:0;background:transparent;color:var(--text-muted);border-radius:8px;padding:.6rem .95rem;font-size:.75rem;font-weight:700;transition:var(--transition);white-space:nowrap}
+.survey-mode-tab:hover{color:var(--text);background:var(--surface-3)}
+.survey-mode-tab.active{background:var(--primary);color:#fff;box-shadow:0 5px 16px var(--primary-glow)}
+.survey-import-card{display:grid;grid-template-columns:minmax(0,1fr) auto;gap:1rem;align-items:center;padding:1.05rem 1.15rem;border-radius:14px}
+.survey-import-main{display:flex;align-items:center;gap:.9rem;min-width:0}
+.survey-import-icon{width:44px;height:44px;border-radius:12px;background:var(--primary-dim);color:var(--primary);display:grid;place-items:center;flex:0 0 auto}
+.survey-import-title{font-size:.86rem;font-weight:750;color:var(--text)}
+.survey-import-sub{font-size:.7rem;color:var(--text-muted);margin-top:.14rem;line-height:1.4}
+.survey-file-status{font-size:.68rem;color:var(--text-muted);margin-top:.38rem;display:flex;align-items:center;gap:.4rem}
+.survey-file-status.ok{color:var(--accent)}
+.survey-actions{display:flex;gap:.55rem;flex-wrap:wrap;justify-content:flex-end}
+.survey-file-btn,.survey-demo-btn,.survey-export-btn,.survey-pdf-btn{height:40px;padding:0 .88rem;border-radius:9px;font-family:var(--font-body);font-size:.73rem;font-weight:700;display:inline-flex;align-items:center;justify-content:center;gap:.42rem;cursor:pointer;transition:var(--transition);white-space:nowrap}
+.survey-file-btn{border:0;background:linear-gradient(135deg,var(--primary),#5b52d6);color:#fff;box-shadow:0 6px 18px var(--primary-glow)}
+.survey-file-btn:hover{transform:translateY(-1px);filter:brightness(1.06)}
+.survey-demo-btn,.survey-export-btn{border:1px solid var(--border-2);background:var(--surface-2);color:var(--text-2)}
+.survey-pdf-btn{border:1px solid rgba(99,91,255,.35);background:var(--primary-dim);color:var(--primary)}
+.survey-demo-btn:hover,.survey-export-btn:hover{border-color:var(--primary);color:var(--primary);background:var(--primary-dim)}
+.survey-pdf-btn:hover{border-color:var(--primary);background:var(--primary);color:#fff;transform:translateY(-1px)}
+.survey-pdf-btn.is-loading{opacity:.7;pointer-events:none}
+#surveyFileInput{display:none}
+.survey-source-bar{display:flex;align-items:center;justify-content:space-between;gap:1rem;flex-wrap:wrap;padding:.72rem .9rem;background:var(--surface);border:1px solid var(--border);border-radius:11px;font-size:.68rem;color:var(--text-muted)}
+.survey-source-meta{display:flex;align-items:center;gap:.55rem;flex-wrap:wrap}.survey-source-meta strong{color:var(--text)}
+.survey-live-status{display:inline-flex;align-items:center;gap:.4rem;color:var(--accent);font-weight:750}.survey-live-status::before{content:'';width:7px;height:7px;border-radius:50%;background:currentColor;box-shadow:0 0 0 4px var(--accent-dim)}
+
+/* Navegação interna: Página 1 / Página 2 */
+.survey-view-tabs{display:flex;align-items:center;gap:.35rem;padding:4px;border:1px solid var(--border);background:var(--surface);border-radius:12px;width:max-content;max-width:100%;position:sticky;top:76px;z-index:8;box-shadow:0 8px 24px rgba(15,23,42,.06)}
+.survey-view-tab{border:0;background:transparent;color:var(--text-muted);padding:.62rem .95rem;border-radius:8px;font-size:.74rem;font-weight:750;display:flex;align-items:center;gap:.42rem;white-space:nowrap;transition:var(--transition)}
+.survey-view-tab:hover{color:var(--text);background:var(--surface-2)}
+.survey-view-tab.active{background:var(--primary-dim);color:var(--primary);box-shadow:inset 0 0 0 1px rgba(99,91,255,.12)}
+.survey-view{display:none;flex-direction:column;gap:1rem;animation:fadeUp .22s ease}.survey-view.active{display:flex}
+.survey-page-section-label{display:flex;align-items:center;justify-content:space-between;gap:1rem;padding:.2rem .1rem}
+.survey-page-section-label h2{font-family:var(--font-display);font-size:1.05rem;color:var(--text);letter-spacing:-.025em}
+.survey-page-section-label span{font-size:.65rem;color:var(--text-muted)}
+
+/* KPIs */
+.survey-kpi-grid{display:grid;grid-template-columns:repeat(4,minmax(0,1fr));gap:.9rem}
+.survey-kpi{background:var(--surface);border:1px solid var(--border);border-radius:15px;padding:1.05rem 1.1rem;position:relative;overflow:hidden;box-shadow:0 8px 24px rgba(15,23,42,.035);min-height:132px;display:flex;flex-direction:column;justify-content:space-between}
+.survey-kpi::before{content:'';position:absolute;inset:0 auto 0 0;width:3px;background:var(--primary)}
+.survey-kpi.kpi-positive::before{background:var(--accent)}
+.survey-kpi.kpi-best::before{background:#5e9cff}
+.survey-kpi.kpi-attention::before{background:var(--warning)}
+.survey-kpi-top{display:flex;align-items:center;justify-content:space-between;gap:.7rem}
+.survey-kpi-icon{width:31px;height:31px;border-radius:9px;display:grid;place-items:center;background:var(--primary-dim);color:var(--primary);font-size:.82rem;font-weight:800}
+.kpi-positive .survey-kpi-icon{background:var(--accent-dim);color:var(--accent)}
+.kpi-best .survey-kpi-icon{background:rgba(94,156,255,.11);color:#5e9cff}
+.kpi-attention .survey-kpi-icon{background:var(--warning-dim);color:var(--warning)}
+.survey-kpi-label{font-size:.6rem;text-transform:uppercase;letter-spacing:1.05px;color:var(--text-muted);font-weight:750}
+.survey-kpi-value{font-family:var(--font-display);font-size:2rem;line-height:1.05;font-weight:750;color:var(--text);margin:.45rem 0 .24rem;letter-spacing:-.035em;overflow-wrap:anywhere}
+.survey-kpi-value.textual{font-size:1.06rem;line-height:1.25;letter-spacing:-.02em}
+.survey-kpi-sub{font-size:.67rem;color:var(--text-muted);line-height:1.42}
+
+/* Cards / charts / tabelas */
+.survey-grid-2{display:grid;grid-template-columns:minmax(0,1.12fr) minmax(320px,.88fr);gap:1rem}
+.survey-grid-equal{display:grid;grid-template-columns:1fr 1fr;gap:1rem}
+.survey-card{background:var(--surface);border:1px solid var(--border);border-radius:15px;padding:1.15rem 1.2rem;min-width:0;box-shadow:0 8px 24px rgba(15,23,42,.035)}
+.survey-card-head{display:flex;align-items:flex-start;justify-content:space-between;gap:.8rem;margin-bottom:.85rem}
+.survey-card-title{font-family:var(--font-display);font-size:.96rem;font-weight:700;color:var(--text);letter-spacing:-.02em}
+.survey-card-sub{font-size:.67rem;color:var(--text-muted);margin-top:.18rem;line-height:1.45}
+.survey-card-badge{font-size:.61rem;font-weight:750;color:var(--primary);background:var(--primary-dim);border:1px solid rgba(99,91,255,.14);border-radius:999px;padding:4px 8px;white-space:nowrap}
+.survey-chart{height:250px;position:relative}.survey-chart.tall{height:305px}.survey-chart.compact{height:220px}
+.survey-table-wrap{overflow:auto;border:1px solid var(--border);border-radius:10px}
+.survey-question-table,.survey-data-table,.survey-matrix-table{width:100%;border-collapse:separate;border-spacing:0;font-size:.71rem}
+.survey-question-table th,.survey-data-table th,.survey-matrix-table th{padding:.67rem .7rem;text-align:left;color:var(--text-muted);font-size:.59rem;text-transform:uppercase;letter-spacing:.72px;border-bottom:1px solid var(--border);font-weight:750;background:var(--surface-2);white-space:nowrap;position:sticky;top:0;z-index:1}
+.survey-question-table td,.survey-data-table td,.survey-matrix-table td{padding:.7rem;border-bottom:1px solid var(--border);color:var(--text-2);vertical-align:middle}
+.survey-question-table tr:last-child td,.survey-data-table tr:last-child td,.survey-matrix-table tr:last-child td{border-bottom:0}
+.survey-question-table td:first-child,.survey-matrix-table td:first-child{color:var(--text);font-weight:650;min-width:175px;position:sticky;left:0;background:var(--surface);z-index:1}
+.survey-matrix-table th:first-child{position:sticky;left:0;z-index:3}
+.survey-matrix-cell{min-width:98px;text-align:center!important}
+.survey-cell-score{display:block;font-weight:800;color:var(--text);font-size:.76rem}.survey-cell-base{display:block;font-size:.59rem;color:var(--text-muted);margin-top:2px}
+.survey-cell-score.good{color:var(--accent)}.survey-cell-score.mid{color:var(--warning)}.survey-cell-score.risk{color:var(--danger)}
+.survey-score-wrap{display:flex;align-items:center;gap:.55rem;min-width:135px}.survey-score-bar{height:7px;border-radius:99px;background:var(--surface-3);flex:1;overflow:hidden}.survey-score-fill{height:100%;border-radius:99px;background:linear-gradient(90deg,var(--primary),var(--accent))}.survey-score-num{font-weight:750;color:var(--text);min-width:42px;text-align:right}
+.survey-quality-note{display:none;margin:0 0 .8rem;padding:.68rem .78rem;border-radius:9px;border:1px solid var(--border);background:var(--surface-2);font-size:.67rem;line-height:1.48;color:var(--text-muted)}
+.survey-quality-note.show{display:block}.survey-quality-note.warn{border-color:rgba(216,137,0,.38);background:rgba(216,137,0,.08);color:var(--warning)}.survey-quality-note.ok{border-color:rgba(0,168,128,.3);background:rgba(0,168,128,.07);color:var(--accent)}
+
+/* Resumos de distribuição sob gráficos */
+.survey-distribution-list{display:grid;grid-template-columns:repeat(5,minmax(0,1fr));gap:.45rem;margin-top:.8rem}
+.survey-dist-item{padding:.55rem .58rem;border:1px solid var(--border);background:var(--surface-2);border-radius:9px;min-width:0}
+.survey-dist-label{font-size:.59rem;color:var(--text-muted);white-space:nowrap;overflow:hidden;text-overflow:ellipsis}.survey-dist-value{font-family:var(--font-display);font-size:.8rem;font-weight:750;color:var(--text);margin-top:2px}.survey-dist-value small{font-family:var(--font-body);font-size:.58rem;color:var(--text-muted);font-weight:600}
+.survey-dimension-list{display:flex;flex-direction:column;gap:.42rem;margin-top:.75rem}.survey-dimension-row{display:grid;grid-template-columns:minmax(130px,1fr) 70px 95px;gap:.65rem;align-items:center;padding:.48rem .55rem;border-radius:8px;background:var(--surface-2);border:1px solid var(--border)}.survey-dimension-name{font-size:.67rem;color:var(--text-2);font-weight:650}.survey-dimension-score{font-size:.7rem;color:var(--text);font-weight:800;text-align:right}.survey-dimension-base{font-size:.59rem;color:var(--text-muted);text-align:right;white-space:nowrap}
+
+/* Insights */
+.survey-insight-list{display:grid;grid-template-columns:repeat(4,minmax(0,1fr));gap:.55rem}.survey-insight{display:flex;gap:.62rem;align-items:flex-start;padding:.7rem .72rem;background:var(--surface-2);border:1px solid var(--border);border-radius:10px}.survey-insight-icon{width:27px;height:27px;border-radius:8px;background:var(--primary-dim);color:var(--primary);display:grid;place-items:center;flex:0 0 auto;font-size:.74rem;font-weight:800}.survey-insight strong{display:block;font-size:.7rem;color:var(--text);margin-bottom:.1rem}.survey-insight span{display:block;font-size:.63rem;color:var(--text-muted);line-height:1.4}
+
+/* Sugestões: todas carregadas; altura calculada para os 10 primeiros */
+.survey-comments-card{order:99}
+.survey-comment-meta{font-size:.64rem;color:var(--text-muted);margin-top:-.35rem;margin-bottom:.7rem}
+.survey-comment-list{display:flex;flex-direction:column;gap:.5rem;overflow-y:auto;padding-right:.22rem;scrollbar-gutter:stable}
+.survey-comment{padding:.68rem .74rem;background:var(--surface-2);border:1px solid var(--border);border-radius:9px}
+.survey-comment-row{display:grid;grid-template-columns:auto minmax(0,1fr) auto;gap:.65rem;align-items:flex-start}.survey-comment-index{width:24px;height:24px;border-radius:7px;background:var(--primary-dim);color:var(--primary);display:grid;place-items:center;font-size:.59rem;font-weight:800}.survey-comment-text{font-size:.69rem;color:var(--text-2);line-height:1.45}.survey-comment-cd{font-size:.58rem;font-weight:750;color:var(--text-muted);border:1px solid var(--border);background:var(--surface);padding:2px 6px;border-radius:999px;white-space:nowrap}
+.survey-empty{padding:2.2rem 1rem;text-align:center;color:var(--text-muted);font-size:.76rem}
+
+/* Página 2 */
+.survey-cd-layout{display:grid;grid-template-columns:minmax(300px,.78fr) minmax(0,1.22fr);gap:1rem;align-items:start}
+.survey-themes-wrap{max-height:470px;overflow:auto}.survey-theme-title{font-weight:750;color:var(--text);font-size:.72rem}.survey-theme-action{font-size:.66rem;color:var(--text-2);line-height:1.45;min-width:280px}.survey-theme-example{display:block;color:var(--text-muted);font-size:.59rem;margin-top:3px;font-style:italic}.survey-theme-count{font-family:var(--font-display);font-weight:800;color:var(--primary)}
+.survey-details-toggle{border:1px solid var(--border);border-radius:12px;background:var(--surface);overflow:hidden}.survey-details-toggle>summary{cursor:pointer;list-style:none;padding:.85rem 1rem;font-size:.73rem;font-weight:700;color:var(--text);display:flex;align-items:center;justify-content:space-between}.survey-details-toggle>summary::-webkit-details-marker{display:none}.survey-details-toggle>summary::after{content:'+';color:var(--primary);font-size:1rem}.survey-details-toggle[open]>summary::after{content:'−'}.survey-details-body{padding:0 1rem 1rem}
+.survey-note{font-size:.65rem;color:var(--text-muted);line-height:1.5;padding:.72rem .82rem;border-radius:9px;background:var(--primary-dim);border:1px solid rgba(124,111,247,.18)}
+
+/* PDF: exibe as duas páginas internas e remove controles */
+.survey-pdf-mode .survey-view{display:flex!important;margin-top:1rem}.survey-pdf-mode .survey-view-tabs,.survey-pdf-mode .survey-import-card,.survey-pdf-mode .survey-mode-tabs{display:none!important}.survey-pdf-mode .survey-comment-list,.survey-pdf-mode .survey-themes-wrap{max-height:none!important;overflow:visible!important}.survey-pdf-mode .survey-page-section-label{margin-top:.8rem;padding-top:.7rem;border-top:1px solid var(--border)}
+
+[data-theme="light"] #page-survey{background:#f7f8fc}
+[data-theme="light"] .survey-card,[data-theme="light"] .survey-kpi,[data-theme="light"] .survey-import-card,[data-theme="light"] .survey-source-bar,[data-theme="light"] .survey-view-tabs,[data-theme="light"] .survey-details-toggle{background:#fff;border-color:#e4e9f1;box-shadow:0 10px 28px rgba(15,23,42,.045)}
+[data-theme="light"] .survey-question-table td,[data-theme="light"] .survey-data-table td,[data-theme="light"] .survey-matrix-table td{color:#334155}
+[data-theme="light"] .survey-question-table td:first-child,[data-theme="light"] .survey-matrix-table td:first-child{background:#fff;color:#111827}
+[data-theme="light"] .survey-comment,[data-theme="light"] .survey-insight,[data-theme="light"] .survey-dist-item,[data-theme="light"] .survey-dimension-row{background:#f8fafc;border-color:#e5e9f0}
+[data-theme="light"] .survey-question-table th,[data-theme="light"] .survey-data-table th,[data-theme="light"] .survey-matrix-table th{background:#f8fafc;color:#64748b}
+[data-theme="light"] .survey-kpi-sub,[data-theme="light"] .survey-card-sub,[data-theme="light"] .survey-comment-text,[data-theme="light"] .survey-theme-action{color:#475569}
+
+@media(max-width:1180px){.survey-insight-list{grid-template-columns:repeat(2,1fr)}.survey-cd-layout{grid-template-columns:1fr}.survey-distribution-list{grid-template-columns:repeat(3,1fr)}}
+@media(max-width:1050px){.survey-kpi-grid{grid-template-columns:repeat(2,1fr)}.survey-grid-2,.survey-grid-equal{grid-template-columns:1fr}}
+@media(max-width:680px){.survey-import-card{grid-template-columns:1fr}.survey-actions{justify-content:flex-start}.survey-kpi-grid{grid-template-columns:1fr}.survey-chart,.survey-chart.tall,.survey-chart.compact{height:235px}.survey-import-main{align-items:flex-start}.survey-view-tabs{top:64px;width:100%}.survey-view-tab{flex:1;justify-content:center}.survey-insight-list{grid-template-columns:1fr}.survey-distribution-list{grid-template-columns:repeat(2,1fr)}.survey-comment-row{grid-template-columns:auto minmax(0,1fr)}.survey-comment-cd{grid-column:2}.survey-dimension-row{grid-template-columns:1fr auto}.survey-dimension-base{grid-column:1 / -1;text-align:left}}
+
+</style>
+
+
+<style id="orbit-survey-prototype-v4">
+/* Pesquisa de Satisfação — UI alinhada ao protótipo enviado */
+#page-survey{background:#f7f8fc;padding-top:1.25rem}
+:root:not([data-theme="light"]) #page-survey{background:var(--bg)}
+.main-area:has(#page-survey.active) .topbar-title{opacity:0;width:1px;overflow:hidden}
+.survey-proto-page{max-width:1500px;gap:.85rem}
+.survey-proto-header{display:flex;align-items:center;justify-content:space-between;gap:1rem;padding:0 .25rem .2rem}
+.survey-proto-title-wrap h1{font-family:var(--font-display);font-size:1.45rem;line-height:1.05;letter-spacing:-.04em;color:var(--text)}
+.survey-proto-title-wrap p{font-size:.78rem;color:var(--text-2);margin-top:.25rem}
+.survey-header-tools{display:flex;align-items:center;gap:.65rem}
+.survey-period-control,.survey-filter-trigger{height:38px;border-radius:9px;border:1px solid var(--border);background:var(--surface);color:var(--text-2);font-family:var(--font-body);font-size:.7rem;font-weight:650;padding:0 .85rem;display:inline-flex;align-items:center;gap:.45rem}
+.survey-filter-trigger{color:var(--primary);border-color:rgba(99,91,255,.22)}
+.survey-period-control:hover,.survey-filter-trigger:hover{border-color:var(--primary);background:var(--primary-dim)}
+.survey-proto-tabs{position:static;top:auto;width:100%;padding:0;border:0;border-bottom:1px solid var(--border);border-radius:0;box-shadow:none;background:transparent;gap:1.65rem}
+.survey-proto-tabs .survey-view-tab{border-radius:0;padding:.65rem 0 .55rem;background:transparent!important;box-shadow:none!important;position:relative;font-size:.7rem}
+.survey-proto-tabs .survey-view-tab.active{color:var(--primary)}
+.survey-proto-tabs .survey-view-tab.active::after{content:'';position:absolute;left:0;right:0;bottom:-1px;height:2px;background:var(--primary);border-radius:2px}
+.survey-data-toolbar{display:grid;grid-template-columns:minmax(0,1fr) auto;gap:.6rem 1rem;align-items:center;background:var(--surface);border:1px solid var(--border);border-radius:12px;padding:.72rem .8rem;box-shadow:0 6px 20px rgba(15,23,42,.035)}
+.survey-data-left{display:flex;align-items:center;gap:.8rem;min-width:0;flex-wrap:wrap}
+.survey-division-compact{padding:3px;border-radius:9px}
+.survey-division-compact .survey-mode-tab{padding:.42rem .72rem;font-size:.67rem}
+.survey-source-compact{display:flex;align-items:center;gap:.5rem;min-width:0;font-size:.63rem;color:var(--text-muted);flex-wrap:wrap}
+.survey-source-compact strong{color:var(--text-2);max-width:280px;overflow:hidden;text-overflow:ellipsis;white-space:nowrap}
+.survey-actions-compact{gap:.42rem}
+.survey-actions-compact .survey-file-btn,.survey-actions-compact .survey-export-btn,.survey-actions-compact .survey-pdf-btn,.survey-actions-compact .survey-demo-btn{height:34px;padding:0 .7rem;font-size:.66rem;border-radius:8px}
+.survey-data-toolbar>.survey-file-status{grid-column:1/-1;margin:0;font-size:.61rem;border-top:1px solid var(--border);padding-top:.45rem}
+.survey-view{gap:.75rem}
+.survey-proto-kpis{gap:.65rem}
+.proto-kpi{min-height:118px;padding:.85rem .95rem;border-radius:12px;box-shadow:0 4px 14px rgba(15,23,42,.03)}
+.proto-kpi::before{display:none}
+.proto-kpi-head{display:flex;align-items:center;gap:.55rem;font-size:.64rem;font-weight:700;color:var(--text-2);line-height:1.25}
+.proto-kpi-icon{width:27px;height:27px;border-radius:7px;display:grid;place-items:center;background:var(--primary-dim);color:var(--primary);font-size:.84rem}
+.proto-kpi.green .proto-kpi-icon{background:rgba(16,185,129,.10);color:#10a66f}.proto-kpi.teal .proto-kpi-icon{background:rgba(20,184,166,.10);color:#0f9f90}.proto-kpi.orange .proto-kpi-icon{background:rgba(245,158,11,.11);color:#e58c00}
+.proto-kpi .survey-kpi-value{font-size:1.7rem;margin:.5rem 0 .1rem}.proto-kpi .survey-kpi-value.textual{font-size:.9rem;line-height:1.25;margin-top:.55rem}.proto-kpi .survey-kpi-sub{font-size:.59rem}
+.survey-exec-layout{display:grid;grid-template-columns:minmax(0,1.35fr) minmax(330px,.65fr);gap:.65rem;align-items:stretch}
+.survey-card{border-radius:12px;padding:.9rem .95rem;box-shadow:0 4px 16px rgba(15,23,42,.03)}
+.survey-card-head{margin-bottom:.65rem}.survey-card-title{font-size:.78rem;letter-spacing:-.015em}.survey-card-sub{font-size:.59rem}
+.survey-card-badge{font-size:.56rem;padding:3px 7px}
+.survey-proto-dimensions{gap:0;margin-top:.1rem}
+.survey-proto-dimensions .survey-dimension-row{display:grid;grid-template-columns:30px minmax(145px,.9fr) minmax(120px,1.15fr) 52px 84px;align-items:center;gap:.55rem;padding:.58rem .25rem;border:0;border-bottom:1px solid var(--border);border-radius:0;background:transparent}
+.survey-proto-dimensions .survey-dimension-row:last-child{border-bottom:0}
+.survey-dimension-icon{width:25px;height:25px;border-radius:7px;background:var(--primary-dim);color:var(--primary);display:grid;place-items:center;font-size:.65rem;font-weight:800}
+.survey-proto-dimensions .survey-dimension-name{font-size:.66rem;color:var(--text);font-weight:650}
+.survey-dimension-progress{height:5px;background:var(--surface-3);border-radius:99px;overflow:hidden}.survey-dimension-progress>span{display:block;height:100%;background:linear-gradient(90deg,#7c5cff,#5b52d6);border-radius:inherit}
+.survey-proto-dimensions .survey-dimension-score{font-size:.65rem;text-align:right}.survey-proto-dimensions .survey-dimension-base{font-size:.55rem;text-align:right}
+.survey-donut-stack{display:grid;grid-template-rows:1fr 1fr;gap:.65rem}
+.survey-mini-card{min-height:0}.survey-donut-content{display:grid;grid-template-columns:140px minmax(0,1fr);gap:.6rem;align-items:center}.survey-donut-chart{height:135px}.survey-donut-legend{display:flex;flex-direction:column;gap:.36rem}.survey-donut-legend-row{display:grid;grid-template-columns:8px minmax(0,1fr) auto;align-items:center;gap:.4rem;font-size:.56rem;color:var(--text-2)}.survey-donut-dot{width:6px;height:6px;border-radius:50%}.survey-donut-val{font-weight:700;color:var(--text);white-space:nowrap}.survey-donut-val small{color:var(--text-muted);font-weight:500}
+.survey-proto-comments{padding-bottom:.75rem}.survey-link-btn{border:0;background:transparent;color:var(--primary);font-size:.63rem;font-weight:700;cursor:pointer}.survey-link-btn:hover{text-decoration:underline}
+.survey-suggestion-table-head{display:grid;grid-template-columns:minmax(0,1fr) 70px 78px;gap:.55rem;padding:.35rem .45rem;font-size:.54rem;text-transform:uppercase;letter-spacing:.6px;color:var(--text-muted);font-weight:750;border-bottom:1px solid var(--border)}
+.survey-suggestion-list{display:block;max-height:none!important;overflow:visible!important;padding:0}
+.survey-suggestion-list .survey-comment{padding:.48rem .45rem;border:0;border-bottom:1px solid var(--border);border-radius:0;background:transparent}.survey-suggestion-list .survey-comment:last-child{border-bottom:0}
+.survey-suggestion-list .survey-comment-row{display:grid;grid-template-columns:minmax(0,1fr) 70px 78px;gap:.55rem;align-items:center}.survey-suggestion-list .survey-comment-text{font-size:.59rem;color:var(--text-2);white-space:nowrap;overflow:hidden;text-overflow:ellipsis}.survey-suggestion-list .survey-comment-cd,.survey-comment-date{font-size:.55rem;color:var(--text-muted);border:0;background:transparent;padding:0}.survey-comment-date{text-align:right}
+.survey-pagination{display:flex;align-items:center;justify-content:center;gap:.45rem;margin-top:.55rem}.survey-pagination>button,.survey-page-number{width:28px;height:28px;border:1px solid var(--border);background:var(--surface);color:var(--text-muted);border-radius:7px;font-size:.63rem;cursor:pointer}.survey-page-number.active{background:var(--primary);border-color:var(--primary);color:#fff}.survey-pagination>button:disabled{opacity:.35}.survey-pagination>div{display:flex;gap:.25rem;align-items:center}
+.survey-detail-top{display:grid;grid-template-columns:minmax(220px,.62fr) minmax(0,1.7fr);gap:.65rem}.survey-cd-card{min-width:0}.survey-table-wrap.borderless{border:0}.survey-data-table th,.survey-matrix-table th{font-size:.54rem;padding:.55rem .5rem}.survey-data-table td,.survey-matrix-table td{font-size:.6rem;padding:.58rem .5rem}.heat-wrap{max-width:100%;overflow:auto}.survey-heat-table td{transition:filter .15s}.survey-heat-table td.survey-matrix-cell:hover{filter:brightness(.97)}.survey-heat-table .survey-cell-score{font-size:.62rem;color:#0f172a}.survey-heat-table .survey-cell-base{display:none}.survey-heat-table th:first-child,.survey-heat-table td:first-child{min-width:170px}
+
+.survey-analysis-controls{padding:.85rem .95rem;display:flex;align-items:flex-end;justify-content:space-between;gap:1rem;flex-wrap:wrap;border-color:rgba(99,91,255,.2)}
+.survey-analysis-selects{display:grid;grid-template-columns:minmax(220px,1fr) minmax(280px,1.25fr);gap:.7rem;flex:1;min-width:min(100%,560px)}
+.survey-analysis-select-group{display:flex;flex-direction:column;gap:.3rem}.survey-analysis-select-group>span{font-size:.57rem;font-weight:750;color:var(--text-muted);text-transform:uppercase;letter-spacing:.55px}
+.survey-analysis-select{height:38px;border:1px solid var(--border-2);border-radius:9px;background:var(--surface-2);color:var(--text);font-family:var(--font-body);font-size:.68rem;font-weight:650;padding:0 2rem 0 .75rem;width:100%;cursor:pointer}
+.survey-analysis-select:focus{outline:none;border-color:var(--primary);box-shadow:0 0 0 3px var(--primary-dim)}
+.survey-analysis-note{max-width:410px;font-size:.57rem;color:var(--text-muted);line-height:1.45;padding:.5rem .65rem;background:var(--surface-2);border:1px solid var(--border);border-radius:8px}
+.survey-scenario-grid{display:grid;grid-template-columns:1fr 1fr;gap:.65rem}
+.survey-scenario-card{min-width:0}.survey-scenario-chart{height:210px;margin-bottom:.45rem}.survey-scenario-table-wrap{max-height:260px;overflow:auto;border-top:1px solid var(--border)}
+.survey-scenario-table{width:100%;border-collapse:collapse}.survey-scenario-table th{position:sticky;top:0;z-index:1;background:var(--surface);font-size:.52rem;text-transform:uppercase;letter-spacing:.5px;color:var(--text-muted);text-align:left;padding:.5rem .45rem;border-bottom:1px solid var(--border)}
+.survey-scenario-table td{font-size:.59rem;color:var(--text-2);padding:.52rem .45rem;border-bottom:1px solid var(--border)}.survey-scenario-table td:first-child{font-weight:700;color:var(--text)}
+.survey-scenario-rank{display:inline-flex;min-width:22px;height:22px;align-items:center;justify-content:center;border-radius:7px;background:var(--primary-dim);color:var(--primary);font-weight:800}
+.survey-delta{font-weight:700}.survey-delta.pos{color:var(--accent)}.survey-delta.neg{color:var(--danger)}.survey-delta.zero{color:var(--text-muted)}
+.survey-comparison-caption{font-size:.56rem;color:var(--text-muted);margin-top:.15rem}.survey-comparison-caption strong{color:var(--text)}
+[data-theme="light"] .survey-analysis-controls{background:#fff}.survey-scenario-card .survey-card-sub strong{color:var(--text)}
+
+.survey-themes-layout{display:grid;grid-template-columns:minmax(0,1.6fr) 240px;gap:.8rem;align-items:center}.survey-theme-chart-wrap{position:relative;min-height:200px}.survey-theme-chart{height:200px}.survey-theme-total{position:absolute;left:50%;top:50%;transform:translate(-50%,-50%);font-family:var(--font-display);font-size:1.05rem;font-weight:800;color:var(--text);text-align:center;line-height:1.05;pointer-events:none}.survey-theme-total small{font-family:var(--font-body);font-size:.52rem;color:var(--text-muted);font-weight:600}.survey-theme-title{font-size:.62rem}.survey-theme-action{font-size:.58rem;min-width:250px}.survey-theme-example{display:none}.survey-theme-count{font-size:.68rem}
+.survey-detail-bottom{display:grid;grid-template-columns:minmax(0,1.5fr) minmax(260px,.55fr);gap:.65rem}.survey-evolution-chart{height:235px}.survey-chart-empty{display:none;position:absolute;inset:0;align-items:center;justify-content:center;text-align:center;color:var(--text-muted);font-size:.66rem;background:linear-gradient(180deg,transparent,rgba(127,127,127,.03));padding:1rem}.survey-chart-empty.show{display:flex}
+.survey-filter-card{display:flex;flex-direction:column;gap:.55rem}.survey-filter-label{display:flex;flex-direction:column;gap:.25rem;font-size:.57rem;color:var(--text-muted);font-weight:650}.survey-filter-card .survey-select{width:100%;height:34px;font-size:.62rem;background:var(--surface);border-color:var(--border)}.survey-date-row{display:grid;grid-template-columns:1fr 1fr;gap:.45rem}.survey-apply-filter{height:35px;border:1px solid var(--primary);background:transparent;color:var(--primary);border-radius:8px;font-size:.63rem;font-weight:700}.survey-apply-filter:hover{background:var(--primary);color:#fff}.survey-reset-filter{border:0;background:transparent;color:var(--text-muted);font-size:.58rem}.survey-reset-filter:hover{color:var(--text)}
+.survey-rules-card{border:1px solid rgba(99,91,255,.18);background:linear-gradient(90deg,rgba(99,91,255,.055),rgba(99,91,255,.025));border-radius:11px;padding:.8rem .9rem}.survey-rules-grid{display:grid;grid-template-columns:repeat(3,1fr);gap:.42rem .8rem;margin-top:.55rem}.survey-rules-grid span{font-size:.57rem;color:var(--text-2)}.survey-rules-grid span::first-letter{color:var(--accent)}
+.survey-details-toggle{border-radius:10px}.survey-details-toggle>summary{font-size:.64rem;padding:.7rem .8rem}
+.survey-pdf-mode .survey-data-toolbar,.survey-pdf-mode .survey-proto-tabs,.survey-pdf-mode .survey-header-tools{display:none!important}.survey-pdf-mode .survey-view{display:flex!important}.survey-pdf-mode .survey-pagination{display:none!important}.survey-pdf-mode .survey-suggestion-list{max-height:none!important;overflow:visible!important}
+[data-theme="light"] .survey-data-toolbar,[data-theme="light"] .survey-card,[data-theme="light"] .survey-kpi{background:#fff;border-color:#e6e9f0;box-shadow:0 5px 16px rgba(15,23,42,.035)}
+[data-theme="light"] .survey-proto-dimensions .survey-dimension-row{border-color:#edf0f4}.survey-theme-chart-wrap canvas{position:relative;z-index:1}
+@media(max-width:1100px){.survey-exec-layout{grid-template-columns:1fr}.survey-donut-stack{grid-template-columns:1fr 1fr;grid-template-rows:auto}.survey-detail-top,.survey-detail-bottom,.survey-scenario-grid{grid-template-columns:1fr}.survey-rules-grid{grid-template-columns:repeat(2,1fr)}}
+@media(max-width:760px){.survey-proto-header{align-items:flex-start}.survey-header-tools{width:100%;justify-content:flex-start}.survey-data-toolbar{grid-template-columns:1fr}.survey-actions-compact{justify-content:flex-start}.survey-proto-kpis{grid-template-columns:1fr 1fr}.survey-donut-stack{grid-template-columns:1fr}.survey-themes-layout{grid-template-columns:1fr}.survey-theme-chart-wrap{max-width:280px;margin:auto;width:100%}.survey-proto-dimensions .survey-dimension-row{grid-template-columns:28px minmax(0,1fr) 48px}.survey-dimension-progress{grid-column:2}.survey-proto-dimensions .survey-dimension-base{grid-column:2/-1;text-align:left}.survey-suggestion-table-head,.survey-suggestion-list .survey-comment-row{grid-template-columns:minmax(0,1fr) 55px}.survey-suggestion-table-head span:last-child,.survey-comment-date{display:none}.survey-rules-grid{grid-template-columns:1fr}.survey-date-row{grid-template-columns:1fr}.survey-detail-top{grid-template-columns:1fr}.survey-analysis-selects{grid-template-columns:1fr}.survey-analysis-note{max-width:none;width:100%}.survey-proto-title-wrap h1{font-size:1.25rem}}
+@media(max-width:520px){.survey-proto-kpis{grid-template-columns:1fr}.survey-donut-content{grid-template-columns:115px 1fr}.survey-donut-chart{height:115px}}
+</style>
+
+
+<style id="orbit-survey-no-date-ux">
+#page-survey .survey-detail-bottom-no-date{display:block;}
+#page-survey .survey-filter-card-wide{display:grid;grid-template-columns:minmax(0,1fr) auto;gap:.75rem 1rem;align-items:end;}
+#page-survey .survey-filter-card-wide .survey-card-head{grid-column:1/-1;margin-bottom:.1rem;}
+#page-survey .survey-filter-fields{display:grid;grid-template-columns:repeat(3,minmax(0,1fr));gap:.7rem;}
+#page-survey .survey-filter-actions{display:flex;align-items:center;gap:.55rem;min-width:220px;}
+#page-survey .survey-filter-actions .survey-apply-filter{min-width:130px;padding:0 .9rem;}
+#page-survey .survey-filter-actions .survey-reset-filter{padding:0 .35rem;white-space:nowrap;}
+@media(max-width:900px){#page-survey .survey-filter-card-wide{grid-template-columns:1fr;}#page-survey .survey-filter-fields{grid-template-columns:1fr 1fr 1fr;}#page-survey .survey-filter-actions{min-width:0;}}
+@media(max-width:680px){#page-survey .survey-filter-fields{grid-template-columns:1fr;}#page-survey .survey-filter-actions{align-items:stretch;flex-direction:column;}#page-survey .survey-filter-actions .survey-apply-filter,#page-survey .survey-filter-actions .survey-reset-filter{width:100%;}}
+</style>
+<style id="orbit-sidebar-ux-v2">
 /* =========================================================
-   MELHORIAS 27/08/2026
-   - Consulta CNPJ: hierarquia, alinhamento e light mode
-   - Dashboard: suporte visual aos dados diarios consolidados
+   ORBIT — SIDEBAR UX/UI V2
+   Visual only: navigation hierarchy, hover, active and focus.
    ========================================================= */
+:root{
+  --sidebar-bg:#051127;
+  --sidebar-text:#C7D0E0;
+  --sidebar-icon:#9AA8BD;
+  --sidebar-hover-bg:rgba(124,58,237,.10);
+  --sidebar-active-a:#6D28D9;
+  --sidebar-active-b:#4F21D8;
+  --sidebar-focus:#A78BFA;
+}
+.sidebar{
+  background:linear-gradient(180deg,#061329 0%,var(--sidebar-bg) 100%) !important;
+  border-right:1px solid rgba(148,163,184,.10) !important;
+  box-shadow:10px 0 34px rgba(2,6,23,.16) !important;
+}
+.sidebar-brand{
+  border-bottom:1px solid rgba(148,163,184,.10) !important;
+}
+.sidebar-brand .brand-name{
+  color:#19d3ac !important;
+  text-shadow:none !important;
+}
+.sidebar-brand .brand-sub,
+.nav-section-label{
+  color:#718096 !important;
+}
+.sidebar-nav{gap:5px !important;}
+.nav-item{
+  position:relative !important;
+  min-height:42px !important;
+  color:var(--sidebar-text) !important;
+  background:transparent !important;
+  border:1px solid transparent !important;
+  border-radius:10px !important;
+  transition:background-color .18s ease,color .18s ease,transform .18s ease,box-shadow .18s ease !important;
+}
+.nav-item svg{
+  color:var(--sidebar-icon) !important;
+  stroke:currentColor !important;
+  opacity:1 !important;
+  transition:color .18s ease,transform .18s ease !important;
+}
+.nav-item::before{
+  content:'' !important;
+  position:absolute !important;
+  left:0 !important;
+  top:8px !important;
+  bottom:8px !important;
+  width:3px !important;
+  border-radius:0 3px 3px 0 !important;
+  background:#fff !important;
+  opacity:0 !important;
+  transform:scaleY(.35) !important;
+  transition:opacity .18s ease,transform .18s ease !important;
+}
+.nav-item:hover{
+  background:var(--sidebar-hover-bg) !important;
+  color:#fff !important;
+  transform:translateX(2px) !important;
+}
+.nav-item:hover svg{
+  color:#C4B5FD !important;
+}
+.nav-item.active{
+  color:#fff !important;
+  background:linear-gradient(135deg,var(--sidebar-active-a),var(--sidebar-active-b)) !important;
+  border-color:rgba(255,255,255,.08) !important;
+  box-shadow:0 8px 22px rgba(79,33,216,.28), inset 0 1px 0 rgba(255,255,255,.08) !important;
+  transform:none !important;
+}
+.nav-item.active svg{
+  color:#fff !important;
+}
+.nav-item.active::before{
+  opacity:1 !important;
+  transform:scaleY(1) !important;
+}
+.nav-item:focus-visible{
+  outline:2px solid var(--sidebar-focus) !important;
+  outline-offset:2px !important;
+}
+.sidebar-profile{
+  border-top:1px solid rgba(148,163,184,.10) !important;
+}
+.sidebar .profile-card{
+  border:1px solid transparent !important;
+}
+.sidebar .profile-card:hover{
+  background:rgba(124,58,237,.08) !important;
+  border-color:rgba(167,139,250,.12) !important;
+}
+.sidebar .profile-name{color:#fff !important;}
+.sidebar .profile-role,.sidebar .btn-logout-sm{color:#8fa0b7 !important;}
+.sidebar .btn-logout-sm:hover{color:#fff !important;background:rgba(255,255,255,.06) !important;}
 
-/* Consulta CNPJ — hierarquia e alinhamento */
-#page-cnpj .cnpj-company-panel{
-  padding:1.15rem;
+/* Optional nested navigation helpers, ready for future dropdown groups */
+.nav-group{display:flex;flex-direction:column;gap:4px;}
+.nav-group-toggle{justify-content:space-between;}
+.nav-group-toggle .nav-chevron{margin-left:auto;transition:transform .18s ease;}
+.nav-group.open .nav-chevron{transform:rotate(180deg);}
+.nav-submenu{display:none;padding-left:1.65rem;gap:3px;flex-direction:column;}
+.nav-group.open .nav-submenu{display:flex;}
+.nav-subitem{
+  min-height:34px;display:flex;align-items:center;padding:.45rem .7rem;border-radius:8px;
+  color:#91A0B5;font-size:.76rem;cursor:pointer;transition:.18s ease;
 }
-#page-cnpj .cnpj-main-columns{
-  grid-template-columns:minmax(360px,.92fr) minmax(420px,1.28fr);
-  gap:1rem;
-  align-items:stretch;
-}
-#page-cnpj .cnpj-detail-box,
-#page-cnpj .cnpj-cnae-box{
-  min-width:0;
-  border-radius:12px;
-}
-#page-cnpj .cnpj-detail-row{
-  grid-template-columns:minmax(132px,38%) minmax(0,62%);
-  gap:1rem;
-  min-height:48px;
-  padding:.72rem .9rem;
-  align-items:center;
-}
-#page-cnpj .cnpj-detail-label{
-  color:var(--text-2);
-  font-size:.72rem;
-  font-weight:500;
-  line-height:1.35;
-}
-#page-cnpj .cnpj-detail-value{
-  color:var(--text);
-  font-size:.75rem;
-  font-weight:600;
-  line-height:1.45;
-  text-align:left;
-}
-#page-cnpj .cnpj-cnae-box{
-  padding:1rem 1.05rem;
-}
-#page-cnpj .cnpj-cnae-title{
-  font-size:.9rem;
-  margin-bottom:.85rem;
-}
-#page-cnpj .cnpj-cnae-label{
-  margin:.35rem 0 .45rem;
-  color:var(--text-2);
-  font-size:.69rem;
-  font-weight:600;
-}
-#page-cnpj .cnpj-cnae-line{
-  grid-template-columns:78px minmax(0,1fr);
-  gap:.8rem;
-  min-height:39px;
-  padding:.38rem 0;
-  align-items:start;
-}
-#page-cnpj .cnpj-cnae-code{
-  width:78px;
-  min-height:28px;
-  padding:.3rem .4rem;
-  font-size:.63rem;
-  font-weight:650;
-  font-variant-numeric:tabular-nums;
-}
-#page-cnpj .cnpj-cnae-desc{
-  padding-top:.25rem;
-  color:var(--text-2);
-  font-size:.71rem;
-  line-height:1.45;
-  overflow-wrap:anywhere;
-}
+.nav-subitem:hover{background:rgba(124,58,237,.08);color:#fff;}
+.nav-subitem.active{background:rgba(124,58,237,.16);color:#C4B5FD;font-weight:600;}
 
-/* Light mode — contraste e profundidade mais limpos */
-[data-theme="light"] #page-cnpj{
-  background:#f4f6fa;
+[data-theme="light"] .sidebar{
+  background:linear-gradient(180deg,#061329 0%,#051127 100%) !important;
+  border-right-color:rgba(148,163,184,.10) !important;
 }
-[data-theme="light"] #page-cnpj .cnpj-reference-page .card,
-[data-theme="light"] #page-cnpj .cnpj-ref-card{
-  background:#ffffff;
-  border-color:#dfe5ee;
-  box-shadow:0 1px 2px rgba(15,23,42,.03), 0 10px 28px rgba(15,23,42,.045);
-}
-[data-theme="light"] #page-cnpj .cnpj-search-card,
-[data-theme="light"] #page-cnpj .cnpj-result-card,
-[data-theme="light"] #page-cnpj .cnpj-side-panel{
-  background:#ffffff;
-}
-[data-theme="light"] #page-cnpj #cnpjSearchInput{
-  background:#f8fafc;
-  border-color:#ccd5e2;
-  color:#0f172a;
-  box-shadow:none;
-}
-[data-theme="light"] #page-cnpj #cnpjSearchInput:focus{
-  background:#ffffff;
-  border-color:#635bff;
-  box-shadow:0 0 0 3px rgba(99,91,255,.11);
-}
-[data-theme="light"] #page-cnpj .cnpj-company-panel{
-  background:#fbfcfe;
-  border-color:#dfe5ee;
-}
-[data-theme="light"] #page-cnpj .cnpj-detail-box,
-[data-theme="light"] #page-cnpj .cnpj-cnae-box{
-  background:#ffffff;
-  border-color:#dde4ed;
-}
-[data-theme="light"] #page-cnpj .cnpj-detail-row{
-  border-bottom-color:#e5eaf1;
-}
-[data-theme="light"] #page-cnpj .cnpj-detail-label,
-[data-theme="light"] #page-cnpj .cnpj-cnae-label,
-[data-theme="light"] #page-cnpj .cnpj-cnae-desc,
-[data-theme="light"] #page-cnpj .cnpj-source-line,
-[data-theme="light"] #page-cnpj .cnpj-history-company,
-[data-theme="light"] #page-cnpj .cnpj-tips-list,
-[data-theme="light"] #page-cnpj .cnpj-security-text{
-  color:#475569;
-}
-[data-theme="light"] #page-cnpj .cnpj-detail-value,
-[data-theme="light"] #page-cnpj .cnpj-cnae-title,
-[data-theme="light"] #page-cnpj .cnpj-company-name,
-[data-theme="light"] #page-cnpj .cnpj-result-title,
-[data-theme="light"] #page-cnpj .cnpj-side-panel-title,
-[data-theme="light"] #page-cnpj .cnpj-history-cnpj{
-  color:#111827;
-}
-[data-theme="light"] #page-cnpj .cnpj-pill{
-  background:#f8fafc;
-  border-color:#dfe5ee;
-  color:#334155;
-}
-[data-theme="light"] #page-cnpj .cnpj-cnae-code{
-  background:#eeeafd;
-  color:#6557d9;
-}
-[data-theme="light"] #page-cnpj .cnpj-extra-card{
-  background:#ffffff;
-  border-color:#dfe5ee;
-}
-[data-theme="light"] #page-cnpj .cnpj-history-item{
-  border-bottom-color:#e5eaf1;
-}
-[data-theme="light"] #page-cnpj .cnpj-security-strip{
-  background:#f6f4ff;
-  border-color:#d8d1ff;
-}
-[data-theme="light"] #page-cnpj .cnpj-security-title{
-  color:#5c4fd4;
-}
-[data-theme="light"] #page-cnpj .cnpj-action-btn,
-[data-theme="light"] #page-cnpj .cnpj-export-menu>summary,
-[data-theme="light"] #page-cnpj .cnpj-history-toggle,
-[data-theme="light"] #page-cnpj .cnpj-clear-btn{
-  background:#ffffff;
-  border-color:#d7dee9;
-  color:#475569;
-}
-[data-theme="light"] #page-cnpj .cnpj-action-btn:hover,
-[data-theme="light"] #page-cnpj .cnpj-export-menu>summary:hover,
-[data-theme="light"] #page-cnpj .cnpj-history-toggle:hover,
-[data-theme="light"] #page-cnpj .cnpj-clear-btn:hover{
-  background:#f8fafc;
-  color:#111827;
-}
-[data-theme="light"] #page-cnpj .cnpj-export-pop{
-  background:#ffffff;
-  border-color:#dfe5ee;
-  box-shadow:0 18px 45px rgba(15,23,42,.14);
-}
+[data-theme="light"] .nav-item{color:var(--sidebar-text) !important;}
+[data-theme="light"] .nav-item:hover{color:#fff !important;background:var(--sidebar-hover-bg) !important;}
+[data-theme="light"] .nav-item.active{color:#fff !important;background:linear-gradient(135deg,var(--sidebar-active-a),var(--sidebar-active-b)) !important;}
+[data-theme="light"] .sidebar .profile-name{color:#fff !important;}
+[data-theme="light"] .sidebar .profile-role,[data-theme="light"] .sidebar .btn-logout-sm{color:#8fa0b7 !important;}
 
-/* Dashboard — rótulos temporais mais legíveis */
-#dashLineWrap canvas{max-width:100%;}
-
-@media(max-width:900px){
-  #page-cnpj .cnpj-main-columns{grid-template-columns:1fr;}
-}
 @media(max-width:680px){
-  #page-cnpj .cnpj-detail-row{grid-template-columns:1fr;gap:.25rem;min-height:auto;}
-  #page-cnpj .cnpj-cnae-line{grid-template-columns:74px minmax(0,1fr);gap:.65rem;}
-  #page-cnpj .cnpj-cnae-code{width:74px;}
+  .sidebar{box-shadow:18px 0 44px rgba(2,6,23,.30) !important;}
 }
 </style>
 
@@ -2329,6 +2492,11 @@ button:disabled{cursor:not-allowed}
         <div class="nav-item" id="nav-cnpj" onclick="showPage('cnpj');closeMobileSidebar()">
           <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5" stroke-linecap="round" stroke-linejoin="round"><rect x="3" y="4" width="18" height="16" rx="2"/><line x1="7" y1="8" x2="17" y2="8"/><line x1="7" y1="12" x2="12" y2="12"/><circle cx="17" cy="14" r="2.5"/><line x1="18.8" y1="15.8" x2="21" y2="18"/></svg>
           <span>Consulta CNPJ</span>
+        </div>
+
+        <div class="nav-item" id="nav-survey" onclick="showPage('survey');closeMobileSidebar()">
+          <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5" stroke-linecap="round" stroke-linejoin="round"><path d="M9 11l3 3L22 4"/><path d="M21 12v7a2 2 0 0 1-2 2H5a2 2 0 0 1-2-2V5a2 2 0 0 1 2-2h11"/></svg>
+          <span>Pesquisa de Satisfação</span>
         </div>
         <div class="nav-item" id="nav-analysis" onclick="showPage('analysis');closeMobileSidebar()">
           <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5" stroke-linecap="round" stroke-linejoin="round"><polyline points="22 12 18 12 15 21 9 3 6 12 2 12"/></svg>
@@ -2481,7 +2649,209 @@ button:disabled{cursor:not-allowed}
           <div id="cnpjResultArea"></div>
         </div>
       </div>
+      <!-- ══ PESQUISA DE SATISFAÇÃO — PROTÓTIPO ANALÍTICO V4 ══ -->
+      <div class="page" id="page-survey">
+        <div class="survey-page survey-proto-page">
+          <header class="survey-proto-header">
+            <div class="survey-proto-title-wrap">
+              <h1>Pesquisa de Satisfação</h1>
+              <p>Ferramenta de Busca</p>
+            </div>
+            <div class="survey-header-tools">
+              <button class="survey-filter-trigger" type="button" onclick="surveyToggleFilterPanel()">
+                <svg width="15" height="15" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M4 6h16M7 12h10M10 18h4"/><circle cx="8" cy="6" r="1.5" fill="currentColor"/><circle cx="15" cy="12" r="1.5" fill="currentColor"/><circle cx="12" cy="18" r="1.5" fill="currentColor"/></svg>
+                Filtros
+              </button>
+            </div>
+          </header>
 
+          <nav class="survey-view-tabs survey-proto-tabs" role="tablist" aria-label="Páginas do dashboard de pesquisa">
+            <button class="survey-view-tab active" id="surveyViewTabExecutive" type="button" role="tab" aria-selected="true" onclick="surveySetView('executive')">Visão Executiva</button>
+            <button class="survey-view-tab" id="surveyViewTabDetailed" type="button" role="tab" aria-selected="false" onclick="surveySetView('detailed')">Análise Detalhada</button>
+          </nav>
+
+          <section class="survey-data-toolbar">
+            <div class="survey-data-left">
+              <div class="survey-mode-tabs survey-division-compact" role="tablist" aria-label="Divisão da pesquisa">
+                <button class="survey-mode-tab active" id="surveyDivisionOsten" type="button" role="tab" aria-selected="true" onclick="surveySelectDivision('osten')">Osten</button>
+                <button class="survey-mode-tab" id="surveyDivisionDismatal" type="button" role="tab" aria-selected="false" onclick="surveySelectDivision('dismatal')">Dismatal</button>
+                <button class="survey-mode-tab" id="surveyDivisionVonder" type="button" role="tab" aria-selected="false" onclick="surveySelectDivision('vonder')">Vonder</button>
+              </div>
+              <div class="survey-source-compact">
+                <span class="survey-live-status" id="surveySourceBadge">Osten · Excel</span>
+                <strong id="surveySourceText">Nenhum relatório importado</strong>
+                <span id="surveyLastUpdate">Última importação: —</span>
+              </div>
+            </div>
+            <div class="survey-actions survey-actions-compact">
+              <label class="survey-file-btn" for="surveyFileInput">Importar planilha</label>
+              <input type="file" id="surveyFileInput" accept=".xlsx,.xls,.csv">
+              <button class="survey-export-btn" type="button" onclick="surveyDownloadCurrent()">Baixar base</button>
+              <button class="survey-export-btn" type="button" onclick="surveyExportSummary()">Resumo</button>
+              <button class="survey-pdf-btn" id="surveyPdfBtn" type="button" onclick="surveyExportPdfComplete()">Baixar PDF</button>
+              <button class="survey-demo-btn" type="button" onclick="surveyClearActiveDivision()">Limpar</button>
+            </div>
+            <div class="survey-file-status" id="surveyFileStatus">Nenhum relatório importado para Osten.</div>
+            <div class="survey-import-title" id="surveyImportTitle" hidden>Importar relatório — Osten</div>
+          </section>
+
+          <!-- PÁGINA 1 — VISÃO EXECUTIVA -->
+          <section class="survey-view active" id="surveyViewExecutive" data-survey-view="executive">
+            <div class="survey-kpi-grid survey-proto-kpis">
+              <div class="survey-kpi proto-kpi purple">
+                <div class="proto-kpi-head"><span class="proto-kpi-icon">⌁</span><span>Respostas totais</span></div>
+                <div class="survey-kpi-value" id="surveyKpiTotal">—</div>
+                <div class="survey-kpi-sub" id="surveyKpiTotalSub">respostas</div>
+              </div>
+              <div class="survey-kpi proto-kpi green">
+                <div class="proto-kpi-head"><span class="proto-kpi-icon">☺</span><span>Satisfação positiva</span></div>
+                <div class="survey-kpi-value" id="surveyKpiSatisfaction">—</div>
+                <div class="survey-kpi-sub" id="surveyKpiSatisfactionSub">das avaliações válidas</div>
+              </div>
+              <div class="survey-kpi proto-kpi teal">
+                <div class="proto-kpi-head"><span class="proto-kpi-icon">↗</span><span>Melhor resultado</span></div>
+                <div class="survey-kpi-value textual" id="surveyKpiStrength">—</div>
+                <div class="survey-kpi-sub" id="surveyKpiStrengthSub">maior satisfação</div>
+              </div>
+              <div class="survey-kpi proto-kpi orange">
+                <div class="proto-kpi-head"><span class="proto-kpi-icon">△</span><span>Principal ponto de atenção</span></div>
+                <div class="survey-kpi-value textual" id="surveyKpiWeakness">—</div>
+                <div class="survey-kpi-sub" id="surveyKpiWeaknessSub">menor satisfação</div>
+              </div>
+            </div>
+
+            <div class="survey-exec-layout">
+              <section class="survey-card survey-dimensions-card">
+                <div class="survey-card-head">
+                  <div><div class="survey-card-title">Satisfação por dimensão</div><div class="survey-card-sub">Perguntas 2, 3, 4, 6, 7 e 8</div></div>
+                  <span class="survey-card-badge" id="surveyDimensionCountBadge">0 dimensões</span>
+                </div>
+                <div class="survey-dimension-list survey-proto-dimensions" id="surveyDimensionSummary"></div>
+              </section>
+
+              <div class="survey-donut-stack">
+                <section class="survey-card survey-mini-card">
+                  <div class="survey-card-head"><div><div class="survey-card-title">5. Presença de Produtos Indesejados</div><div class="survey-card-sub" id="surveyIntrusiveBaseBadge">0 respostas válidas</div></div></div>
+                  <div class="survey-donut-content">
+                    <div class="survey-chart survey-donut-chart"><canvas id="surveyIntrusiveChart"></canvas></div>
+                    <div class="survey-donut-legend" id="surveyIntrusiveLegend"></div>
+                  </div>
+                  <div id="surveyIntrusiveSummary" hidden></div>
+                </section>
+                <section class="survey-card survey-mini-card">
+                  <div class="survey-card-head"><div><div class="survey-card-title">8. Agilidade na Venda</div><div class="survey-card-sub" id="surveyAgilityBaseBadge">0 respostas válidas</div></div></div>
+                  <div class="survey-donut-content">
+                    <div class="survey-chart survey-donut-chart"><canvas id="surveyAgilityChart"></canvas></div>
+                    <div class="survey-donut-legend" id="surveyAgilityLegend"></div>
+                  </div>
+                  <div id="surveyAgilitySummary" hidden></div>
+                </section>
+              </div>
+            </div>
+
+            <section class="survey-card survey-comments-card survey-proto-comments">
+              <div class="survey-card-head">
+                <div><div class="survey-card-title">9. Melhorias e Novas Funcionalidades</div><div class="survey-card-sub" id="surveySuggestionMeta">Sugestões dos vendedores</div></div>
+                <button class="survey-link-btn" id="surveySuggestionToggle" type="button" onclick="surveyToggleAllSuggestions()">Ver todos</button>
+              </div>
+              <div class="survey-suggestion-table-head"><span>Comentário</span><span>CD</span><span>Data</span></div>
+              <div class="survey-comment-list survey-suggestion-list" id="surveySuggestionsList"></div>
+              <div class="survey-pagination" id="surveySuggestionPagination">
+                <button type="button" id="surveySuggestionPrev" onclick="surveySuggestionMove(-1)">‹</button>
+                <div id="surveySuggestionPages"></div>
+                <button type="button" id="surveySuggestionNext" onclick="surveySuggestionMove(1)">›</button>
+              </div>
+            </section>
+          </section>
+
+          <!-- PÁGINA 2 — ANÁLISE DETALHADA -->
+          <section class="survey-view" id="surveyViewDetailed" data-survey-view="detailed">
+            <section class="survey-card survey-analysis-controls">
+              <div class="survey-analysis-selects">
+                <label class="survey-analysis-select-group">
+                  <span>CD para analisar</span>
+                  <select id="surveyAnalysisCd" class="survey-analysis-select" onchange="surveyRenderScenarioAnalysis()">
+                    <option value="ALL">Todos os CDs</option>
+                  </select>
+                </label>
+                <label class="survey-analysis-select-group">
+                  <span>Pergunta para comparar entre CDs</span>
+                  <select id="surveyCompareQuestion" class="survey-analysis-select" onchange="surveyRenderScenarioAnalysis()">
+                    <option value="">Selecione uma pergunta</option>
+                  </select>
+                </label>
+              </div>
+              <div class="survey-analysis-note">
+                Use o primeiro dropdown para ver <strong>todas as perguntas dentro de um CD</strong>. No segundo, escolha uma pergunta para <strong>comparar todos os CDs</strong> na mesma métrica.
+              </div>
+            </section>
+
+            <div class="survey-scenario-grid">
+              <section class="survey-card survey-scenario-card">
+                <div class="survey-card-head"><div><div class="survey-card-title" id="surveySelectedCdTitle">Perguntas por CD</div><div class="survey-card-sub" id="surveySelectedCdSub">Índice favorável por pergunta</div></div></div>
+                <div class="survey-chart survey-scenario-chart"><canvas id="surveySelectedCdChart"></canvas></div>
+                <div class="survey-scenario-table-wrap"><table class="survey-scenario-table"><thead><tr><th>Pergunta</th><th>Índice</th><th>Válidas</th><th>vs. geral</th></tr></thead><tbody id="surveySelectedCdBody"></tbody></table></div>
+              </section>
+
+              <section class="survey-card survey-scenario-card">
+                <div class="survey-card-head"><div><div class="survey-card-title" id="surveyCompareCdTitle">Comparação entre todos os CDs</div><div class="survey-card-sub" id="surveyCompareCdSub">Selecione uma pergunta</div></div></div>
+                <div class="survey-chart survey-scenario-chart"><canvas id="surveyCompareCdChart"></canvas></div>
+                <div class="survey-scenario-table-wrap"><table class="survey-scenario-table"><thead><tr><th>#</th><th>CD</th><th>Índice</th><th>Válidas</th><th>vs. geral</th></tr></thead><tbody id="surveyCompareCdBody"></tbody></table></div>
+              </section>
+            </div>
+
+            <div class="survey-detail-top">
+              <section class="survey-card survey-cd-card">
+                <div class="survey-card-head"><div><div class="survey-card-title">1. Qual CD você mais utiliza?</div><div class="survey-card-sub" id="surveyCdCountBadge">Distribuição das respostas</div></div></div>
+                <div class="survey-table-wrap borderless"><table class="survey-data-table"><thead><tr><th>CD</th><th>Respostas</th><th>% da base</th></tr></thead><tbody id="surveyCdBody"></tbody></table></div>
+              </section>
+
+              <section class="survey-card survey-heat-card">
+                <div class="survey-card-head"><div><div class="survey-card-title">Comparativo geral — todos os CDs × perguntas</div><div class="survey-card-sub">Heatmap com o índice favorável de cada pergunta em cada CD</div></div></div>
+                <div class="survey-table-wrap heat-wrap"><table class="survey-matrix-table survey-heat-table" id="surveyCdMatrix"><thead id="surveyCdMatrixHead"></thead><tbody id="surveyCdMatrixBody"></tbody></table></div>
+              </section>
+            </div>
+
+            <section class="survey-card survey-themes-card">
+              <div class="survey-card-head"><div><div class="survey-card-title">9 e 10. Respostas Abertas</div><div class="survey-card-sub">Principais temas identificados nas respostas</div></div><span class="survey-card-badge" id="surveyThemeCountBadge">0 temas</span></div>
+              <div class="survey-themes-layout">
+                <div class="survey-themes-wrap survey-table-wrap borderless"><table class="survey-data-table"><thead><tr><th>Tema identificado</th><th>Menções</th><th>Interpretação / possível ação</th></tr></thead><tbody id="surveyThemeBody"></tbody></table></div>
+                <div class="survey-theme-chart-wrap"><div class="survey-chart survey-theme-chart"><canvas id="surveyThemesChart"></canvas></div><div class="survey-theme-total" id="surveyThemeTotal">0<br><small>menções</small></div></div>
+              </div>
+            </section>
+
+            <div class="survey-detail-bottom survey-detail-bottom-no-date">
+              <section class="survey-card survey-filter-card survey-filter-card-wide" id="surveyFilterCard">
+                <div class="survey-card-head"><div><div class="survey-card-title">Filtros rápidos</div><div class="survey-card-sub" id="surveyFilterStatus">Todos os registros</div></div></div>
+                <div class="survey-filter-fields">
+                  <label class="survey-filter-label">CD<select id="surveyQuickCd" class="survey-select"><option value="ALL">Todos</option></select></label>
+                  <label class="survey-filter-label">Pergunta / Dimensão<select id="surveyQuickDimension" class="survey-select"><option value="ALL">Todas</option></select></label>
+                  <label class="survey-filter-label">Tipo de resposta<select id="surveyQuickResponse" class="survey-select"><option value="ALL">Todas</option><option value="positive">Positivas</option><option value="neutral">Neutras</option><option value="negative">Negativas</option></select></label>
+                </div>
+                <div class="survey-filter-actions">
+                  <button class="survey-apply-filter" type="button" onclick="surveyApplyFilters()">Aplicar filtros</button>
+                  <button class="survey-reset-filter" type="button" onclick="surveyResetFilters()">Limpar filtros</button>
+                </div>
+              </section>
+            </div>
+
+            <section class="survey-rules-card">
+              <div class="survey-card-title">Regras do dashboard</div>
+              <div class="survey-rules-grid">
+                <span>✓ Dados da planilha</span><span>✓ Percentuais por respostas válidas</span><span>✓ Nenhum indicador fixo</span><span>✓ Novos CDs entram automaticamente</span><span>✓ Recalcula a cada importação</span><span>✓ Planilha → agrupamento → cálculo → indicadores</span>
+              </div>
+            </section>
+
+            <details class="survey-details-toggle">
+              <summary>Conferir respostas válidas por pergunta</summary>
+              <div class="survey-details-body">
+                <div class="survey-quality-note" id="surveyValidationNote"></div>
+                <div class="survey-table-wrap"><table class="survey-question-table"><thead><tr><th>Pergunta</th><th>Positivas</th><th>Neutras</th><th>Negativas</th><th>Não reconhecidas</th><th>Válidas</th><th>Índice</th></tr></thead><tbody id="surveyQuestionBody"></tbody></table></div>
+              </div>
+            </details>
+          </section>
+        </div>
+      </div>
 
       <!-- ══ ANALYSIS ══ -->
       <div class="page" id="page-analysis">
@@ -3150,6 +3520,7 @@ function enterApp(email) {
 const pageTitles = {
   dashboard: 'Dashboard',
   cnpj:      'Consulta CNPJ',
+  survey:    'Pesquisa de Satisfação',
   analysis:  'Análise de Campanha',
   campaigns: 'Gerador de Campanhas',
   history:   'Histórico',
@@ -3165,6 +3536,7 @@ function showPage(id) {
   if (id === 'history') { _historyPage = 0; loadHistory(); }
   if (id === 'dashboard') updateDashboard();
   if (id === 'cnpj') initCnpjPreview();
+  if (id === 'survey') initSurveyDashboard();
 }
 
 /* ── Mobile sidebar ── */
@@ -3245,40 +3617,15 @@ async function updateDashboard(email) {
       <div class="kdc-label">Taxa Média de Entrega</div>
     </div>`;
 
-  const rootStyles = getComputedStyle(document.documentElement);
-  const tickColor = rootStyles.getPropertyValue('--text-muted').trim() || '#5a6a82';
-  const isLightTheme = document.documentElement.getAttribute('data-theme') === 'light';
-  const gridColor = isLightTheme ? 'rgba(15,23,42,0.07)' : 'rgba(255,255,255,0.04)';
+  const tickColor = getComputedStyle(document.documentElement).getPropertyValue('--text-muted').trim() || '#5a6a82';
+  const gridColor = 'rgba(255,255,255,0.04)';
 
-  // Consolida as analises por dia para evitar rotulos repetidos no eixo X.
-  // Quando ha mais de uma analise no mesmo dia, o ponto representa a taxa media daquele dia.
-  const dailyMap = new Map();
-  [...hist].reverse().forEach(h => {
-    const d = new Date(h.created_at);
-    if (Number.isNaN(d.getTime())) return;
-    const key = `${d.getFullYear()}-${String(d.getMonth()+1).padStart(2,'0')}-${String(d.getDate()).padStart(2,'0')}`;
-    const taxa = parseFloat(h.taxa);
-    if (!Number.isFinite(taxa)) return;
-    if (!dailyMap.has(key)) dailyMap.set(key, { date:d, sum:0, count:0 });
-    const item = dailyMap.get(key);
-    item.sum += taxa;
-    item.count += 1;
-  });
-
-  const dailySeries = Array.from(dailyMap.values())
-    .sort((a,b) => a.date - b.date)
-    .slice(-10)
-    .map(item => ({
-      date: item.date,
-      value: item.sum / item.count,
-      count: item.count
-    }));
-
-  const lineLabels = dailySeries.length
-    ? dailySeries.map(item => `${String(item.date.getDate()).padStart(2,'0')}/${String(item.date.getMonth()+1).padStart(2,'0')}`)
+  const reversedHist = [...hist].reverse().slice(-10);
+  const lineLabels = reversedHist.length
+    ? reversedHist.map(h => { const d = new Date(h.created_at); return `${d.getDate()}/${d.getMonth()+1}`; })
     : ['Out','Nov','Dez','Jan','Fev','Mar','Abr'];
-  const lineData = dailySeries.length
-    ? dailySeries.map(item => Number(item.value.toFixed(2)))
+  const lineData = reversedHist.length
+    ? reversedHist.map(h => parseFloat(h.taxa) || 0)
     : [62,58,65,70,68,74,78];
 
   document.getElementById('dashLineWrap').innerHTML = '<canvas id="dashLineChart"></canvas>';
@@ -3303,26 +3650,10 @@ async function updateDashboard(email) {
       maintainAspectRatio: false,
       plugins: {
         legend: { display: false },
-        tooltip: {
-          callbacks: {
-            title: items => items?.length ? `Dia ${items[0].label}` : '',
-            label: c => `Taxa media: ${Number(c.raw).toFixed(1)}%`,
-            afterLabel: c => dailySeries[c.dataIndex]?.count > 1 ? `${dailySeries[c.dataIndex].count} analises consolidadas` : '1 analise'
-          }
-        }
+        tooltip: { callbacks: { label: c => `Taxa: ${Number(c.raw).toFixed(1)}%` } }
       },
       scales: {
-        x: {
-          ticks:{
-            color:tickColor,
-            font:{size:10},
-            autoSkip:true,
-            maxRotation:0,
-            minRotation:0,
-            maxTicksLimit:8
-          },
-          grid:{ color:gridColor }
-        },
+        x: { ticks:{ color:tickColor, font:{size:10} }, grid:{ color:gridColor } },
         y: { ticks:{ color:tickColor, font:{size:10}, callback: v => v + '%' }, grid:{ color:gridColor }, min:0, max:100 }
       }
     }
@@ -3976,6 +4307,7 @@ function toggleTheme() {
   localStorage.setItem('orbit_theme', isLight ? 'dark' : 'light');
   updateThemeIcon(!isLight);
   _dashCache = null;
+  if (typeof _surveyRows !== 'undefined' && _surveyRows.length && typeof surveyRender === 'function') requestAnimationFrame(surveyRender);
 }
 function updateThemeIcon(isLight) {
   const icon = document.getElementById('themeIcon');
@@ -5171,6 +5503,629 @@ function initCnpjPreview() {
   }
   cnpjRenderPlaceholder();
 }
+
+
+/* ═══════════════════════════════════════════════════
+   PESQUISA DE SATISFAÇÃO — MOTOR DINÂMICO V3
+   Nenhum indicador de negócio é hardcoded.
+═══════════════════════════════════════════════════ */
+let _surveyRows = [];
+let _surveyCharts = {};
+let _surveyInitialized = false;
+let _surveyCurrentView = 'executive';
+let _activeSurveyDivision = 'osten';
+let _surveyDivisionData = { osten:{rows:[],fileName:'',updatedAt:''}, dismatal:{rows:[],fileName:'',updatedAt:''}, vonder:{rows:[],fileName:'',updatedAt:''} };
+const SURVEY_DIVISION_LABELS = {osten:'Osten',dismatal:'Dismatal',vonder:'Vonder'};
+const SURVEY_STORAGE_KEY = 'orbit_survey_reports_by_division_v2';
+
+const SURVEY_HEADER_KEYS = {
+  id:['qual sua matrícula/código','qual sua matricula/codigo','matrícula','matricula','id da resposta','id'],
+  q1:['como você avalia sua satisfação com a ferramenta de busca','como voce avalia sua satisfacao com a ferramenta de busca','satisfação geral','satisfacao geral'],
+  cd:['cd utilizado','qual cd','cd'],
+  q2:['facilidade de encontrar um produto ao digitar o nome exato','2. busca por nome','busca por nome','nome exato'],
+  q3:['frase com preposição ou aplicação','frase com preposicao ou aplicacao','relevância dos produtos exibidos','relevancia dos produtos exibidos','3. termos genéricos','termos genéricos','termos genericos','expressões','expressoes'],
+  q4:['4. busca por código (sku)','busca por código','busca por codigo','sku','referência','referencia'],
+  q5:['5. produtos indesejados','produtos indesejados','intrusos'],
+  q6:['6. velocidade da busca','velocidade da busca','velocidade','tempo de resposta','carregamento dos produtos'],
+  q7:['eficiência dos filtros de busca','eficiencia dos filtros de busca','7. uso de filtros','uso de filtros','filtros'],
+  q8:['impacto da busca atual na sua agilidade','8. agilidade na venda','agilidade na venda','agilidade'],
+  q9:['qual recurso ou ajuste você gostaria','qual recurso ou ajuste voce gostaria','9. melhorias e novas funcionalidades','melhorias e novas funcionalidades','melhorias'],
+  q10:['espaço livre para críticas','espaco livre para criticas','10. comentários gerais','10. comentarios gerais','comentários gerais','comentarios gerais']
+};
+
+const SURVEY_SCALES={
+  satisfaction:{positive:['muito satisfeito','muito satisfeita','satisfeito','satisfeita'],neutral:['neutro','neutra'],negative:['insatisfeito','insatisfeita','muito insatisfeito','muito insatisfeita']},
+  agility:{positive:['muito positivo','muito positiva','positivo','positiva'],neutral:['neutro','neutra'],negative:['negativo','negativa','muito negativo','muito negativa']}
+};
+
+// Dimensões conhecidas desta pesquisa. Só entram se existirem na planilha.
+// Colunas adicionais com escala compatível são detectadas automaticamente e incorporadas.
+const SURVEY_DIMENSION_CONFIG=[
+  {key:'q2',label:'2. Busca por Nome do Produto',scale:'satisfaction'},
+  {key:'q3',label:'3. Busca por Termos Genéricos',scale:'satisfaction'},
+  {key:'q4',label:'4. Busca por Código (SKU / Referência)',scale:'satisfaction'},
+  {key:'q6',label:'6. Velocidade da Busca',scale:'satisfaction'},
+  {key:'q7',label:'7. Uso de Filtros',scale:'satisfaction'},
+  {key:'q8',label:'8. Agilidade na Venda',scale:'agility'}
+];
+
+function surveyNorm(s){
+  return String(s??'').replace(/\u00a0/g,' ').normalize('NFD').replace(/[\u0300-\u036f]/g,'').toLowerCase().trim().replace(/[^a-z0-9]+/g,' ').replace(/\s+/g,' ').trim();
+}
+function surveyPct(n,total){return total?100*n/total:0}
+function surveyFmtPct(n){return Number.isFinite(n)?n.toLocaleString('pt-BR',{minimumFractionDigits:1,maximumFractionDigits:1})+'%':'—'}
+function surveyMapHeaders(headers){
+  const map={};
+  headers.forEach((h,i)=>{
+    const n=surveyNorm(h);
+    Object.entries(SURVEY_HEADER_KEYS).forEach(([key,aliases])=>{
+      if(map[key]!==undefined)return;
+      const normalizedAliases=aliases.map(surveyNorm);
+      const exact=normalizedAliases.some(a=>n===a);
+      const fuzzy=normalizedAliases.some(a=>a.length>=6&&n.length>=6&&(n.includes(a)||a.includes(n)));
+      if(exact||fuzzy) map[key]=i;
+    });
+  });
+  return map;
+}
+function surveyClassify(value,scaleName){
+  const normalized=surveyNorm(value).replace(/^\d+\s+/,'').replace(/\s+\d+$/,'');
+  if(!normalized)return 'blank';
+  const scale=SURVEY_SCALES[scaleName];
+  if(!scale)return 'unrecognized';
+  for(const category of ['positive','neutral','negative']){
+    if((scale[category]||[]).some(v=>surveyNorm(v)===normalized))return category;
+  }
+  return 'unrecognized';
+}
+function surveyInferScale(values){
+  const clean=values.map(v=>String(v??'').trim()).filter(Boolean);
+  if(clean.length<3)return null;
+  const scores={satisfaction:0,agility:0};
+  clean.forEach(v=>Object.keys(scores).forEach(scale=>{if(surveyClassify(v,scale)!=='unrecognized')scores[scale]++;}));
+  const best=Object.entries(scores).sort((a,b)=>b[1]-a[1])[0];
+  return best&&best[1]/clean.length>=.65?best[0]:null;
+}
+function surveyPrettyDimensionLabel(header){
+  const raw=String(header??'').replace(/^\s*\d+[.\-:)\s]+/,'').trim();
+  const norm=surveyNorm(raw);
+  if(norm.includes('nome exato'))return '2. Busca por Nome do Produto';
+  if(norm.includes('termos genericos')||norm.includes('frase com preposicao'))return '3. Busca por Termos Genéricos';
+  if(norm.includes('codigo')||norm.includes('sku'))return '4. Busca por Código (SKU / Referência)';
+  if(norm.includes('velocidade')||norm.includes('tempo de resposta'))return '6. Velocidade da Busca';
+  if(norm.includes('filtro'))return '7. Uso de Filtros';
+  if(norm.includes('agilidade'))return '8. Agilidade na Venda';
+  return raw.length>46?raw.slice(0,43).trim()+'…':raw;
+}
+function surveyRowsFromMatrix(matrix){
+  if(!Array.isArray(matrix)||matrix.length<2) throw new Error('O arquivo não possui respostas suficientes.');
+  const candidates=matrix.slice(0,Math.min(matrix.length,25)).map((r,i)=>({i,count:Array.isArray(r)?Object.keys(surveyMapHeaders(r)).length:0}));
+  const best=candidates.sort((a,b)=>b.count-a.count)[0];
+  const hi=best?.count>=2?best.i:0;
+  const headers=(matrix[hi]||[]).map(v=>String(v??''));
+  const map=surveyMapHeaders(headers);
+  if(map.cd===undefined) throw new Error('Não reconheci a coluna de CD. Verifique o título da pergunta de CD.');
+
+  const sourceRows=matrix.slice(hi+1).filter(r=>Array.isArray(r));
+  const mappedIndexes=new Set(Object.values(map));
+  const dynamicDefs=[];
+  headers.forEach((header,col)=>{
+    if(mappedIndexes.has(col)||!String(header).trim())return;
+    const scale=surveyInferScale(sourceRows.slice(0,250).map(r=>r[col]));
+    if(!scale)return;
+    dynamicDefs.push({key:'dyn_'+col,label:surveyPrettyDimensionLabel(header),fullLabel:String(header).trim(),scale,col,dynamic:true});
+  });
+
+  const hasKnownDimension=SURVEY_DIMENSION_CONFIG.some(d=>map[d.key]!==undefined);
+  if(!hasKnownDimension&&!dynamicDefs.length) throw new Error('Não reconheci nenhuma pergunta avaliativa. Verifique os títulos das colunas e as escalas de resposta.');
+
+  const rows=sourceRows.map((r,i)=>{
+    const dynamic={};dynamicDefs.forEach(d=>dynamic[d.key]=r[d.col]??'');
+    return {
+      id:map.id!==undefined?r[map.id]:i+1,
+      q1:map.q1!==undefined?r[map.q1]:'',
+      cd:map.cd!==undefined?r[map.cd]:'',
+      q2:map.q2!==undefined?r[map.q2]:'',q3:map.q3!==undefined?r[map.q3]:'',q4:map.q4!==undefined?r[map.q4]:'',
+      q5:map.q5!==undefined?r[map.q5]:'',q6:map.q6!==undefined?r[map.q6]:'',q7:map.q7!==undefined?r[map.q7]:'',q8:map.q8!==undefined?r[map.q8]:'',
+      q9:map.q9!==undefined?r[map.q9]:'',q10:map.q10!==undefined?r[map.q10]:'',
+      _dynamic:dynamic,
+      _dynamicDefs:dynamicDefs.map(({key,label,fullLabel,scale,dynamic})=>({key,label,fullLabel,scale,dynamic}))
+    };
+  }).filter(row=>{
+    const fixed=['q1','q2','q3','q4','q5','q6','q7','q8','q9','q10'].some(k=>String(row[k]??'').trim());
+    const extra=Object.values(row._dynamic||{}).some(v=>String(v??'').trim());
+    return fixed||extra;
+  });
+  if(!rows.length) throw new Error('O arquivo não possui linhas de resposta válidas.');
+  return rows;
+}
+function surveyGetValue(row,key){return key.startsWith('dyn_')?(row._dynamic?.[key]??''):(row[key]??'')}
+function surveyQuestionDefs(rows=_surveyRows){
+  const defs=SURVEY_DIMENSION_CONFIG.filter(def=>(rows||[]).some(r=>String(surveyGetValue(r,def.key)).trim()));
+  const seen=new Set(defs.map(d=>surveyNorm(d.label)));
+  (rows||[]).forEach(r=>(r._dynamicDefs||[]).forEach(def=>{
+    const norm=surveyNorm(def.label);
+    if(!seen.has(norm)&&(rows||[]).some(x=>String(surveyGetValue(x,def.key)).trim())){defs.push(def);seen.add(norm);}
+  }));
+  return defs;
+}
+function surveyAnalyzeQuestion(rows,key,scale){
+  const result={pos:0,neu:0,neg:0,unrecognized:0,blank:0,valid:0,answered:0,pct:null,invalidValues:{}};
+  rows.forEach(row=>{
+    const raw=String(surveyGetValue(row,key)??'').trim();
+    const category=surveyClassify(raw,scale);
+    if(category==='positive')result.pos++;
+    else if(category==='neutral')result.neu++;
+    else if(category==='negative')result.neg++;
+    else if(category==='blank')result.blank++;
+    else{result.unrecognized++;result.invalidValues[raw||'Não informado']=(result.invalidValues[raw||'Não informado']||0)+1;}
+  });
+  result.valid=result.pos+result.neu+result.neg;
+  result.answered=result.valid+result.unrecognized;
+  result.pct=result.valid?surveyPct(result.pos,result.valid):null;
+  return result;
+}
+function surveyAnalyzeIntrusive(rows){
+  const out={never:0,rarely:0,sometimes:0,frequently:0,always:0,unrecognized:0,blank:0,valid:0,invalidValues:{}};
+  rows.forEach(row=>{
+    const raw=String(row.q5??'').trim(),n=surveyNorm(raw);
+    if(!n){out.blank++;return;}
+    if(n==='nunca')out.never++;else if(['raras vezes','raramente'].includes(n))out.rarely++;else if(['as vezes','ocasionalmente'].includes(n))out.sometimes++;else if(n==='frequentemente')out.frequently++;else if(n==='sempre')out.always++;else{out.unrecognized++;out.invalidValues[raw]=(out.invalidValues[raw]||0)+1;}
+  });
+  out.valid=out.never+out.rarely+out.sometimes+out.frequently+out.always;
+  return out;
+}
+function surveyBuildMetrics(rows){
+  const total=rows.length;
+  const defs=surveyQuestionDefs(rows);
+  const qs=defs.map(def=>({...def,...surveyAnalyzeQuestion(rows,def.key,def.scale)}));
+  const comparable=qs.filter(q=>q.valid>0&&Number.isFinite(q.pct));
+  const validEvaluations=comparable.reduce((s,q)=>s+q.valid,0);
+  const positiveEvaluations=comparable.reduce((s,q)=>s+q.pos,0);
+  const positivePct=validEvaluations?surveyPct(positiveEvaluations,validEvaluations):null;
+  const strength=[...comparable].sort((a,b)=>b.pct-a.pct||b.valid-a.valid)[0]||null;
+  const weakness=[...comparable].sort((a,b)=>a.pct-b.pct||b.valid-a.valid)[0]||null;
+  const cd={};
+  rows.forEach(row=>{const raw=String(row.cd??'').trim();const label=raw?raw.toUpperCase():'Não informado';cd[label]=(cd[label]||0)+1;});
+  const cdSorted=Object.entries(cd).sort((a,b)=>b[1]-a[1]||a[0].localeCompare(b[0],'pt-BR'));
+  const intrusive=surveyAnalyzeIntrusive(rows);
+  const agility=surveyAnalyzeQuestion(rows,'q8','agility');
+  const invalidTotal=qs.reduce((s,q)=>s+q.unrecognized,0)+intrusive.unrecognized;
+  return {total,defs,qs,comparable,positivePct,positiveEvaluations,validEvaluations,strength,weakness,cd,cdSorted,intrusive,agility,invalidTotal};
+}
+function surveyDestroyChart(name){if(_surveyCharts[name]){_surveyCharts[name].destroy();delete _surveyCharts[name]}}
+function surveyColors(){
+  const cs=getComputedStyle(document.documentElement);
+  return {text:cs.getPropertyValue('--text-muted').trim()||'#718096',grid:document.documentElement.getAttribute('data-theme')==='light'?'rgba(15,23,42,.08)':'rgba(255,255,255,.07)',primary:cs.getPropertyValue('--primary').trim()||'#635bff',accent:cs.getPropertyValue('--accent').trim()||'#00a880',warning:cs.getPropertyValue('--warning').trim()||'#d88900',danger:cs.getPropertyValue('--danger').trim()||'#d64545'};
+}
+function surveySetView(view){
+  _surveyCurrentView=view==='detailed'?'detailed':'executive';
+  document.querySelectorAll('#page-survey .survey-view').forEach(el=>el.classList.toggle('active',el.dataset.surveyView===_surveyCurrentView));
+  const exec=document.getElementById('surveyViewTabExecutive'),det=document.getElementById('surveyViewTabDetailed');
+  exec?.classList.toggle('active',_surveyCurrentView==='executive');det?.classList.toggle('active',_surveyCurrentView==='detailed');
+  exec?.setAttribute('aria-selected',String(_surveyCurrentView==='executive'));det?.setAttribute('aria-selected',String(_surveyCurrentView==='detailed'));
+  requestAnimationFrame(()=>Object.values(_surveyCharts).forEach(c=>c?.resize?.()));
+}
+function surveyDistributionHtml(labels,counts,valid){
+  return labels.map((label,i)=>`<div class="survey-dist-item"><div class="survey-dist-label" title="${escapeHtml(label)}">${escapeHtml(label)}</div><div class="survey-dist-value">${surveyFmtPct(surveyPct(counts[i],valid))} <small>· ${counts[i].toLocaleString('pt-BR')}</small></div></div>`).join('');
+}
+function surveyRenderSuggestions(rows){
+  const items=rows.map((r,i)=>({text:String(r.q9??'').trim(),cd:String(r.cd??'').trim()||'—',id:r.id??i+1})).filter(x=>x.text);
+  const meta=document.getElementById('surveySuggestionMeta'),list=document.getElementById('surveySuggestionsList');
+  if(meta)meta.textContent=items.length?`${items.length.toLocaleString('pt-BR')} sugestão${items.length===1?'':'ões'} carregada${items.length===1?'':'s'} da planilha${items.length>10?' · role para visualizar além das 10 primeiras':''}.`:'Nenhuma sugestão preenchida na base.';
+  if(!list)return;
+  list.innerHTML=items.length?items.map((x,i)=>`<div class="survey-comment"><div class="survey-comment-row"><span class="survey-comment-index">${i+1}</span><div class="survey-comment-text">${escapeHtml(x.text)}</div><span class="survey-comment-cd">${escapeHtml(x.cd)}</span></div></div>`).join(''):'<div class="survey-empty">Sem sugestões dos vendedores no arquivo.</div>';
+  requestAnimationFrame(()=>surveyFitFirstTenComments());
+}
+function surveyFitFirstTenComments(){
+  const list=document.getElementById('surveySuggestionsList');if(!list)return;
+  const cards=[...list.querySelectorAll('.survey-comment')];
+  if(cards.length<=10){list.style.maxHeight='none';list.style.overflowY='visible';return;}
+  const first=cards.slice(0,10);const gap=parseFloat(getComputedStyle(list).rowGap||getComputedStyle(list).gap||0)||0;
+  const h=first.reduce((sum,el)=>sum+el.getBoundingClientRect().height,0)+gap*9+2;
+  list.style.maxHeight=Math.max(380,Math.round(h))+'px';list.style.overflowY='auto';
+}
+
+/* Motor de temas: os nomes dos temas nascem das palavras efetivamente presentes nas respostas. */
+const SURVEY_THEME_STOPWORDS=new Set('a o os as um uma uns umas de da do das dos e em no na nos nas para por com sem sobre ao aos ou que se ser estar foi sao é era como mais menos muito muita muitos muitas eu voce voces ele ela eles elas isso isto esse essa essa essas esses seu sua seus suas nossa nosso nossos nossas meu minha meus minhas ter tem tinha pode poderia gostaria quero queremos precisa precisam necessario necessária necessario melhoria melhorias melhorar ferramenta ferramentas busca buscas produto produtos resultado resultados cliente clientes venda vendas vendedor vendedores rotina dia hoje momento forma fazer feito uso usando usar sistema plataforma pagina tela campo opcao opções opcoes recurso recursos ajuste ajustes incluir adicionar facilitar ajudam ajuda ajudou bom boa boas bons melhor nova novo novas novos'.split(/\s+/));
+function surveyThemeStem(token){
+  let t=surveyNorm(token);if(t.length>6&&t.endsWith('oes'))t=t.slice(0,-3)+'ao';else if(t.length>5&&t.endsWith('ais'))t=t.slice(0,-3)+'al';else if(t.length>5&&t.endsWith('s'))t=t.slice(0,-1);return t;
+}
+function surveyThemeTokens(text){
+  return surveyNorm(text).split(' ').map(surveyThemeStem).filter(t=>t.length>=4&&!SURVEY_THEME_STOPWORDS.has(t)&&!/^[0-9]+$/.test(t));
+}
+function surveyThemeAction(theme,sample){
+  const n=surveyNorm(theme+' '+sample);
+  if(/filtro|categoria|marca|atribut/.test(n))return 'Revisar a usabilidade, persistência e cobertura dos filtros citados pelos vendedores.';
+  if(/veloc|lento|demora|carreg/.test(n))return 'Medir tempo de resposta nos cenários citados e priorizar gargalos de carregamento.';
+  if(/sinon|termo|express|palavra|nome/.test(n))return 'Avaliar sinônimos, termos comerciais e correspondência textual para ampliar a relevância da busca.';
+  if(/codigo|sku|referenc/.test(n))return 'Validar indexação e precisão da pesquisa por código/SKU nos casos relatados.';
+  if(/intrus|relevan|relacao|relacion/.test(n))return 'Revisar ranking e relevância dos resultados para reduzir itens sem relação com a intenção pesquisada.';
+  if(/layout|visual|tela|interface/.test(n))return 'Avaliar a experiência visual e o fluxo de interação associados aos comentários deste tema.';
+  if(/estoque|disponib/.test(n))return 'Revisar a exibição e atualização das informações de disponibilidade apontadas nas respostas.';
+  return `Aprofundar os relatos relacionados a “${theme}” e validar com os vendedores a melhoria de maior impacto.`;
+}
+function surveyExtractThemes(rows){
+  const comments=[];
+  rows.forEach(r=>['q9','q10'].forEach(key=>{const text=String(r[key]??'').trim();if(text)comments.push({text,cd:String(r.cd??'').trim()||'—'});}));
+  if(!comments.length)return [];
+  const docFreq={};const variant={};
+  comments.forEach(c=>{
+    const tokens=[...new Set(surveyThemeTokens(c.text))];
+    tokens.forEach(t=>{docFreq[t]=(docFreq[t]||0)+1;if(!variant[t])variant[t]=t;});
+  });
+  const buckets={};
+  comments.forEach(c=>{
+    const tokens=[...new Set(surveyThemeTokens(c.text))];
+    if(!tokens.length)return;
+    tokens.sort((a,b)=>(docFreq[b]||0)-(docFreq[a]||0)||a.localeCompare(b,'pt-BR'));
+    const key=tokens[0];
+    if(!buckets[key])buckets[key]={key,label:key.charAt(0).toUpperCase()+key.slice(1),count:0,samples:[]};
+    buckets[key].count++;if(buckets[key].samples.length<2)buckets[key].samples.push(c.text);
+  });
+  return Object.values(buckets).sort((a,b)=>b.count-a.count||a.label.localeCompare(b.label,'pt-BR')).map(t=>({...t,action:surveyThemeAction(t.label,t.samples[0]||'')}));
+}
+function surveyRenderThemes(rows){
+  const themes=surveyExtractThemes(rows),body=document.getElementById('surveyThemeBody'),badge=document.getElementById('surveyThemeCountBadge');
+  if(badge)badge.textContent=`${themes.length} tema${themes.length===1?'':'s'}`;
+  if(!body)return;
+  body.innerHTML=themes.length?themes.map(t=>`<tr><td><div class="survey-theme-title">${escapeHtml(t.label)}</div></td><td><span class="survey-theme-count">${t.count.toLocaleString('pt-BR')}</span></td><td><div class="survey-theme-action">${escapeHtml(t.action)}${t.samples[0]?`<span class="survey-theme-example">Ex.: “${escapeHtml(t.samples[0].slice(0,150))}${t.samples[0].length>150?'…':''}”</span>`:''}</div></td></tr>`).join(''):'<tr><td colspan="3" class="survey-empty">Sem respostas abertas suficientes para identificar temas.</td></tr>';
+}
+function surveyRenderCdComparison(m,rows){
+  const head=document.getElementById('surveyCdMatrixHead'),body=document.getElementById('surveyCdMatrixBody');if(!head||!body)return;
+  const cds=m.cdSorted.map(([cd])=>cd);
+  head.innerHTML='<tr><th>Pergunta</th>'+cds.map(cd=>`<th class="survey-matrix-cell">${escapeHtml(cd)}</th>`).join('')+'</tr>';
+  body.innerHTML=m.qs.length?m.qs.map(def=>{
+    const cells=cds.map(cd=>{
+      const subset=rows.filter(r=>(String(r.cd??'').trim()||'Não informado').toUpperCase()===cd);
+      const q=surveyAnalyzeQuestion(subset,def.key,def.scale);
+      if(!q.valid)return '<td class="survey-matrix-cell"><span class="survey-cell-score">—</span><span class="survey-cell-base">0 válidas</span></td>';
+      const cls=q.pct>=80?'good':q.pct>=60?'mid':'risk';
+      return `<td class="survey-matrix-cell"><span class="survey-cell-score ${cls}">${surveyFmtPct(q.pct)}</span><span class="survey-cell-base">${q.pos}/${q.valid} válidas</span></td>`;
+    }).join('');
+    return `<tr><td>${escapeHtml(def.label)}</td>${cells}</tr>`;
+  }).join(''):'<tr><td colspan="2" class="survey-empty">Nenhuma pergunta reconhecida.</td></tr>';
+}
+function surveyRender(){
+  const rows=_surveyRows;if(!rows.length)return surveyRenderEmpty();
+  const m=surveyBuildMetrics(rows),C=surveyColors();
+
+  document.getElementById('surveyKpiTotal').textContent=m.total.toLocaleString('pt-BR');
+  document.getElementById('surveyKpiTotalSub').textContent=`${m.total.toLocaleString('pt-BR')} linha${m.total===1?'':'s'} de resposta analisada${m.total===1?'':'s'}`;
+  document.getElementById('surveyKpiSatisfaction').textContent=m.positivePct===null?'—':surveyFmtPct(m.positivePct);
+  document.getElementById('surveyKpiSatisfactionSub').textContent=m.validEvaluations?`${m.positiveEvaluations.toLocaleString('pt-BR')} avaliações positivas de ${m.validEvaluations.toLocaleString('pt-BR')} respostas válidas nas perguntas`:'Nenhuma pergunta com resposta válida reconhecida';
+  document.getElementById('surveyKpiStrength').textContent=m.strength?.label||'—';
+  document.getElementById('surveyKpiStrengthSub').textContent=m.strength?`${surveyFmtPct(m.strength.pct)} · ${m.strength.pos} positivas de ${m.strength.valid} válidas`:'Sem respostas válidas';
+  document.getElementById('surveyKpiWeakness').textContent=m.weakness?.label||'—';
+  document.getElementById('surveyKpiWeaknessSub').textContent=m.weakness?`${surveyFmtPct(m.weakness.pct)} · ${m.weakness.pos} positivas de ${m.weakness.valid} válidas`:'Sem respostas válidas';
+  document.getElementById('surveyDimensionCountBadge').textContent=`${m.qs.length} pergunta${m.qs.length===1?'':'s'}`;
+
+  surveyDestroyChart('sat');
+  const satCanvas=document.getElementById('surveySatisfactionChart');
+  if(satCanvas&&m.qs.length)_surveyCharts.sat=new Chart(satCanvas,{type:'bar',data:{labels:m.qs.map(q=>q.label),datasets:[{data:m.qs.map(q=>q.pct??0),backgroundColor:m.qs.map(q=>q===m.weakness?C.warning+'cc':q===m.strength?C.accent+'cc':C.primary+'c9'),borderRadius:7,borderSkipped:false}]},options:{indexAxis:'y',maintainAspectRatio:false,plugins:{legend:{display:false},tooltip:{callbacks:{label:c=>{const q=m.qs[c.dataIndex];return q.valid?` ${surveyFmtPct(q.pct)} · ${q.pos} positivas / ${q.valid} válidas`:' Sem respostas válidas';}}}},scales:{x:{min:0,max:100,ticks:{color:C.text,callback:v=>v+'%'},grid:{color:C.grid}},y:{ticks:{color:C.text,font:{size:10}},grid:{display:false}}}}});
+  document.getElementById('surveyDimensionSummary').innerHTML=m.qs.map(q=>`<div class="survey-dimension-row"><span class="survey-dimension-name">${escapeHtml(q.label)}</span><span class="survey-dimension-score">${q.pct===null?'—':surveyFmtPct(q.pct)}</span><span class="survey-dimension-base">${q.pos}/${q.valid} positivas/válidas</span></div>`).join('')||'<div class="survey-empty">Nenhuma pergunta reconhecida.</div>';
+
+  const intrLabels=['Nunca','Raras vezes','Às vezes','Frequentemente','Sempre'];
+  const intrCounts=[m.intrusive.never,m.intrusive.rarely,m.intrusive.sometimes,m.intrusive.frequently,m.intrusive.always];
+  const intrPct=intrCounts.map(v=>surveyPct(v,m.intrusive.valid));
+  document.getElementById('surveyIntrusiveBaseBadge').textContent=`${m.intrusive.valid.toLocaleString('pt-BR')} válidas`;
+  document.getElementById('surveyIntrusiveSummary').innerHTML=surveyDistributionHtml(intrLabels,intrCounts,m.intrusive.valid);
+  surveyDestroyChart('intr');
+  const intrCanvas=document.getElementById('surveyIntrusiveChart');
+  if(intrCanvas)_surveyCharts.intr=new Chart(intrCanvas,{type:'bar',data:{labels:intrLabels,datasets:[{data:intrPct,backgroundColor:[C.accent+'d9',C.accent+'8f',C.warning+'b8','#e07a48cc',C.danger+'d9'],borderRadius:7,borderSkipped:false}]},options:{maintainAspectRatio:false,plugins:{legend:{display:false},tooltip:{callbacks:{label:c=>` ${surveyFmtPct(c.raw)} · ${intrCounts[c.dataIndex]} resposta${intrCounts[c.dataIndex]===1?'':'s'}`}}},scales:{x:{ticks:{color:C.text,font:{size:9}},grid:{display:false}},y:{min:0,max:100,ticks:{color:C.text,callback:v=>v+'%'},grid:{color:C.grid}}}}});
+
+  const agLabels=['Muito Positivo','Positivo','Neutro','Negativo','Muito Negativo'];
+  const agCounts=[rows.filter(r=>['muito positivo','muito positiva'].includes(surveyNorm(r.q8))).length,rows.filter(r=>['positivo','positiva'].includes(surveyNorm(r.q8))).length,m.agility.neu,rows.filter(r=>['negativo','negativa'].includes(surveyNorm(r.q8))).length,rows.filter(r=>['muito negativo','muito negativa'].includes(surveyNorm(r.q8))).length];
+  const agPct=agCounts.map(v=>surveyPct(v,m.agility.valid));
+  document.getElementById('surveyAgilityBaseBadge').textContent=`${m.agility.valid.toLocaleString('pt-BR')} válidas`;
+  document.getElementById('surveyAgilitySummary').innerHTML=surveyDistributionHtml(agLabels,agCounts,m.agility.valid);
+  surveyDestroyChart('agi');
+  const agCanvas=document.getElementById('surveyAgilityChart');
+  if(agCanvas)_surveyCharts.agi=new Chart(agCanvas,{type:'bar',data:{labels:agLabels,datasets:[{data:agPct,backgroundColor:[C.accent+'e6',C.accent+'99',C.warning+'99',C.danger+'99',C.danger+'e6'],borderRadius:7,borderSkipped:false}]},options:{maintainAspectRatio:false,plugins:{legend:{display:false},tooltip:{callbacks:{label:c=>` ${surveyFmtPct(c.raw)} · ${agCounts[c.dataIndex]} resposta${agCounts[c.dataIndex]===1?'':'s'}`}}},scales:{x:{ticks:{color:C.text,font:{size:9},maxRotation:0,minRotation:0},grid:{display:false}},y:{min:0,max:100,ticks:{color:C.text,callback:v=>v+'%'},grid:{color:C.grid}}}}});
+
+  const intrGood=m.intrusive.never+m.intrusive.rarely,intrBad=m.intrusive.frequently+m.intrusive.always;
+  const insights=[
+    ['↑','Melhor avaliação',m.strength?`${m.strength.label} lidera com ${surveyFmtPct(m.strength.pct)} (${m.strength.pos}/${m.strength.valid} válidas positivas).`:'Sem dados suficientes.'],
+    ['!','Menor avaliação',m.weakness?`${m.weakness.label} apresenta o menor índice: ${surveyFmtPct(m.weakness.pct)} (${m.weakness.pos}/${m.weakness.valid}).`:'Sem dados suficientes.'],
+    ['✓','Relevância',m.intrusive.valid?`${surveyFmtPct(surveyPct(intrGood,m.intrusive.valid))} responderam Nunca/Raras vezes; ${surveyFmtPct(surveyPct(intrBad,m.intrusive.valid))} Frequentemente/Sempre.`:'Sem respostas válidas.'],
+    ['→','Agilidade',m.agility.valid?`${surveyFmtPct(m.agility.pct)} avaliam o impacto como positivo (${m.agility.pos}/${m.agility.valid} válidas).`:'Sem respostas válidas.']
+  ];
+  document.getElementById('surveyInsights').innerHTML=insights.map(i=>`<div class="survey-insight"><div class="survey-insight-icon">${i[0]}</div><div><strong>${i[1]}</strong><span>${i[2]}</span></div></div>`).join('');
+  surveyRenderSuggestions(rows);
+
+  // Página 2 — distribuição por CD
+  document.getElementById('surveyCdCountBadge').textContent=`${m.cdSorted.length} CD${m.cdSorted.length===1?'':'s'}`;
+  document.getElementById('surveyCdBody').innerHTML=m.cdSorted.map(([cd,n])=>`<tr><td><strong>${escapeHtml(cd)}</strong></td><td>${n.toLocaleString('pt-BR')}</td><td>${surveyFmtPct(surveyPct(n,m.total))}</td></tr>`).join('')||'<tr><td colspan="3" class="survey-empty">Sem CDs informados.</td></tr>';
+  surveyDestroyChart('cd');
+  const cdCanvas=document.getElementById('surveyCdChart');
+  if(cdCanvas)_surveyCharts.cd=new Chart(cdCanvas,{type:'bar',data:{labels:m.cdSorted.map(x=>x[0]),datasets:[{data:m.cdSorted.map(x=>surveyPct(x[1],m.total)),backgroundColor:C.primary+'cc',borderRadius:7,borderSkipped:false}]},options:{maintainAspectRatio:false,plugins:{legend:{display:false},tooltip:{callbacks:{label:c=>` ${surveyFmtPct(c.raw)} · ${m.cdSorted[c.dataIndex][1]} respostas`}}},scales:{x:{ticks:{color:C.text,font:{size:9}},grid:{display:false}},y:{min:0,max:100,ticks:{color:C.text,callback:v=>v+'%'},grid:{color:C.grid}}}}});
+  surveyRenderCdComparison(m,rows);
+  surveyRenderThemes(rows);
+
+  // Qualidade da base
+  document.getElementById('surveyQuestionBody').innerHTML=m.qs.map(q=>`<tr><td>${escapeHtml(q.label)}</td><td>${q.pos.toLocaleString('pt-BR')} (${surveyFmtPct(surveyPct(q.pos,q.valid))})</td><td>${q.neu.toLocaleString('pt-BR')} (${surveyFmtPct(surveyPct(q.neu,q.valid))})</td><td>${q.neg.toLocaleString('pt-BR')} (${surveyFmtPct(surveyPct(q.neg,q.valid))})</td><td>${q.unrecognized.toLocaleString('pt-BR')}</td><td>${q.valid.toLocaleString('pt-BR')}</td><td><div class="survey-score-wrap"><div class="survey-score-bar"><div class="survey-score-fill" style="width:${(q.pct??0).toFixed(1)}%"></div></div><span class="survey-score-num">${q.pct===null?'—':surveyFmtPct(q.pct)}</span></div></td></tr>`).join('')||'<tr><td colspan="7" class="survey-empty">Nenhuma pergunta avaliativa reconhecida.</td></tr>';
+  const invalidExamples=m.qs.flatMap(q=>Object.entries(q.invalidValues).map(([value,count])=>`${q.label}: “${value}” (${count}×)`)).concat(Object.entries(m.intrusive.invalidValues).map(([value,count])=>`5. Presença de Produtos Indesejados: “${value}” (${count}×)`));
+  const validationNote=document.getElementById('surveyValidationNote');
+  if(validationNote){validationNote.className='survey-quality-note show '+(m.invalidTotal?'warn':'ok');validationNote.innerHTML=m.invalidTotal?`<strong>${m.invalidTotal.toLocaleString('pt-BR')} resposta${m.invalidTotal===1?'':'s'} não reconhecida${m.invalidTotal===1?'':'s'}.</strong> Esses valores foram excluídos apenas do denominador da pergunta correspondente.${invalidExamples.length?' Exemplos: '+invalidExamples.slice(0,5).map(escapeHtml).join('; ')+'.':''}`:'<strong>Validação concluída:</strong> todas as respostas preenchidas das escalas avaliativas foram reconhecidas.';}
+}
+function surveyRenderEmpty(){
+  Object.keys(_surveyCharts).forEach(surveyDestroyChart);
+  const ac=document.getElementById('surveyAnalysisCd');if(ac)ac.innerHTML='<option value="ALL">Todos os CDs</option>';
+  const cq=document.getElementById('surveyCompareQuestion');if(cq)cq.innerHTML='<option value="">Selecione uma pergunta</option>';
+  const scb=document.getElementById('surveySelectedCdBody');if(scb)scb.innerHTML='<tr><td colspan="4" class="survey-empty">Importe uma planilha para analisar.</td></tr>';
+  const ccb=document.getElementById('surveyCompareCdBody');if(ccb)ccb.innerHTML='<tr><td colspan="5" class="survey-empty">Importe uma planilha para comparar os CDs.</td></tr>';
+  ['surveyKpiTotal','surveyKpiSatisfaction','surveyKpiStrength','surveyKpiWeakness'].forEach(id=>{const el=document.getElementById(id);if(el)el.textContent='—'});
+  const txt={surveyKpiTotalSub:'Respostas carregadas da planilha',surveyKpiSatisfactionSub:'Percentual das respostas válidas',surveyKpiStrengthSub:'Pergunta com maior índice positivo',surveyKpiWeaknessSub:'Pergunta com menor índice positivo',surveySuggestionMeta:'Nenhuma sugestão carregada.'};Object.entries(txt).forEach(([id,v])=>{const el=document.getElementById(id);if(el)el.textContent=v});
+  ['surveyDimensionSummary','surveyIntrusiveSummary','surveyAgilitySummary','surveyInsights','surveySuggestionsList'].forEach(id=>{const el=document.getElementById(id);if(el)el.innerHTML='<div class="survey-empty">Importe uma planilha para gerar esta análise.</div>'});
+  ['surveyQuestionBody','surveyCdBody','surveyCdMatrixBody','surveyThemeBody'].forEach(id=>{const el=document.getElementById(id);if(el)el.innerHTML='<tr><td colspan="8" class="survey-empty">Importe uma planilha para gerar esta análise.</td></tr>'});
+  const mh=document.getElementById('surveyCdMatrixHead');if(mh)mh.innerHTML='<tr><th>Pergunta</th><th>CD</th></tr>';
+  ['surveyDimensionCountBadge','surveyCdCountBadge','surveyThemeCountBadge'].forEach(id=>{const el=document.getElementById(id);if(el)el.textContent='0'});['surveyIntrusiveBaseBadge','surveyAgilityBaseBadge'].forEach(id=>{const el=document.getElementById(id);if(el)el.textContent='0 válidas'});
+  const validationNote=document.getElementById('surveyValidationNote');if(validationNote){validationNote.className='survey-quality-note';validationNote.textContent='';}
+}
+function surveySetSource(label,text,updatedAt){
+  const badge=document.getElementById('surveySourceBadge'),source=document.getElementById('surveySourceText'),updated=document.getElementById('surveyLastUpdate');
+  if(badge)badge.textContent=label;if(source)source.textContent=text;
+  if(updated){const d=updatedAt?new Date(updatedAt):null;updated.textContent=d&&!Number.isNaN(d.getTime())?'Última importação: '+d.toLocaleString('pt-BR'):'Última importação: —';}
+}
+function surveySaveDivisionData(){try{localStorage.setItem(SURVEY_STORAGE_KEY,JSON.stringify(_surveyDivisionData));}catch(err){console.warn('Não foi possível salvar os relatórios no navegador.',err)}}
+function surveyRestoreDivisionData(){
+  try{
+    const saved=JSON.parse(localStorage.getItem(SURVEY_STORAGE_KEY)||'null');
+    if(saved&&typeof saved==='object')Object.keys(_surveyDivisionData).forEach(key=>{if(saved[key]?.rows)_surveyDivisionData[key]=saved[key]});
+  }catch(err){console.warn('Não foi possível restaurar os relatórios do navegador.',err)}
+}
+function surveySelectDivision(division){
+  _activeSurveyDivision=division;const config=_surveyDivisionData[division]||{rows:[],fileName:'',updatedAt:''};_surveyRows=config.rows||[];
+  Object.entries(SURVEY_DIVISION_LABELS).forEach(([key,label])=>{const active=key===division,button=document.getElementById('surveyDivision'+label);button?.classList.toggle('active',active);button?.setAttribute('aria-selected',String(active));});
+  const title=document.getElementById('surveyImportTitle');if(title)title.textContent='Importar relatório — '+SURVEY_DIVISION_LABELS[division];
+  const st=document.getElementById('surveyFileStatus');
+  if(_surveyRows.length){if(st){st.textContent=`${config.fileName||'Relatório'} · ${_surveyRows.length.toLocaleString('pt-BR')} respostas carregadas`;st.className='survey-file-status ok'}surveySetSource(SURVEY_DIVISION_LABELS[division]+' · Excel',`${config.fileName||'Relatório importado'} · ${_surveyRows.length.toLocaleString('pt-BR')} respostas`,config.updatedAt);surveyRender();}
+  else{if(st){st.textContent='Nenhum relatório importado para '+SURVEY_DIVISION_LABELS[division]+'.';st.className='survey-file-status'}surveySetSource(SURVEY_DIVISION_LABELS[division]+' · Excel','Nenhum relatório importado','');surveyRenderEmpty();}
+  surveySetView(_surveyCurrentView);
+}
+function surveyClearActiveDivision(){
+  const label=SURVEY_DIVISION_LABELS[_activeSurveyDivision];if(!confirm('Limpar o relatório importado de '+label+'?'))return;
+  _surveyDivisionData[_activeSurveyDivision]={rows:[],fileName:'',updatedAt:''};surveySaveDivisionData();surveySelectDivision(_activeSurveyDivision);toast('Relatório de '+label+' removido.','success');
+}
+async function surveyReadFile(file){
+  const ext=(file.name.split('.').pop()||'').toLowerCase();if(!['xlsx','xls','csv'].includes(ext))throw new Error('Formato não suportado. Use Excel (.xlsx/.xls) ou CSV.');
+  if(ext==='csv'){const text=await file.text();const wb=XLSX.read(text,{type:'string'});const ws=wb.Sheets[wb.SheetNames[0]];return XLSX.utils.sheet_to_json(ws,{header:1,defval:'',raw:false});}
+  const buf=await file.arrayBuffer(),wb=XLSX.read(buf,{type:'array'});const target=wb.SheetNames.find(n=>surveyNorm(n)==='respostas detalhadas')||wb.SheetNames.find(n=>surveyNorm(n)==='report')||wb.SheetNames.find(n=>surveyNorm(n).includes('respostas'))||wb.SheetNames[0];const ws=wb.Sheets[target];return XLSX.utils.sheet_to_json(ws,{header:1,defval:'',raw:false});
+}
+function surveyDownloadCurrent(){
+  if(!_surveyRows.length)return toast('Não existem respostas para baixar.','warn');if(!window.XLSX)return toast('A biblioteca de Excel não foi carregada.','error');
+  const baseCols=[['id','ID da Resposta'],['cd','1. CD mais utilizado'],['q1','Satisfação Geral'],['q2','2. Busca por Nome do Produto'],['q3','3. Busca por Termos Genéricos'],['q4','4. Busca por Código (SKU / Referência)'],['q5','5. Presença de Produtos Indesejados'],['q6','6. Velocidade da Busca'],['q7','7. Uso de Filtros'],['q8','8. Agilidade na Venda'],['q9','9. Melhorias e Novas Funcionalidades'],['q10','10. Comentários Gerais']].filter(([key])=>key==='id'||key==='cd'||_surveyRows.some(r=>String(r[key]??'').trim()));
+  const dyn=surveyQuestionDefs(_surveyRows).filter(d=>d.dynamic);
+  const headers=baseCols.map(x=>x[1]).concat(dyn.map(d=>d.fullLabel||d.label));
+  const matrix=[headers,..._surveyRows.map(r=>baseCols.map(([key])=>r[key]??'').concat(dyn.map(d=>surveyGetValue(r,d.key))))];
+  const ws=XLSX.utils.aoa_to_sheet(matrix);ws['!autofilter']={ref:`A1:${XLSX.utils.encode_col(headers.length-1)}${matrix.length}`};ws['!cols']=headers.map(h=>({wch:Math.min(55,Math.max(16,String(h).length+2))}));const wb=XLSX.utils.book_new();XLSX.utils.book_append_sheet(wb,ws,'Respostas Detalhadas');const stamp=new Date().toLocaleDateString('pt-BR').replaceAll('/','-');XLSX.writeFile(wb,`resultado_${_activeSurveyDivision}_${stamp}.xlsx`);toast(`${_surveyRows.length.toLocaleString('pt-BR')} respostas exportadas em Excel.`,'success');
+}
+function surveyExportSummary(){
+  if(!_surveyRows.length)return toast('Importe uma pesquisa antes de exportar.','warn');
+  const m=surveyBuildMetrics(_surveyRows),themes=surveyExtractThemes(_surveyRows),rows=[['VISÃO EXECUTIVA',''],['Indicador','Valor'],['Total de respostas',m.total],['Satisfação positiva',m.positivePct===null?'—':surveyFmtPct(m.positivePct)],['Melhor avaliação',m.strength?`${m.strength.label} · ${surveyFmtPct(m.strength.pct)} · ${m.strength.valid} válidas`:'—'],['Menor avaliação',m.weakness?`${m.weakness.label} · ${surveyFmtPct(m.weakness.pct)} · ${m.weakness.valid} válidas`:'—'],[''],['PERGUNTAS 2, 3, 4, 6, 7 E 8',''],['Pergunta','Positivas','Válidas','Índice positivo']];
+  m.qs.forEach(q=>rows.push([q.label,q.pos,q.valid,q.pct===null?'—':surveyFmtPct(q.pct)]));
+  rows.push([''],['DISTRIBUIÇÃO POR CD',''],['CD','Respostas','% da base']);m.cdSorted.forEach(([cd,n])=>rows.push([cd,n,surveyFmtPct(surveyPct(n,m.total))]));
+  rows.push([''],['TEMAS DAS RESPOSTAS ABERTAS',''],['Tema','Menções','Interpretação / possível ação']);themes.forEach(t=>rows.push([t.label,t.count,t.action]));
+  const csv=rows.map(r=>r.map(v=>{const s=String(v??'');return /[;"\n\r]/.test(s)?'"'+s.replace(/"/g,'""')+'"':s}).join(';')).join('\r\n');const blob=new Blob(['\ufeff'+csv],{type:'text/csv;charset=utf-8;'}),url=URL.createObjectURL(blob),a=document.createElement('a');a.href=url;a.download=`resumo_pesquisa_${_activeSurveyDivision}.csv`;document.body.appendChild(a);a.click();a.remove();setTimeout(()=>URL.revokeObjectURL(url),1000);toast('Resumo dinâmico exportado com sucesso.','success');
+}
+async function surveyExportPdfComplete(){
+  if(!_surveyRows.length)return toast('Importe uma pesquisa antes de gerar o PDF.','warn');if(typeof html2canvas!=='function')return toast('Não foi possível carregar o gerador visual do PDF.','error');if(!window.jspdf?.jsPDF)return toast('Não foi possível carregar o gerador de PDF.','error');
+  const page=document.querySelector('#page-survey .survey-page'),btn=document.getElementById('surveyPdfBtn');if(!page)return;
+  const originalBtnHtml=btn?.innerHTML,oldView=_surveyCurrentView,oldScrollTop=document.querySelector('.main-area')?.scrollTop||0;
+  try{
+    if(btn){btn.classList.add('is-loading');btn.textContent='Gerando PDF...';}toast('Preparando as duas páginas do dashboard em PDF...','loading');page.classList.add('survey-pdf-mode');surveyFitFirstTenComments();await new Promise(r=>requestAnimationFrame(()=>requestAnimationFrame(r)));
+    const theme=document.documentElement.getAttribute('data-theme')==='light'?'light':'dark',bg=theme==='light'?'#f7f8fc':'#07090e';
+    const canvas=await html2canvas(page,{backgroundColor:bg,scale:1.45,useCORS:true,allowTaint:false,logging:false,scrollX:0,scrollY:-window.scrollY,windowWidth:Math.max(document.documentElement.clientWidth,page.scrollWidth),onclone:(doc)=>{const clone=doc.querySelector('#page-survey .survey-page');if(clone){clone.classList.add('survey-pdf-mode');clone.style.maxWidth='1480px';clone.style.margin='0 auto';}doc.querySelectorAll('#page-survey .survey-comment-list,#page-survey .survey-themes-wrap').forEach(el=>{el.style.maxHeight='none';el.style.overflow='visible';});}});
+    const {jsPDF}=window.jspdf,pdf=new jsPDF({orientation:'portrait',unit:'mm',format:'a4',compress:true}),pageW=210,pageH=297,margin=8,usableW=pageW-margin*2,usableH=pageH-margin*2,imgW=usableW,pagePixelH=Math.floor(canvas.width*(usableH/imgW));let sy=0,pageIndex=0;
+    while(sy<canvas.height){const sliceH=Math.min(pagePixelH,canvas.height-sy),slice=document.createElement('canvas');slice.width=canvas.width;slice.height=sliceH;const ctx=slice.getContext('2d');ctx.fillStyle=bg;ctx.fillRect(0,0,slice.width,slice.height);ctx.drawImage(canvas,0,sy,canvas.width,sliceH,0,0,canvas.width,sliceH);const data=slice.toDataURL('image/jpeg',.93),drawH=sliceH*imgW/canvas.width;if(pageIndex>0)pdf.addPage();pdf.addImage(data,'JPEG',margin,margin,imgW,drawH,undefined,'FAST');pdf.setFont('helvetica','normal');pdf.setFontSize(7);pdf.setTextColor(theme==='light'?100:180);pdf.text(`Orbit Analytics · Pesquisa de Satisfação · Página ${pageIndex+1}`,margin,pageH-3.5);sy+=sliceH;pageIndex++;}
+    const stamp=new Date().toLocaleDateString('pt-BR').replaceAll('/','-');pdf.save(`dashboard_pesquisa_${_activeSurveyDivision}_${stamp}.pdf`);toast('PDF completo gerado com sucesso.','success');
+  }catch(err){console.error('Erro ao gerar PDF da pesquisa:',err);toast('Não foi possível gerar o PDF completo. Atualize a página e tente novamente.','error');}
+  finally{page.classList.remove('survey-pdf-mode');surveySetView(oldView);requestAnimationFrame(surveyFitFirstTenComments);if(btn){btn.classList.remove('is-loading');btn.innerHTML=originalBtnHtml||'Baixar PDF completo';}const main=document.querySelector('.main-area');if(main)main.scrollTop=oldScrollTop;}
+}
+function initSurveyDashboard(){
+  if(!_surveyInitialized){
+    _surveyInitialized=true;surveyRestoreDivisionData();const input=document.getElementById('surveyFileInput');
+    input?.addEventListener('change',async e=>{const file=e.target.files?.[0];if(!file)return;const st=document.getElementById('surveyFileStatus');try{if(st){st.textContent='Lendo, interpretando e recalculando '+file.name+'...';st.className='survey-file-status'}const matrix=await surveyReadFile(file),rows=surveyRowsFromMatrix(matrix);if(!rows.length)throw new Error('Nenhuma resposta válida encontrada.');_surveyRows=rows;const now=new Date().toISOString();_surveyDivisionData[_activeSurveyDivision]={rows,fileName:file.name,updatedAt:now};surveySaveDivisionData();if(st){st.textContent=`${file.name} · ${rows.length.toLocaleString('pt-BR')} respostas carregadas`;st.className='survey-file-status ok'}surveySetSource(SURVEY_DIVISION_LABELS[_activeSurveyDivision]+' · Excel',`${file.name} · ${rows.length.toLocaleString('pt-BR')} respostas`,now);surveyRender();toast('Pesquisa recalculada com sucesso.','success');}catch(err){console.error(err);if(st){st.textContent=err.message||'Erro ao ler o arquivo.';st.className='survey-file-status'}toast(err.message||'Erro ao importar pesquisa.','error')}finally{e.target.value=''}});
+    surveySelectDivision(_activeSurveyDivision);
+  }else requestAnimationFrame(()=>surveySelectDivision(_activeSurveyDivision));
+}
+
+
+
+/* ═══════════════════════════════════════════════════
+   PESQUISA DE SATISFAÇÃO — UX/ANÁLISE V4
+   Camada final: mantém a importação dinâmica e adequa
+   o dashboard ao protótipo analítico enviado.
+═══════════════════════════════════════════════════ */
+SURVEY_HEADER_KEYS.date=['carimbo de data hora','carimbo de data/hora','data hora','data/hora','data da resposta','data resposta','data de resposta','data','timestamp','submitted at','created at'];
+let _surveySuggestionItems=[];
+let _surveySuggestionPage=0;
+let _surveySuggestionShowAll=false;
+let _surveyDetailedRows=[];
+
+function surveyDateToIso(value){
+  if(value===null||value===undefined||value==='')return '';
+  if(value instanceof Date&&!Number.isNaN(value.getTime()))return value.toISOString().slice(0,10);
+  if(typeof value==='number'&&value>20000&&value<90000){const d=new Date(Math.round((value-25569)*86400*1000));return Number.isNaN(d.getTime())?'':d.toISOString().slice(0,10);}
+  const s=String(value).trim();
+  let m=s.match(/^(\d{1,2})[\/\-.](\d{1,2})[\/\-.](\d{2,4})/);
+  if(m){let y=Number(m[3]);if(y<100)y+=2000;const d=new Date(y,Number(m[2])-1,Number(m[1]));return Number.isNaN(d.getTime())?'':`${d.getFullYear()}-${String(d.getMonth()+1).padStart(2,'0')}-${String(d.getDate()).padStart(2,'0')}`;}
+  m=s.match(/^(\d{4})-(\d{1,2})-(\d{1,2})/);
+  if(m)return `${m[1]}-${String(m[2]).padStart(2,'0')}-${String(m[3]).padStart(2,'0')}`;
+  const d=new Date(s);return Number.isNaN(d.getTime())?'':d.toISOString().slice(0,10);
+}
+function surveyFormatDate(iso){if(!iso)return '—';const [y,m,d]=iso.split('-');return `${d}/${m}/${y}`}
+function surveyDateRange(rows){const dates=rows.map(r=>r._date).filter(Boolean).sort();return dates.length?{min:dates[0],max:dates[dates.length-1]}:null}
+
+function surveyRowsFromMatrix(matrix){
+  if(!Array.isArray(matrix)||matrix.length<2) throw new Error('O arquivo não possui respostas suficientes.');
+  const candidates=matrix.slice(0,Math.min(matrix.length,25)).map((r,i)=>({i,count:Array.isArray(r)?Object.keys(surveyMapHeaders(r)).length:0}));
+  const best=candidates.sort((a,b)=>b.count-a.count)[0],hi=best?.count>=2?best.i:0,headers=(matrix[hi]||[]).map(v=>String(v??'')),map=surveyMapHeaders(headers);
+  if(map.cd===undefined) throw new Error('Não reconheci a coluna da pergunta 1 (CD). Verifique o título no arquivo.');
+  const sourceRows=matrix.slice(hi+1).filter(r=>Array.isArray(r)),mappedIndexes=new Set(Object.values(map)),dynamicDefs=[];
+  headers.forEach((header,col)=>{if(mappedIndexes.has(col)||!String(header).trim())return;const scale=surveyInferScale(sourceRows.slice(0,250).map(r=>r[col]));if(scale)dynamicDefs.push({key:'dyn_'+col,label:surveyPrettyDimensionLabel(header),fullLabel:String(header).trim(),scale,col,dynamic:true});});
+  const hasKnown=SURVEY_DIMENSION_CONFIG.some(d=>map[d.key]!==undefined);if(!hasKnown&&!dynamicDefs.length)throw new Error('Não reconheci nenhuma pergunta avaliativa. Verifique os títulos e as escalas de resposta.');
+  const rows=sourceRows.map((r,i)=>{const dynamic={};dynamicDefs.forEach(d=>dynamic[d.key]=r[d.col]??'');const rawDate=map.date!==undefined?r[map.date]:'';return {id:map.id!==undefined?r[map.id]:i+1,q1:map.q1!==undefined?r[map.q1]:'',cd:map.cd!==undefined?r[map.cd]:'',q2:map.q2!==undefined?r[map.q2]:'',q3:map.q3!==undefined?r[map.q3]:'',q4:map.q4!==undefined?r[map.q4]:'',q5:map.q5!==undefined?r[map.q5]:'',q6:map.q6!==undefined?r[map.q6]:'',q7:map.q7!==undefined?r[map.q7]:'',q8:map.q8!==undefined?r[map.q8]:'',q9:map.q9!==undefined?r[map.q9]:'',q10:map.q10!==undefined?r[map.q10]:'',_dateRaw:rawDate,_date:surveyDateToIso(rawDate),_dynamic:dynamic,_dynamicDefs:dynamicDefs.map(({key,label,fullLabel,scale,dynamic})=>({key,label,fullLabel,scale,dynamic}))};}).filter(row=>{const fixed=['q1','q2','q3','q4','q5','q6','q7','q8','q9','q10'].some(k=>String(row[k]??'').trim()),extra=Object.values(row._dynamic||{}).some(v=>String(v??'').trim());return fixed||extra;});
+  if(!rows.length)throw new Error('O arquivo não possui linhas de resposta válidas.');return rows;
+}
+
+function surveyShortLabel(label){return String(label||'').replace(/^\d+[.]\s*/,'').replace('Busca por Termos Genéricos','Termos Genéricos').replace('Busca por Nome do Produto','Busca por Nome').replace('Busca por Código (SKU / Referência)','Busca por Código')}
+function surveyDimensionIcon(i){return ['⌕','Aa','#','⏱','⌗','↗'][i%6]}
+function surveyLegendHtml(labels,counts,valid,colors){return labels.map((label,i)=>`<div class="survey-donut-legend-row"><span class="survey-donut-dot" style="background:${colors[i]}"></span><span>${escapeHtml(label)}</span><span class="survey-donut-val">${surveyFmtPct(surveyPct(counts[i],valid))} <small>(${counts[i].toLocaleString('pt-BR')})</small></span></div>`).join('')}
+
+function surveyRenderSuggestions(rows){
+  _surveySuggestionItems=rows.map((r,i)=>({text:String(r.q9??'').trim(),cd:String(r.cd??'').trim().toUpperCase()||'—',date:r._date||'',id:r.id??i+1})).filter(x=>x.text);
+  _surveySuggestionPage=0;_surveySuggestionShowAll=false;surveyRenderSuggestionPage();
+}
+function surveyRenderSuggestionPage(){
+  const list=document.getElementById('surveySuggestionsList'),meta=document.getElementById('surveySuggestionMeta'),pager=document.getElementById('surveySuggestionPagination'),toggle=document.getElementById('surveySuggestionToggle');if(!list)return;
+  const total=_surveySuggestionItems.length,pageSize=10,pages=Math.max(1,Math.ceil(total/pageSize));_surveySuggestionPage=Math.min(_surveySuggestionPage,pages-1);
+  const visible=_surveySuggestionShowAll?_surveySuggestionItems:_surveySuggestionItems.slice(_surveySuggestionPage*pageSize,_surveySuggestionPage*pageSize+pageSize);
+  if(meta)meta.textContent=total?`Exibindo ${_surveySuggestionShowAll?total:Math.min(pageSize,total)} de ${total.toLocaleString('pt-BR')} comentário${total===1?'':'s'}`:'Nenhuma sugestão preenchida';
+  list.innerHTML=visible.length?visible.map(x=>`<div class="survey-comment"><div class="survey-comment-row"><div class="survey-comment-text" title="${escapeHtml(x.text)}">${escapeHtml(x.text)}</div><span class="survey-comment-cd">CD: ${escapeHtml(x.cd)}</span><span class="survey-comment-date">${surveyFormatDate(x.date)}</span></div></div>`).join(''):'<div class="survey-empty">Sem respostas na pergunta 9.</div>';
+  list.style.maxHeight=_surveySuggestionShowAll?'420px':'none';list.style.overflowY=_surveySuggestionShowAll?'auto':'visible';
+  if(toggle)toggle.textContent=_surveySuggestionShowAll?'Mostrar 10':'Ver todos';if(pager)pager.style.display=(!_surveySuggestionShowAll&&total>pageSize)?'flex':'none';
+  const prev=document.getElementById('surveySuggestionPrev'),next=document.getElementById('surveySuggestionNext'),pagesEl=document.getElementById('surveySuggestionPages');if(prev)prev.disabled=_surveySuggestionPage<=0;if(next)next.disabled=_surveySuggestionPage>=pages-1;
+  if(pagesEl){const nums=[];for(let p=0;p<pages;p++){if(p<3||p===pages-1||Math.abs(p-_surveySuggestionPage)<=1)nums.push(p);}pagesEl.innerHTML=[...new Set(nums)].map((p,i,arr)=>`${i&&p-arr[i-1]>1?'<span style="font-size:.6rem;color:var(--text-muted);align-self:center">…</span>':''}<button class="survey-page-number ${p===_surveySuggestionPage?'active':''}" type="button" onclick="surveySuggestionGo(${p})">${p+1}</button>`).join('');}
+}
+function surveySuggestionMove(delta){_surveySuggestionPage+=delta;surveyRenderSuggestionPage()}
+function surveySuggestionGo(page){_surveySuggestionPage=page;surveyRenderSuggestionPage()}
+function surveyToggleAllSuggestions(){_surveySuggestionShowAll=!_surveySuggestionShowAll;surveyRenderSuggestionPage()}
+function surveyFitFirstTenComments(){surveyRenderSuggestionPage()}
+
+function surveyHeatStyle(pct){if(!Number.isFinite(pct))return '';if(pct>=80){const a=Math.min(.32,.10+(pct-80)/100);return `background:rgba(22,163,74,${a.toFixed(2)});`;}if(pct>=60){const a=.10+(pct-60)/160;return `background:rgba(245,158,11,${a.toFixed(2)});`;}const a=.09+(60-pct)/130;return `background:rgba(239,68,68,${Math.min(.30,a).toFixed(2)});`;}
+function surveyRenderCdComparison(m,rows,defsOverride=null){
+  const head=document.getElementById('surveyCdMatrixHead'),body=document.getElementById('surveyCdMatrixBody');if(!head||!body)return;const cds=m.cdSorted.map(([cd])=>cd),defs=defsOverride||m.qs;
+  head.innerHTML='<tr><th>Dimensão \\ CD</th>'+cds.map(cd=>`<th class="survey-matrix-cell">${escapeHtml(cd)}</th>`).join('')+'</tr>';
+  body.innerHTML=defs.length?defs.map(def=>{const cells=cds.map(cd=>{const subset=rows.filter(r=>(String(r.cd??'').trim()||'Não informado').toUpperCase()===cd),q=surveyAnalyzeQuestion(subset,def.key,def.scale);if(!q.valid)return '<td class="survey-matrix-cell"><span class="survey-cell-score">—</span></td>';return `<td class="survey-matrix-cell" style="${surveyHeatStyle(q.pct)}" title="${q.pos} positivas de ${q.valid} válidas"><span class="survey-cell-score">${surveyFmtPct(q.pct)}</span><span class="survey-cell-base">${q.pos}/${q.valid}</span></td>`;}).join('');return `<tr><td>${escapeHtml(surveyShortLabel(def.label))}</td>${cells}</tr>`;}).join(''):'<tr><td colspan="2" class="survey-empty">Nenhuma dimensão reconhecida.</td></tr>';
+}
+
+
+function surveyScenarioDefs(rows=_surveyRows){
+  const defs=[];
+  if((rows||[]).some(r=>String(r.q1??'').trim())) defs.push({key:'q1',label:'Satisfação Geral',scale:'satisfaction',scenario:true});
+  surveyQuestionDefs(rows).forEach(d=>{if(!defs.some(x=>x.key===d.key))defs.push({...d,scenario:true});});
+  if((rows||[]).some(r=>String(r.q5??'').trim())) defs.push({key:'q5',label:'5. Presença de Produtos Indesejados',scale:'intrusive',scenario:true});
+  const order={q1:1,q2:2,q3:3,q4:4,q5:5,q6:6,q7:7,q8:8};
+  return defs.sort((a,b)=>(order[a.key]??99)-(order[b.key]??99));
+}
+function surveyScenarioAnalyze(rows,def){
+  if(!def)return {pos:0,neu:0,neg:0,valid:0,pct:null};
+  if(def.scale!=='intrusive')return surveyAnalyzeQuestion(rows,def.key,def.scale);
+  let pos=0,neu=0,neg=0,valid=0;
+  rows.forEach(r=>{
+    const n=surveyNorm(surveyGetValue(r,def.key));
+    if(!n)return;
+    if(n==='nunca'||n==='raras vezes'||n==='raramente'){pos++;valid++;}
+    else if(n==='as vezes'||n==='ocasionalmente'){neu++;valid++;}
+    else if(n==='frequentemente'||n==='sempre'){neg++;valid++;}
+  });
+  return {pos,neu,neg,valid,pct:valid?surveyPct(pos,valid):null};
+}
+function surveyScenarioBaseRows(){
+  return [..._surveyRows];
+}
+function surveyDeltaHtml(delta){
+  if(!Number.isFinite(delta))return '—';
+  const cls=Math.abs(delta)<.05?'zero':delta>0?'pos':'neg';
+  const sign=delta>0?'+':'';
+  return `<span class="survey-delta ${cls}">${sign}${surveyFmtPct(delta)}</span>`;
+}
+function surveyScenarioBarColors(values){
+  return values.map(v=>!Number.isFinite(v)?'#cbd5e1':v>=80?'rgba(16,185,129,.82)':v>=60?'rgba(99,102,241,.78)':'rgba(240,82,100,.78)');
+}
+function surveyPopulateScenarioControls(rows=_surveyRows){
+  const base=rows||[],m=surveyBuildMetrics(base),defs=surveyScenarioDefs(base),cdSel=document.getElementById('surveyAnalysisCd'),qSel=document.getElementById('surveyCompareQuestion');
+  if(cdSel){const old=cdSel.value;cdSel.innerHTML='<option value="ALL">Todos os CDs</option>'+m.cdSorted.map(([cd])=>`<option value="${escapeHtml(cd)}">${escapeHtml(cd)}</option>`).join('');cdSel.value=[...cdSel.options].some(o=>o.value===old)?old:'ALL';}
+  if(qSel){const old=qSel.value;qSel.innerHTML=defs.map(d=>`<option value="${escapeHtml(d.key)}">${escapeHtml(surveyShortLabel(d.label))}</option>`).join('');if(old&&[...qSel.options].some(o=>o.value===old))qSel.value=old;else if(defs[0])qSel.value=defs[0].key;}
+}
+function surveyRenderScenarioAnalysis(){
+  if(!_surveyRows.length)return;
+  const base=surveyScenarioBaseRows(),defs=surveyScenarioDefs(base),C=surveyColors();
+  const cdSel=document.getElementById('surveyAnalysisCd')?.value||'ALL';
+  const cdRows=cdSel==='ALL'?base:base.filter(r=>(String(r.cd??'').trim()||'Não informado').toUpperCase()===cdSel);
+  const selectedTitle=document.getElementById('surveySelectedCdTitle'),selectedSub=document.getElementById('surveySelectedCdSub');
+  if(selectedTitle)selectedTitle.textContent=cdSel==='ALL'?'Perguntas — todos os CDs':`Perguntas — CD ${cdSel}`;
+  if(selectedSub)selectedSub.textContent=cdSel==='ALL'?`${cdRows.length.toLocaleString('pt-BR')} respostas na base`:`${cdRows.length.toLocaleString('pt-BR')} respostas do CD ${cdSel}`;
+  const overallByKey=Object.fromEntries(defs.map(d=>[d.key,surveyScenarioAnalyze(base,d)]));
+  const cdMetrics=defs.map(d=>({def:d,metric:surveyScenarioAnalyze(cdRows,d),overall:overallByKey[d.key]}));
+  const cdVals=cdMetrics.map(x=>x.metric.pct);
+  surveyDestroyChart('scenarioCd');
+  const cdCanvas=document.getElementById('surveySelectedCdChart');
+  if(cdCanvas)_surveyCharts.scenarioCd=new Chart(cdCanvas,{type:'bar',data:{labels:cdMetrics.map(x=>surveyShortLabel(x.def.label)),datasets:[{data:cdVals.map(v=>Number.isFinite(v)?v:0),backgroundColor:surveyScenarioBarColors(cdVals),borderRadius:6,borderSkipped:false}]},options:{indexAxis:'y',maintainAspectRatio:false,plugins:{legend:{display:false},tooltip:{callbacks:{label:c=>{const x=cdMetrics[c.dataIndex];return x.metric.valid?` ${surveyFmtPct(x.metric.pct)} favorável (${x.metric.pos} de ${x.metric.valid} válidas)`:' Sem respostas válidas';}}}},scales:{x:{min:0,max:100,ticks:{color:C.text,callback:v=>v+'%'},grid:{color:C.grid}},y:{ticks:{color:C.text,font:{size:9}},grid:{display:false}}}}});
+  const cdBody=document.getElementById('surveySelectedCdBody');if(cdBody)cdBody.innerHTML=cdMetrics.map(x=>{const delta=Number.isFinite(x.metric.pct)&&Number.isFinite(x.overall.pct)?x.metric.pct-x.overall.pct:null;return `<tr><td>${escapeHtml(surveyShortLabel(x.def.label))}</td><td>${x.metric.pct===null?'—':surveyFmtPct(x.metric.pct)}</td><td>${x.metric.valid.toLocaleString('pt-BR')}</td><td>${surveyDeltaHtml(delta)}</td></tr>`;}).join('')||'<tr><td colspan="4" class="survey-empty">Sem perguntas avaliativas.</td></tr>';
+
+  const qKey=document.getElementById('surveyCompareQuestion')?.value||defs[0]?.key||'',qDef=defs.find(d=>d.key===qKey)||defs[0];
+  const allM=surveyBuildMetrics(base),cds=allM.cdSorted.map(([cd])=>cd),overall=qDef?surveyScenarioAnalyze(base,qDef):{pct:null};
+  const comparison=cds.map(cd=>{const subset=base.filter(r=>(String(r.cd??'').trim()||'Não informado').toUpperCase()===cd),metric=surveyScenarioAnalyze(subset,qDef);return {cd,metric};}).filter(x=>x.metric.valid>0).sort((a,b)=>(b.metric.pct??-1)-(a.metric.pct??-1));
+  const cmpTitle=document.getElementById('surveyCompareCdTitle'),cmpSub=document.getElementById('surveyCompareCdSub');
+  if(cmpTitle)cmpTitle.textContent='Comparação entre todos os CDs';
+  if(cmpSub)cmpSub.innerHTML=qDef?`<strong>${escapeHtml(surveyShortLabel(qDef.label))}</strong> · média geral ${overall.pct===null?'—':surveyFmtPct(overall.pct)}`:'Selecione uma pergunta';
+  const cmpVals=comparison.map(x=>x.metric.pct);
+  surveyDestroyChart('scenarioCompare');
+  const cmpCanvas=document.getElementById('surveyCompareCdChart');
+  if(cmpCanvas)_surveyCharts.scenarioCompare=new Chart(cmpCanvas,{type:'bar',data:{labels:comparison.map(x=>x.cd),datasets:[{data:cmpVals.map(v=>Number.isFinite(v)?v:0),backgroundColor:surveyScenarioBarColors(cmpVals),borderRadius:6,borderSkipped:false}]},options:{maintainAspectRatio:false,plugins:{legend:{display:false},tooltip:{callbacks:{label:c=>{const x=comparison[c.dataIndex];const delta=Number.isFinite(overall.pct)?x.metric.pct-overall.pct:null;return ` ${surveyFmtPct(x.metric.pct)} · ${x.metric.valid} válidas${Number.isFinite(delta)?` · ${delta>=0?'+':''}${surveyFmtPct(delta)} vs. geral`:''}`;}}}},scales:{y:{min:0,max:100,ticks:{color:C.text,callback:v=>v+'%'},grid:{color:C.grid}},x:{ticks:{color:C.text,font:{size:9}},grid:{display:false}}}}});
+  const cmpBody=document.getElementById('surveyCompareCdBody');if(cmpBody)cmpBody.innerHTML=comparison.map((x,i)=>{const delta=Number.isFinite(overall.pct)&&Number.isFinite(x.metric.pct)?x.metric.pct-overall.pct:null;return `<tr><td><span class="survey-scenario-rank">${i+1}</span></td><td>${escapeHtml(x.cd)}</td><td>${surveyFmtPct(x.metric.pct)}</td><td>${x.metric.valid.toLocaleString('pt-BR')}</td><td>${surveyDeltaHtml(delta)}</td></tr>`;}).join('')||'<tr><td colspan="5" class="survey-empty">Sem respostas válidas para comparar.</td></tr>';
+}
+
+function surveyRenderThemesChart(themes,C){
+  const canvas=document.getElementById('surveyThemesChart'),totalEl=document.getElementById('surveyThemeTotal');surveyDestroyChart('themes');const total=themes.reduce((s,t)=>s+t.count,0);if(totalEl)totalEl.innerHTML=`${total.toLocaleString('pt-BR')}<br><small>menções</small>`;if(!canvas)return;
+  const top=themes.slice(0,5),rest=themes.slice(5).reduce((s,t)=>s+t.count,0),labels=top.map(t=>t.label),data=top.map(t=>t.count);if(rest){labels.push('Outros');data.push(rest);}const colors=['#10b981','#6366f1','#f5b51b','#f97316','#f05264','#94a3b8'];
+  _surveyCharts.themes=new Chart(canvas,{type:'doughnut',data:{labels,datasets:[{data,backgroundColor:colors.slice(0,data.length),borderWidth:0,hoverOffset:5}]},options:{maintainAspectRatio:false,cutout:'68%',plugins:{legend:{display:false},tooltip:{callbacks:{label:c=>` ${c.label}: ${c.raw} menção${c.raw===1?'':'ões'}`}}}}});
+}
+function surveyFilterRows(){
+  const cd=document.getElementById('surveyQuickCd')?.value||'ALL',dim=document.getElementById('surveyQuickDimension')?.value||'ALL',kind=document.getElementById('surveyQuickResponse')?.value||'ALL',defs=surveyQuestionDefs(_surveyRows),def=defs.find(d=>d.key===dim);
+  return _surveyRows.filter(r=>{if(cd!=='ALL'&&(String(r.cd??'').trim()||'Não informado').toUpperCase()!==cd)return false;if(kind!=='ALL'){if(def){if(surveyClassify(surveyGetValue(r,def.key),def.scale)!==kind)return false;}else{const match=defs.some(d=>surveyClassify(surveyGetValue(r,d.key),d.scale)===kind);if(!match)return false;}}return true;});
+}
+function surveyPopulateFilters(rows,m){
+  const cdSel=document.getElementById('surveyQuickCd'),dimSel=document.getElementById('surveyQuickDimension');if(cdSel){const cur=cdSel.value;cdSel.innerHTML='<option value="ALL">Todos</option>'+m.cdSorted.map(([cd])=>`<option value="${escapeHtml(cd)}">${escapeHtml(cd)}</option>`).join('');if([...cdSel.options].some(o=>o.value===cur))cdSel.value=cur;}
+  if(dimSel){const cur=dimSel.value;dimSel.innerHTML='<option value="ALL">Todas</option>'+m.qs.map(q=>`<option value="${escapeHtml(q.key)}">${escapeHtml(surveyShortLabel(q.label))}</option>`).join('');if([...dimSel.options].some(o=>o.value===cur))dimSel.value=cur;}
+}
+function surveyApplyFilters(){_surveyDetailedRows=surveyFilterRows();surveyRenderDetailed(_surveyDetailedRows);surveyRenderScenarioAnalysis();const st=document.getElementById('surveyFilterStatus');if(st)st.textContent=`${_surveyDetailedRows.length.toLocaleString('pt-BR')} de ${_surveyRows.length.toLocaleString('pt-BR')} respostas`;toast('Filtros aplicados na análise detalhada.','success')}
+function surveyResetFilters(){['surveyQuickCd','surveyQuickDimension','surveyQuickResponse'].forEach(id=>{const e=document.getElementById(id);if(e)e.value='ALL'});_surveyDetailedRows=[..._surveyRows];surveyRenderDetailed(_surveyDetailedRows);surveyRenderScenarioAnalysis();const st=document.getElementById('surveyFilterStatus');if(st)st.textContent='Todos os registros'}
+function surveyToggleFilterPanel(){surveySetView('detailed');setTimeout(()=>document.getElementById('surveyFilterCard')?.scrollIntoView({behavior:'smooth',block:'center'}),80)}
+
+function surveyRenderDetailed(rows){
+  const m=surveyBuildMetrics(rows),C=surveyColors(),allDefs=surveyQuestionDefs(rows),dim=document.getElementById('surveyQuickDimension')?.value||'ALL',defs=dim==='ALL'?m.qs:m.qs.filter(q=>q.key===dim);
+  const cdBadge=document.getElementById('surveyCdCountBadge');if(cdBadge)cdBadge.textContent=`${m.total.toLocaleString('pt-BR')} respostas · ${m.cdSorted.length} CD${m.cdSorted.length===1?'':'s'}`;
+  const cdBody=document.getElementById('surveyCdBody');if(cdBody)cdBody.innerHTML=m.cdSorted.map(([cd,n])=>`<tr><td><strong>${escapeHtml(cd)}</strong></td><td>${n.toLocaleString('pt-BR')}</td><td>${surveyFmtPct(surveyPct(n,m.total))}</td></tr>`).join('')||'<tr><td colspan="3" class="survey-empty">Sem respostas para os filtros.</td></tr>';
+  const compareRows=surveyScenarioBaseRows(),compareM=surveyBuildMetrics(compareRows),compareDefs=dim==='ALL'?compareM.qs:compareM.qs.filter(q=>q.key===dim);
+  surveyRenderCdComparison(compareM,compareRows,compareDefs);
+  const themes=surveyExtractThemes(rows),body=document.getElementById('surveyThemeBody'),badge=document.getElementById('surveyThemeCountBadge');if(badge)badge.textContent=`${themes.length} tema${themes.length===1?'':'s'}`;if(body)body.innerHTML=themes.length?themes.slice(0,10).map(t=>`<tr><td><div class="survey-theme-title">${escapeHtml(t.label)}</div></td><td><span class="survey-theme-count">${t.count.toLocaleString('pt-BR')}</span></td><td><div class="survey-theme-action">${escapeHtml(t.action)}</div></td></tr>`).join(''):'<tr><td colspan="3" class="survey-empty">Sem respostas abertas suficientes.</td></tr>';
+  surveyRenderThemesChart(themes,C);
+  const qb=document.getElementById('surveyQuestionBody');if(qb)qb.innerHTML=m.qs.map(q=>`<tr><td>${escapeHtml(q.label)}</td><td>${q.pos.toLocaleString('pt-BR')} (${surveyFmtPct(surveyPct(q.pos,q.valid))})</td><td>${q.neu.toLocaleString('pt-BR')} (${surveyFmtPct(surveyPct(q.neu,q.valid))})</td><td>${q.neg.toLocaleString('pt-BR')} (${surveyFmtPct(surveyPct(q.neg,q.valid))})</td><td>${q.unrecognized.toLocaleString('pt-BR')}</td><td>${q.valid.toLocaleString('pt-BR')}</td><td>${q.pct===null?'—':surveyFmtPct(q.pct)}</td></tr>`).join('')||'<tr><td colspan="7" class="survey-empty">Sem perguntas avaliativas.</td></tr>';
+  const val=document.getElementById('surveyValidationNote');if(val){val.className='survey-quality-note show '+(m.invalidTotal?'warn':'ok');val.innerHTML=m.invalidTotal?`<strong>${m.invalidTotal.toLocaleString('pt-BR')} resposta${m.invalidTotal===1?'':'s'} não reconhecida${m.invalidTotal===1?'':'s'}.</strong> Foram excluídas apenas do denominador da pergunta correspondente.`:'<strong>Validação concluída:</strong> todas as respostas das escalas foram reconhecidas.';}
+}
+
+function surveyRender(){
+  const rows=_surveyRows;if(!rows.length)return surveyRenderEmpty();const m=surveyBuildMetrics(rows),C=surveyColors();
+  const total=document.getElementById('surveyKpiTotal');if(total)total.textContent=m.total.toLocaleString('pt-BR');const totalSub=document.getElementById('surveyKpiTotalSub');if(totalSub)totalSub.textContent=`${m.total.toLocaleString('pt-BR')} respostas`;
+  const sat=document.getElementById('surveyKpiSatisfaction');if(sat)sat.textContent=m.positivePct===null?'—':surveyFmtPct(m.positivePct);const satSub=document.getElementById('surveyKpiSatisfactionSub');if(satSub)satSub.textContent=m.validEvaluations?`${m.positiveEvaluations.toLocaleString('pt-BR')} positivas de ${m.validEvaluations.toLocaleString('pt-BR')} avaliações válidas`:'Sem avaliações válidas';
+  const st=document.getElementById('surveyKpiStrength'),sts=document.getElementById('surveyKpiStrengthSub');if(st)st.textContent=m.strength?surveyShortLabel(m.strength.label):'—';if(sts)sts.textContent=m.strength?`${surveyFmtPct(m.strength.pct)} de satisfação · ${m.strength.valid} respostas`:'Sem respostas válidas';
+  const wk=document.getElementById('surveyKpiWeakness'),wks=document.getElementById('surveyKpiWeaknessSub');if(wk)wk.textContent=m.weakness?surveyShortLabel(m.weakness.label):'—';if(wks)wks.textContent=m.weakness?`${surveyFmtPct(m.weakness.pct)} de satisfação · ${m.weakness.valid} respostas`:'Sem respostas válidas';
+  const dimBadge=document.getElementById('surveyDimensionCountBadge');if(dimBadge)dimBadge.textContent=`${m.qs.length} dimensão${m.qs.length===1?'':'ões'}`;const dimList=document.getElementById('surveyDimensionSummary');if(dimList)dimList.innerHTML=m.qs.length?m.qs.map((q,i)=>`<div class="survey-dimension-row"><span class="survey-dimension-icon">${surveyDimensionIcon(i)}</span><span class="survey-dimension-name">${escapeHtml(surveyShortLabel(q.label))}</span><span class="survey-dimension-progress"><span style="width:${(q.pct??0).toFixed(1)}%"></span></span><span class="survey-dimension-score">${q.pct===null?'—':surveyFmtPct(q.pct)}</span><span class="survey-dimension-base">(${q.valid.toLocaleString('pt-BR')} respostas)</span></div>`).join(''):'<div class="survey-empty">Nenhuma dimensão reconhecida.</div>';
+  const intrLabels=['Nunca','Raras vezes','Às vezes','Frequentemente','Sempre'],intrCounts=[m.intrusive.never,m.intrusive.rarely,m.intrusive.sometimes,m.intrusive.frequently,m.intrusive.always],intrColors=['#10b981','#6366f1','#f5b51b','#f97316','#f05264'];const intrBadge=document.getElementById('surveyIntrusiveBaseBadge');if(intrBadge)intrBadge.textContent=`${m.intrusive.valid.toLocaleString('pt-BR')} respostas válidas`;const intrLeg=document.getElementById('surveyIntrusiveLegend');if(intrLeg)intrLeg.innerHTML=surveyLegendHtml(intrLabels,intrCounts,m.intrusive.valid,intrColors);surveyDestroyChart('intr');const intrCanvas=document.getElementById('surveyIntrusiveChart');if(intrCanvas)_surveyCharts.intr=new Chart(intrCanvas,{type:'doughnut',data:{labels:intrLabels,datasets:[{data:intrCounts,backgroundColor:intrColors,borderWidth:0,hoverOffset:4}]},options:{maintainAspectRatio:false,cutout:'62%',plugins:{legend:{display:false},tooltip:{callbacks:{label:c=>` ${c.label}: ${surveyFmtPct(surveyPct(c.raw,m.intrusive.valid))} (${c.raw})`}}}}});
+  const agLabels=['Muito Positivo','Positivo','Neutro','Negativo','Muito Negativo'],agCounts=[rows.filter(r=>['muito positivo','muito positiva'].includes(surveyNorm(r.q8))).length,rows.filter(r=>['positivo','positiva'].includes(surveyNorm(r.q8))).length,m.agility.neu,rows.filter(r=>['negativo','negativa'].includes(surveyNorm(r.q8))).length,rows.filter(r=>['muito negativo','muito negativa'].includes(surveyNorm(r.q8))).length],agColors=['#10b981','#6366f1','#f5b51b','#f97316','#f05264'];const agBadge=document.getElementById('surveyAgilityBaseBadge');if(agBadge)agBadge.textContent=`${m.agility.valid.toLocaleString('pt-BR')} respostas válidas`;const agLeg=document.getElementById('surveyAgilityLegend');if(agLeg)agLeg.innerHTML=surveyLegendHtml(agLabels,agCounts,m.agility.valid,agColors);surveyDestroyChart('agi');const agCanvas=document.getElementById('surveyAgilityChart');if(agCanvas)_surveyCharts.agi=new Chart(agCanvas,{type:'doughnut',data:{labels:agLabels,datasets:[{data:agCounts,backgroundColor:agColors,borderWidth:0,hoverOffset:4}]},options:{maintainAspectRatio:false,cutout:'62%',plugins:{legend:{display:false},tooltip:{callbacks:{label:c=>` ${c.label}: ${surveyFmtPct(surveyPct(c.raw,m.agility.valid))} (${c.raw})`}}}}});
+  surveyRenderSuggestions(rows);surveyPopulateFilters(rows,m);surveyPopulateScenarioControls(rows);_surveyDetailedRows=[...rows];surveyRenderDetailed(_surveyDetailedRows);surveyRenderScenarioAnalysis();
+}
+function surveyRenderEmpty(){
+  Object.keys(_surveyCharts).forEach(surveyDestroyChart);['surveyKpiTotal','surveyKpiSatisfaction','surveyKpiStrength','surveyKpiWeakness'].forEach(id=>{const e=document.getElementById(id);if(e)e.textContent='—'});['surveyDimensionSummary','surveySuggestionsList'].forEach(id=>{const e=document.getElementById(id);if(e)e.innerHTML='<div class="survey-empty">Importe uma planilha para gerar esta análise.</div>'});['surveyCdBody','surveyCdMatrixBody','surveyThemeBody','surveyQuestionBody'].forEach(id=>{const e=document.getElementById(id);if(e)e.innerHTML='<tr><td colspan="8" class="survey-empty">Importe uma planilha para gerar esta análise.</td></tr>'});const h=document.getElementById('surveyCdMatrixHead');if(h)h.innerHTML='<tr><th>Dimensão \\ CD</th><th>—</th></tr>';const theme=document.getElementById('surveyThemeTotal');if(theme)theme.innerHTML='0<br><small>menções</small>';const pager=document.getElementById('surveySuggestionPagination');if(pager)pager.style.display='none';
+}
+
+function surveyDownloadCurrent(){
+  if(!_surveyRows.length)return toast('Não existem respostas para baixar.','warn');if(!window.XLSX)return toast('A biblioteca de Excel não foi carregada.','error');
+  const headers=['Matrícula/Código','1. Qual CD você mais utiliza?','Satisfação geral','2. Busca por Nome do Produto','3. Busca por Termos Genéricos ou Expressões','4. Busca por Código (SKU / Referência)','5. Presença de Produtos Indesejados','6. Velocidade da Busca','7. Uso de Filtros','8. Agilidade na Venda','9. Melhorias e Novas Funcionalidades','10. Comentários Gerais'];
+  const matrix=[headers,..._surveyRows.map(r=>[r._dateRaw||r._date||'',r.id??'',r.cd??'',r.q1??'',r.q2??'',r.q3??'',r.q4??'',r.q5??'',r.q6??'',r.q7??'',r.q8??'',r.q9??'',r.q10??''])],ws=XLSX.utils.aoa_to_sheet(matrix);ws['!autofilter']={ref:`A1:M${matrix.length}`};ws['!cols']=[{wch:16},{wch:18},{wch:22},{wch:24},{wch:34},{wch:44},{wch:34},{wch:40},{wch:28},{wch:30},{wch:30},{wch:52},{wch:52}];const wb=XLSX.utils.book_new();XLSX.utils.book_append_sheet(wb,ws,'Report');const stamp=new Date().toLocaleDateString('pt-BR').replaceAll('/','-');XLSX.writeFile(wb,`resultado_pesquisa_${_activeSurveyDivision}_${stamp}.xlsx`);toast(`${_surveyRows.length.toLocaleString('pt-BR')} respostas exportadas.`, 'success');
+}
+
+/* PDF V4: força todas as sugestões e as duas visões durante a captura. */
+async function surveyExportPdfComplete(){
+  if(!_surveyRows.length)return toast('Importe uma pesquisa antes de gerar o PDF.','warn');if(typeof html2canvas!=='function'||!window.jspdf?.jsPDF)return toast('Não foi possível carregar o gerador de PDF.','error');const page=document.querySelector('#page-survey .survey-page'),btn=document.getElementById('surveyPdfBtn');if(!page)return;const oldView=_surveyCurrentView,oldShowAll=_surveySuggestionShowAll,oldPage=_surveySuggestionPage,originalBtn=btn?.innerHTML,oldScroll=document.querySelector('.main-area')?.scrollTop||0;
+  try{if(btn){btn.classList.add('is-loading');btn.textContent='Gerando PDF...'}toast('Preparando o dashboard completo em PDF...','loading');_surveySuggestionShowAll=true;surveyRenderSuggestionPage();page.classList.add('survey-pdf-mode');await new Promise(r=>requestAnimationFrame(()=>requestAnimationFrame(r)));const theme=document.documentElement.getAttribute('data-theme')==='light'?'light':'dark',bg=theme==='light'?'#f7f8fc':'#07090e',canvas=await html2canvas(page,{backgroundColor:bg,scale:1.35,useCORS:true,allowTaint:false,logging:false,windowWidth:Math.max(document.documentElement.clientWidth,page.scrollWidth),onclone:(doc)=>{const clone=doc.querySelector('#page-survey .survey-page');if(clone)clone.classList.add('survey-pdf-mode');}}),{jsPDF}=window.jspdf,pdf=new jsPDF({orientation:'portrait',unit:'mm',format:'a4',compress:true}),pageW=210,pageH=297,margin=8,usableW=pageW-margin*2,usableH=pageH-margin*2,imgW=usableW,pagePixelH=Math.floor(canvas.width*(usableH/imgW));let sy=0,pi=0;while(sy<canvas.height){const sh=Math.min(pagePixelH,canvas.height-sy),slice=document.createElement('canvas');slice.width=canvas.width;slice.height=sh;const ctx=slice.getContext('2d');ctx.fillStyle=bg;ctx.fillRect(0,0,slice.width,slice.height);ctx.drawImage(canvas,0,sy,canvas.width,sh,0,0,canvas.width,sh);if(pi)pdf.addPage();pdf.addImage(slice.toDataURL('image/jpeg',.92),'JPEG',margin,margin,imgW,sh*imgW/canvas.width,undefined,'FAST');pdf.setFontSize(7);pdf.setTextColor(theme==='light'?100:180);pdf.text(`Orbit Analytics · Pesquisa de Satisfação · Página ${pi+1}`,margin,pageH-3.5);sy+=sh;pi++;}const stamp=new Date().toLocaleDateString('pt-BR').replaceAll('/','-');pdf.save(`dashboard_pesquisa_${_activeSurveyDivision}_${stamp}.pdf`);toast('PDF completo gerado com sucesso.','success');}
+  catch(err){console.error(err);toast('Não foi possível gerar o PDF completo.','error')}
+  finally{page.classList.remove('survey-pdf-mode');_surveySuggestionShowAll=oldShowAll;_surveySuggestionPage=oldPage;surveyRenderSuggestionPage();surveySetView(oldView);if(btn){btn.classList.remove('is-loading');btn.innerHTML=originalBtn||'Baixar PDF'}const main=document.querySelector('.main-area');if(main)main.scrollTop=oldScroll;}
+}
+
 </script>
 </body>
 </html>
