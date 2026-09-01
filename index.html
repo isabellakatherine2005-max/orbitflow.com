@@ -2048,6 +2048,20 @@ button:disabled{cursor:not-allowed}
 .survey-pdf-btn:hover{border-color:var(--primary);background:var(--primary);color:#fff;transform:translateY(-1px)}
 .survey-pdf-btn.is-loading{opacity:.7;pointer-events:none}
 #surveyFileInput{display:none}
+/* UX de processamento para bases grandes */
+.survey-processing-overlay{position:fixed;inset:0;z-index:9998;background:rgba(15,23,42,.38);backdrop-filter:blur(4px);-webkit-backdrop-filter:blur(4px);display:none;align-items:center;justify-content:center;padding:1rem}
+.survey-processing-overlay.show{display:flex}
+.survey-processing-card{width:min(440px,calc(100vw - 2rem));background:var(--surface);border:1px solid var(--border-2);border-radius:16px;padding:1.2rem 1.25rem;box-shadow:0 24px 80px rgba(0,0,0,.28)}
+.survey-processing-head{display:flex;align-items:center;gap:.85rem}
+.survey-processing-spinner{width:34px;height:34px;border:3px solid var(--surface-3);border-top-color:var(--primary);border-radius:50%;animation:orbitSpin .75s linear infinite;flex:0 0 auto}
+.survey-processing-title{font-size:.9rem;font-weight:750;color:var(--text)}
+.survey-processing-text{font-size:.72rem;color:var(--text-muted);margin-top:.15rem;line-height:1.45}
+.survey-processing-progress{height:7px;background:var(--surface-3);border-radius:999px;overflow:hidden;margin-top:1rem}
+.survey-processing-progress>span{display:block;height:100%;width:8%;border-radius:999px;background:linear-gradient(90deg,var(--primary),var(--accent));transition:width .25s ease}
+.survey-processing-meta{display:flex;justify-content:space-between;gap:1rem;margin-top:.5rem;font-size:.63rem;color:var(--text-muted)}
+body.survey-is-processing{cursor:wait}
+body.survey-is-processing #page-survey button,body.survey-is-processing #page-survey select{pointer-events:none}
+
 .survey-source-bar{display:flex;align-items:center;justify-content:space-between;gap:1rem;flex-wrap:wrap;padding:.72rem .9rem;background:var(--surface);border:1px solid var(--border);border-radius:11px;font-size:.68rem;color:var(--text-muted)}
 .survey-source-meta{display:flex;align-items:center;gap:.55rem;flex-wrap:wrap}.survey-source-meta strong{color:var(--text)}
 .survey-live-status{display:inline-flex;align-items:center;gap:.4rem;color:var(--accent);font-weight:750}.survey-live-status::before{content:'';width:7px;height:7px;border-radius:50%;background:currentColor;box-shadow:0 0 0 4px var(--accent-dim)}
@@ -2192,6 +2206,7 @@ button:disabled{cursor:not-allowed}
 .survey-mini-card{min-height:0}.survey-donut-content{display:grid;grid-template-columns:140px minmax(0,1fr);gap:.6rem;align-items:center}.survey-donut-chart{height:135px}.survey-donut-legend{display:flex;flex-direction:column;gap:.36rem}.survey-donut-legend-row{display:grid;grid-template-columns:8px minmax(0,1fr) auto;align-items:center;gap:.4rem;font-size:.56rem;color:var(--text-2)}.survey-donut-dot{width:6px;height:6px;border-radius:50%}.survey-donut-val{font-weight:700;color:var(--text);white-space:nowrap}.survey-donut-val small{color:var(--text-muted);font-weight:500}
 .survey-proto-comments{padding-bottom:.75rem}.survey-link-btn{border:0;background:transparent;color:var(--primary);font-size:.63rem;font-weight:700;cursor:pointer}.survey-link-btn:hover{text-decoration:underline}
 .survey-suggestion-table-head{display:grid;grid-template-columns:minmax(0,1fr) 70px 78px;gap:.55rem;padding:.35rem .45rem;font-size:.54rem;text-transform:uppercase;letter-spacing:.6px;color:var(--text-muted);font-weight:750;border-bottom:1px solid var(--border)}
+.survey-question-copy{margin:.18rem 0 .28rem;max-width:940px;line-height:1.35;color:var(--text-2)}
 .survey-suggestion-list{display:block;max-height:none!important;overflow:visible!important;padding:0}
 .survey-suggestion-list .survey-comment{padding:.48rem .45rem;border:0;border-bottom:1px solid var(--border);border-radius:0;background:transparent}.survey-suggestion-list .survey-comment:last-child{border-bottom:0}
 .survey-suggestion-list .survey-comment-row{display:grid;grid-template-columns:minmax(0,1fr) 70px 78px;gap:.55rem;align-items:center}.survey-suggestion-list .survey-comment-text{font-size:.59rem;color:var(--text-2);white-space:nowrap;overflow:hidden;text-overflow:ellipsis}.survey-suggestion-list .survey-comment-cd,.survey-comment-date{font-size:.55rem;color:var(--text-muted);border:0;background:transparent;padding:0}.survey-comment-date{text-align:right}
@@ -2227,6 +2242,66 @@ button:disabled{cursor:not-allowed}
 </style>
 
 
+
+
+<style id="orbit-survey-negative-colors">
+/* Respostas negativas sempre destacadas em vermelho no dashboard da pesquisa */
+#page-survey .survey-answer-row.is-negative .survey-answer-label,
+#page-survey .survey-answer-row.is-negative .survey-answer-value{color:var(--danger)!important;font-weight:750}
+#page-survey .survey-answer-row.is-negative .survey-answer-fill{background:linear-gradient(90deg,var(--danger),#ef4444)!important}
+#page-survey .survey-answer-row.is-neutral .survey-answer-fill{background:linear-gradient(90deg,var(--warning),#f59e0b)!important}
+#page-survey .survey-answer-row.is-positive .survey-answer-fill{background:linear-gradient(90deg,var(--accent),#10b981)!important}
+#page-survey .survey-mini-kpi.is-negative{border-color:rgba(240,87,79,.28);background:var(--danger-dim)}
+#page-survey .survey-mini-kpi.is-negative span,
+#page-survey .survey-mini-kpi.is-negative strong{color:var(--danger)!important}
+#page-survey .survey-question-table td.survey-negative-cell,
+#page-survey .survey-cd-total-table td.survey-negative-cell{color:var(--danger)!important;font-weight:750}
+#page-survey .survey-question-table th.survey-negative-head,
+#page-survey .survey-cd-total-table th.survey-negative-head{color:var(--danger)!important}
+#page-survey .survey-donut-legend-row.is-negative,
+#page-survey .survey-donut-legend-row.is-negative .survey-donut-val{color:var(--danger)!important;font-weight:750}
+</style>
+<style id="orbit-survey-question-cd-cards">
+#page-survey .survey-question-cd-section{display:flex;flex-direction:column;gap:1rem}
+#page-survey .survey-question-cd-grid{display:grid;grid-template-columns:repeat(2,minmax(0,1fr));gap:1rem}
+#page-survey .survey-question-cd-card{min-width:0}
+#page-survey .survey-question-cd-card .survey-card-head{align-items:flex-end}
+#page-survey .survey-question-filter{display:flex;flex-direction:column;gap:.25rem;min-width:155px}
+#page-survey .survey-question-filter span{font-size:.58rem;color:var(--text-muted);font-weight:700;text-transform:uppercase;letter-spacing:.7px}
+#page-survey .survey-question-filter select{height:36px;min-width:155px}
+#page-survey .survey-answer-bars{display:flex;flex-direction:column;gap:.62rem}
+#page-survey .survey-answer-row{display:grid;grid-template-columns:minmax(125px,1.1fr) minmax(120px,2fr) 110px;gap:.7rem;align-items:center}
+#page-survey .survey-answer-label{font-size:.7rem;color:var(--text-2);font-weight:600;min-width:0}
+#page-survey .survey-answer-track{height:8px;background:var(--surface-3);border-radius:999px;overflow:hidden}
+#page-survey .survey-answer-fill{display:block;height:100%;border-radius:999px;background:linear-gradient(90deg,var(--primary),#8b7cf6)}
+#page-survey .survey-answer-value{font-size:.68rem;color:var(--text);font-weight:700;text-align:right;white-space:nowrap}
+#page-survey .survey-question-kpis{display:grid;grid-template-columns:repeat(4,1fr);gap:.55rem;margin-top:.9rem}
+#page-survey .survey-mini-kpi{border:1px solid var(--border);background:var(--surface-2);border-radius:9px;padding:.65rem .7rem}
+#page-survey .survey-mini-kpi span{display:block;font-size:.55rem;color:var(--text-muted);text-transform:uppercase;letter-spacing:.55px;font-weight:700}
+#page-survey .survey-mini-kpi strong{display:block;margin-top:.2rem;font-family:var(--font-display);font-size:.95rem;color:var(--text)}
+#page-survey .survey-mini-kpi.is-positive strong{color:var(--accent)}
+#page-survey .survey-mini-kpi.is-neutral strong{color:var(--warning)}
+#page-survey .survey-mini-kpi.is-negative strong{color:var(--danger)}
+#page-survey .survey-answer-row.is-positive .survey-answer-fill{background:linear-gradient(90deg,var(--accent),#34d399)}
+#page-survey .survey-answer-row.is-neutral .survey-answer-fill{background:linear-gradient(90deg,var(--warning),#fbbf24)}
+#page-survey .survey-answer-row.is-warning .survey-answer-fill{background:linear-gradient(90deg,#f97316,#fb923c)}
+#page-survey .survey-answer-row.is-warning .survey-answer-label,#page-survey .survey-answer-row.is-warning .survey-answer-value{color:#f97316}
+#page-survey .survey-answer-row.is-negative .survey-answer-fill{background:linear-gradient(90deg,var(--danger),#ef4444)}
+#page-survey .survey-question-summary{display:grid;grid-template-columns:repeat(3,minmax(0,1fr));gap:.55rem;margin:.85rem 0}
+#page-survey .survey-question-summary .survey-mini-kpi{min-height:72px}
+#page-survey .survey-question-total-line{display:flex;align-items:center;justify-content:space-between;gap:1rem;margin-top:.75rem;padding:.62rem .72rem;border-radius:9px;background:var(--surface-2);border:1px solid var(--border);font-size:.67rem;color:var(--text-2)}
+#page-survey .survey-question-total-line strong{font-family:var(--font-display);font-size:.88rem;color:var(--text)}
+#page-survey .survey-cd-total-table[open] summary{margin-bottom:.35rem}
+#page-survey .survey-cd-highlight{display:flex;align-items:center;justify-content:space-between;gap:1rem;padding:.72rem .8rem;margin-bottom:.7rem;border:1px solid rgba(99,91,255,.16);background:var(--primary-dim);border-radius:10px;font-size:.68rem;color:var(--text-2)}
+#page-survey .survey-cd-highlight strong{font-family:var(--font-display);font-size:1rem;color:var(--primary)}
+#page-survey .survey-cd-total-table{margin-top:.8rem}
+#page-survey .survey-cd-total-table summary{cursor:pointer;font-size:.66rem;color:var(--primary);font-weight:700}
+#page-survey .survey-cd-total-table table{width:100%;border-collapse:collapse;margin-top:.55rem;font-size:.65rem}
+#page-survey .survey-cd-total-table th,#page-survey .survey-cd-total-table td{padding:.45rem .5rem;border-bottom:1px solid var(--border);text-align:left}
+#page-survey .survey-cd-total-table th{color:var(--text-muted);font-size:.56rem;text-transform:uppercase}
+@media(max-width:1050px){#page-survey .survey-question-cd-grid{grid-template-columns:1fr}}
+@media(max-width:680px){#page-survey .survey-question-cd-card .survey-card-head{align-items:flex-start;flex-direction:column}#page-survey .survey-question-filter,#page-survey .survey-question-filter select{width:100%;min-width:0}#page-survey .survey-answer-row{grid-template-columns:1fr}.survey-answer-value{text-align:left!important}#page-survey .survey-question-kpis{grid-template-columns:1fr 1fr}#page-survey .survey-question-summary{grid-template-columns:1fr}}
+</style>
 <style id="orbit-survey-no-date-ux">
 #page-survey .survey-detail-bottom-no-date{display:block;}
 #page-survey .survey-filter-card-wide{display:grid;grid-template-columns:minmax(0,1fr) auto;gap:.75rem 1rem;align-items:end;}
@@ -2781,6 +2856,163 @@ canvas{font-family:var(--font-body)!important;}
 :root:not([data-theme="light"]) textarea:focus-visible,
 :root:not([data-theme="light"]) [tabindex]:focus-visible { outline:2px solid #A78BFA !important;outline-offset:2px !important; }
 </style>
+
+<style id="orbit-login-reference-v3">
+/* ORBIT LOGIN — fiel ao layout de referência, mantendo autenticação existente */
+#authScreen{
+  background:
+    radial-gradient(circle at 26% 49%, rgba(87,63,180,.16), transparent 28%),
+    radial-gradient(circle at 70% 48%, rgba(42,65,124,.07), transparent 26%),
+    linear-gradient(135deg,#060b18 0%,#080d1b 48%,#050a16 100%) !important;
+}
+#authScreen::before{
+  background:linear-gradient(90deg,rgba(4,8,18,.02),rgba(4,8,18,.14) 46%,rgba(4,8,18,.35)) !important;
+}
+#authScreen .sky-canvas{background:transparent !important;opacity:.28}
+#authScreen .stars,#authScreen .meteor,#authScreen .sky-moon{opacity:.16}
+#authScreen .auth-layout{
+  width:min(1620px,100%) !important;
+  height:100dvh !important;
+  min-height:100dvh !important;
+  grid-template-columns:minmax(0,1.05fr) minmax(430px,.95fr) !important;
+  gap:clamp(48px,7vw,120px) !important;
+  padding:clamp(24px,4vh,52px) clamp(42px,6vw,110px) !important;
+}
+#authScreen .auth-visual{justify-content:center !important;gap:0 !important}
+#authScreen .auth-visual-copy{display:none !important}
+#authScreen .orbit-solar-stage{
+  width:min(46vw,650px) !important;
+  transform:translateY(16px);
+  filter:drop-shadow(0 38px 80px rgba(18,15,70,.32)) !important;
+}
+#authScreen .orbit-solar-system{width:100% !important;height:100% !important}
+#authScreen .orbit-ring{border-color:rgba(114,103,255,.20) !important}
+#authScreen .orbit-ring::after{border-top-color:rgba(127,113,255,.28) !important}
+#authScreen .orbit-sun{
+  width:6.1rem !important;height:6.1rem !important;
+  background:radial-gradient(circle at 32% 26%,#fff9cc 0 5%,#ffd66a 17%,#ffad31 43%,#ff7415 72%,#e93d17 100%) !important;
+  box-shadow:0 0 30px rgba(255,174,57,.8),0 0 75px rgba(255,106,29,.28),0 0 130px rgba(111,64,255,.16) !important;
+}
+#authScreen .auth-wrap{
+  max-width:520px !important;
+  width:100% !important;
+  justify-self:center !important;
+  transform:translateY(-2px);
+}
+#authScreen .auth-logo-area{margin:0 0 42px !important;text-align:center}
+#authScreen .auth-wordmark{
+  font-size:3.15rem !important;
+  line-height:1 !important;
+  letter-spacing:.015em !important;
+  background:linear-gradient(90deg,#9286ff 0%,#9c8cff 38%,#54c7ed 100%) !important;
+  -webkit-background-clip:text !important;background-clip:text !important;color:transparent !important;
+}
+#authScreen .auth-tagline{
+  margin-top:12px !important;
+  color:#8491ad !important;
+  font-size:.68rem !important;
+  letter-spacing:3.2px !important;
+  font-weight:600 !important;
+}
+#authScreen .auth-card{
+  padding:0 !important;
+  background:transparent !important;
+  border:0 !important;
+  border-radius:0 !important;
+  box-shadow:none !important;
+  backdrop-filter:none !important;
+  -webkit-backdrop-filter:none !important;
+}
+#authScreen #authTabs{display:none !important}
+#authScreen .orbit-login-form{gap:22px !important}
+#authScreen .orbit-login-field{
+  position:relative;
+  display:flex;
+  align-items:center;
+  min-height:62px;
+  border-bottom:1px solid rgba(154,169,197,.58);
+}
+#authScreen .orbit-login-icon{
+  width:28px;height:28px;flex:0 0 28px;
+  display:grid;place-items:center;
+  color:#a7b6d0;
+  margin-right:18px;
+}
+#authScreen .orbit-login-icon svg{width:24px;height:24px}
+#authScreen .orbit-login-field .field-input{
+  min-height:61px !important;
+  padding:0 48px 0 0 !important;
+  border:0 !important;
+  border-radius:0 !important;
+  background:transparent !important;
+  color:#e9eef9 !important;
+  box-shadow:none !important;
+  font-size:1rem !important;
+  font-weight:400 !important;
+  caret-color:#8f80ff;
+}
+#authScreen .orbit-login-field .field-input::placeholder{color:#8390aa !important;opacity:1}
+#authScreen .orbit-login-field:focus-within{
+  border-bottom-color:#8b7cff;
+  box-shadow:0 1px 0 rgba(139,124,255,.55);
+}
+#authScreen .orbit-login-field:focus-within .orbit-login-icon{color:#9d91ff}
+#authScreen .orbit-password-toggle{
+  position:absolute;right:0;top:50%;transform:translateY(-50%);
+  width:44px;height:44px;border:0;background:transparent;color:#93a4c1;
+  display:grid;place-items:center;border-radius:50%;padding:0;
+}
+#authScreen .orbit-password-toggle:hover{color:#c3ccef;background:rgba(255,255,255,.035)}
+#authScreen .orbit-password-toggle svg{width:25px;height:25px}
+#authScreen .orbit-password-toggle .eye-closed{display:none}
+#authScreen .orbit-password-toggle.is-visible .eye-open{display:none}
+#authScreen .orbit-password-toggle.is-visible .eye-closed{display:block}
+#authScreen .orbit-login-submit{
+  width:100% !important;
+  min-height:56px !important;
+  margin-top:18px !important;
+  border-radius:999px !important;
+  background:linear-gradient(90deg,#596fff 0%,#6555ff 52%,#805cff 100%) !important;
+  box-shadow:0 12px 34px rgba(89,76,255,.28) !important;
+  font-size:1rem !important;
+  font-weight:700 !important;
+  letter-spacing:.01em;
+}
+#authScreen .orbit-login-submit:hover:not(:disabled){
+  transform:translateY(-1px) !important;
+  filter:brightness(1.06);
+  box-shadow:0 16px 40px rgba(94,78,255,.36) !important;
+}
+#authScreen .auth-footer{
+  margin-top:24px !important;
+  text-align:center !important;
+  font-size:.83rem !important;
+}
+#authScreen .auth-footer a{color:#7f8ca7 !important;text-decoration:underline;text-underline-offset:4px}
+#authScreen .auth-footer a:hover{color:#aeb8ce !important}
+#authScreen #authMsg{margin-bottom:18px;border-radius:10px}
+#authScreen .orbit-sr-only{position:absolute;width:1px;height:1px;padding:0;margin:-1px;overflow:hidden;clip:rect(0,0,0,0);white-space:nowrap;border:0}
+/* Telas auxiliares continuam funcionais sem quebrar o novo visual */
+#authScreen #signupForm,#authScreen #forgotForm,#authScreen #newpasswordForm{gap:14px}
+#authScreen #signupForm .field-input,#authScreen #forgotForm .field-input,#authScreen #newpasswordForm .field-input{
+  background:rgba(255,255,255,.035) !important;border-color:rgba(255,255,255,.10) !important;color:#eef3ff !important;
+}
+#authScreen #forgotForm .btn-primary,#authScreen #newpasswordForm .btn-accent,#authScreen #signupForm .btn-primary{border-radius:999px}
+@media(max-width:980px){
+  #authScreen .auth-layout{grid-template-columns:minmax(0,.8fr) minmax(390px,1fr) !important;padding:28px !important;gap:34px !important}
+  #authScreen .orbit-solar-stage{width:min(42vw,500px) !important}
+}
+@media(max-width:760px){
+  #authScreen{overflow:auto !important}
+  #authScreen .auth-layout{grid-template-columns:1fr !important;min-height:100dvh !important;height:auto !important;padding:26px 20px !important}
+  #authScreen .auth-visual{position:absolute !important;inset:0 !important;opacity:.10 !important}
+  #authScreen .orbit-solar-stage{width:min(100vw,560px) !important;transform:none}
+  #authScreen .auth-wrap{max-width:460px !important;z-index:5 !important}
+  #authScreen .auth-logo-area{margin-bottom:32px !important}
+  #authScreen .auth-wordmark{font-size:2.7rem !important}
+}
+</style>
+
 </head>
 <body>
 
@@ -2843,10 +3075,26 @@ canvas{font-family:var(--font-body)!important;}
         <button class="auth-tab" onclick="switchTab('signup')">Criar conta</button>
       </div>
       <div id="authMsg" class="auth-msg"></div>
-      <div id="loginForm" class="auth-form">
-        <div><label class="field-label">E-mail</label><input class="field-input" type="email" id="loginEmail" placeholder="seu@email.com"></div>
-        <div><label class="field-label">Senha</label><input class="field-input" type="password" id="loginPass" placeholder="••••••••" onkeydown="if(event.key==='Enter')doLogin()"></div>
-        <button class="btn-primary" id="btnLogin" onclick="doLogin()" aria-live="polite">Entrar</button>
+      <div id="loginForm" class="auth-form orbit-login-form">
+        <div class="orbit-login-field">
+          <span class="orbit-login-icon" aria-hidden="true">
+            <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round"><rect x="3" y="5" width="18" height="14" rx="2"/><path d="m3 7 9 6 9-6"/></svg>
+          </span>
+          <label class="orbit-sr-only" for="loginEmail">E-mail</label>
+          <input class="field-input" type="email" id="loginEmail" placeholder="E-mail" autocomplete="email">
+        </div>
+        <div class="orbit-login-field">
+          <span class="orbit-login-icon" aria-hidden="true">
+            <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round"><rect x="5" y="10" width="14" height="10" rx="2"/><path d="M8 10V7a4 4 0 0 1 8 0v3"/><path d="M12 14v2"/></svg>
+          </span>
+          <label class="orbit-sr-only" for="loginPass">Senha</label>
+          <input class="field-input" type="password" id="loginPass" placeholder="Senha" autocomplete="current-password" onkeydown="if(event.key==='Enter')doLogin()">
+          <button type="button" class="orbit-password-toggle" id="loginPasswordToggle" onclick="toggleLoginPassword()" aria-label="Mostrar senha" title="Mostrar senha">
+            <svg class="eye-open" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round"><path d="M2 12s3.5-6 10-6 10 6 10 6-3.5 6-10 6S2 12 2 12Z"/><circle cx="12" cy="12" r="2.6"/></svg>
+            <svg class="eye-closed" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round"><path d="m3 3 18 18"/><path d="M10.6 10.6a2 2 0 0 0 2.8 2.8"/><path d="M9.9 4.2A10.9 10.9 0 0 1 12 4c6.5 0 10 8 10 8a17.8 17.8 0 0 1-2.1 3.2"/><path d="M6.6 6.6C3.6 8.5 2 12 2 12s3.5 8 10 8a9.7 9.7 0 0 0 4.1-.9"/></svg>
+          </button>
+        </div>
+        <button class="btn-primary orbit-login-submit" id="btnLogin" onclick="doLogin()" aria-live="polite">Entrar</button>
       </div>
       <div id="signupForm" class="auth-form" style="display:none">
         <div><label class="field-label">E-mail</label><input class="field-input" type="email" id="signupEmail" placeholder="seu@email.com"></div>
@@ -2865,7 +3113,7 @@ canvas{font-family:var(--font-body)!important;}
         <button class="btn-accent" id="btnReset" onclick="doResetPassword()">Salvar nova senha</button>
       </div>
       <div class="auth-footer" id="authFooter">
-        <a onclick="switchTab('forgot')">Esqueci minha senha</a> &nbsp;·&nbsp; Orbit Analytics
+        <a onclick="switchTab('forgot')">Esqueceu sua senha?</a>
       </div>
     </div>
   </div>
@@ -3162,7 +3410,11 @@ canvas{font-family:var(--font-body)!important;}
 
             <section class="survey-card survey-comments-card survey-proto-comments">
               <div class="survey-card-head">
-                <div><div class="survey-card-title">9. Melhorias e Novas Funcionalidades</div><div class="survey-card-sub" id="surveySuggestionMeta">Sugestões dos vendedores</div></div>
+                <div>
+                  <div class="survey-card-title">9. Melhorias e Novas Funcionalidades</div>
+                  <div class="survey-card-sub survey-question-copy">Qual recurso ou ajuste você gostaria que fosse adicionado à busca para facilitar sua rotina de vendas?</div>
+                  <div class="survey-card-sub" id="surveySuggestionMeta">Sugestões dos vendedores</div>
+                </div>
                 <button class="survey-link-btn" id="surveySuggestionToggle" type="button" onclick="surveyToggleAllSuggestions()">Ver todos</button>
               </div>
               <div class="survey-suggestion-table-head"><span>Comentário</span><span>CD</span><span>Data</span></div>
@@ -3171,6 +3423,24 @@ canvas{font-family:var(--font-body)!important;}
                 <button type="button" id="surveySuggestionPrev" onclick="surveySuggestionMove(-1)">‹</button>
                 <div id="surveySuggestionPages"></div>
                 <button type="button" id="surveySuggestionNext" onclick="surveySuggestionMove(1)">›</button>
+              </div>
+            </section>
+
+            <section class="survey-card survey-comments-card survey-proto-comments">
+              <div class="survey-card-head">
+                <div>
+                  <div class="survey-card-title">10. Críticas, Elogios e Sugestões Adicionais</div>
+                  <div class="survey-card-sub survey-question-copy">Espaço livre para críticas, elogios ou sugestões adicionais sobre a ferramenta:</div>
+                  <div class="survey-card-sub" id="surveyGeneralCommentMeta">Comentários dos vendedores</div>
+                </div>
+                <button class="survey-link-btn" id="surveyGeneralCommentToggle" type="button" onclick="surveyToggleAllGeneralComments()">Ver todos</button>
+              </div>
+              <div class="survey-suggestion-table-head"><span>Comentário</span><span>CD</span><span>Data</span></div>
+              <div class="survey-comment-list survey-suggestion-list" id="surveyGeneralCommentsList"></div>
+              <div class="survey-pagination" id="surveyGeneralCommentPagination">
+                <button type="button" id="surveyGeneralCommentPrev" onclick="surveyGeneralCommentMove(-1)">‹</button>
+                <div id="surveyGeneralCommentPages"></div>
+                <button type="button" id="surveyGeneralCommentNext" onclick="surveyGeneralCommentMove(1)">›</button>
               </div>
             </section>
           </section>
@@ -3214,7 +3484,7 @@ canvas{font-family:var(--font-body)!important;}
             <div class="survey-detail-top">
               <section class="survey-card survey-cd-card">
                 <div class="survey-card-head"><div><div class="survey-card-title">1. Qual CD você mais utiliza?</div><div class="survey-card-sub" id="surveyCdCountBadge">Distribuição das respostas</div></div></div>
-                <div class="survey-table-wrap borderless"><table class="survey-data-table"><thead><tr><th>CD</th><th>Respostas</th><th>% da base</th></tr></thead><tbody id="surveyCdBody"></tbody></table></div>
+                <div id="surveyCdHighlight" class="survey-cd-highlight"></div><div class="survey-table-wrap borderless"><table class="survey-data-table"><thead><tr><th>CD</th><th>Respostas</th><th>% da base</th></tr></thead><tbody id="surveyCdBody"></tbody></table></div>
               </section>
 
               <section class="survey-card survey-heat-card">
@@ -3222,6 +3492,12 @@ canvas{font-family:var(--font-body)!important;}
                 <div class="survey-table-wrap heat-wrap"><table class="survey-matrix-table survey-heat-table" id="surveyCdMatrix"><thead id="surveyCdMatrixHead"></thead><tbody id="surveyCdMatrixBody"></tbody></table></div>
               </section>
             </div>
+
+
+            <section class="survey-question-cd-section">
+              <div class="survey-page-section-label"><div><h2>Análise das perguntas por CD</h2><span>Use o dropdown de cada pergunta para recalcular somente aquele indicador.</span></div></div>
+              <div class="survey-question-cd-grid" id="surveyQuestionCdGrid"></div>
+            </section>
 
             <section class="survey-card survey-themes-card">
               <div class="survey-card-head"><div><div class="survey-card-title">9 e 10. Respostas Abertas</div><div class="survey-card-sub">Principais temas identificados nas respostas</div></div><span class="survey-card-badge" id="surveyThemeCountBadge">0 temas</span></div>
@@ -3257,7 +3533,7 @@ canvas{font-family:var(--font-body)!important;}
               <summary>Conferir respostas válidas por pergunta</summary>
               <div class="survey-details-body">
                 <div class="survey-quality-note" id="surveyValidationNote"></div>
-                <div class="survey-table-wrap"><table class="survey-question-table"><thead><tr><th>Pergunta</th><th>Positivas</th><th>Neutras</th><th>Negativas</th><th>Não reconhecidas</th><th>Válidas</th><th>Índice</th></tr></thead><tbody id="surveyQuestionBody"></tbody></table></div>
+                <div class="survey-table-wrap"><table class="survey-question-table"><thead><tr><th>Pergunta</th><th>Positivas</th><th>Neutras</th><th class="survey-negative-head">Negativas</th><th>Não reconhecidas</th><th>Válidas</th><th>Índice</th></tr></thead><tbody id="surveyQuestionBody"></tbody></table></div>
               </div>
             </details>
           </section>
@@ -3664,6 +3940,18 @@ canvas{font-family:var(--font-body)!important;}
 <button class="scroll-top-btn" id="scrollTopBtn" type="button" onclick="scrollMainToTop()" aria-label="Voltar ao topo" title="Voltar ao topo">
   <svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5" stroke-linecap="round" stroke-linejoin="round"><polyline points="18 15 12 9 6 15"/></svg>
 </button>
+
+<div class="survey-processing-overlay" id="surveyProcessingOverlay" role="status" aria-live="polite" aria-busy="true">
+  <div class="survey-processing-card">
+    <div class="survey-processing-head">
+      <div class="survey-processing-spinner" aria-hidden="true"></div>
+      <div><div class="survey-processing-title" id="surveyProcessingTitle">Lendo planilha...</div><div class="survey-processing-text" id="surveyProcessingText">Preparando os dados para análise.</div></div>
+    </div>
+    <div class="survey-processing-progress"><span id="surveyProcessingBar"></span></div>
+    <div class="survey-processing-meta"><span id="surveyProcessingStep">Etapa 1 de 4</span><span id="surveyProcessingPct">8%</span></div>
+  </div>
+</div>
+
 <div class="toast-area" id="toastArea"></div>
 
 <script src="https://unpkg.com/@supabase/supabase-js@2/dist/umd/supabase.js"></script>
@@ -3812,6 +4100,18 @@ async function doResetPassword() {
     if (session) enterApp(session.user.email);
     else switchTab('login');
   }, 1500);
+}
+
+function toggleLoginPassword() {
+  const input = document.getElementById('loginPass');
+  const btn = document.getElementById('loginPasswordToggle');
+  if (!input || !btn) return;
+  const visible = input.type === 'text';
+  input.type = visible ? 'password' : 'text';
+  btn.classList.toggle('is-visible', !visible);
+  btn.setAttribute('aria-label', visible ? 'Mostrar senha' : 'Ocultar senha');
+  btn.setAttribute('title', visible ? 'Mostrar senha' : 'Ocultar senha');
+  input.focus({ preventScroll: true });
 }
 
 async function doLogin() {
@@ -5928,19 +6228,47 @@ const SURVEY_HEADER_KEYS = {
 };
 
 const SURVEY_SCALES={
-  satisfaction:{positive:['muito satisfeito','muito satisfeita','satisfeito','satisfeita'],neutral:['neutro','neutra'],negative:['insatisfeito','insatisfeita','muito insatisfeito','muito insatisfeita']},
-  agility:{positive:['muito positivo','muito positiva','positivo','positiva'],neutral:['neutro','neutra'],negative:['negativo','negativa','muito negativo','muito negativa']}
+  satisfaction:{
+    positive:['muito satisfeito','muito satisfeita','satisfeito','satisfeita'],
+    neutral:['neutro','neutra'],
+    negative:['insatisfeito','insatisfeita','muito insatisfeito','muito insatisfeita']
+  },
+  ease:{
+    positive:['muito facil','facil'],
+    neutral:['neutro','neutra','regular'],
+    negative:['dificil','muito dificil']
+  },
+  relevance:{
+    positive:['muito relevante','relevante'],
+    neutral:['neutro','neutra','regular'],
+    negative:['pouco relevante','irrelevante']
+  },
+  quality:{
+    positive:['excelente','bom','boa'],
+    neutral:['regular','neutro','neutra'],
+    negative:['ruim','pessimo','pessima']
+  },
+  efficiency:{
+    positive:['muito eficiente','eficiente'],
+    neutral:['neutro','neutra','regular'],
+    negative:['pouco eficiente','ineficiente']
+  },
+  agility:{
+    positive:['muito positivo','muito positiva','positivo','positiva'],
+    neutral:['neutro','neutra'],
+    negative:['negativo','negativa','muito negativo','muito negativa']
+  }
 };
 
 // Dimensões conhecidas desta pesquisa. Só entram se existirem na planilha.
 // Colunas adicionais com escala compatível são detectadas automaticamente e incorporadas.
 const SURVEY_DIMENSION_CONFIG=[
-  {key:'q2',label:'2. Busca por Nome do Produto',scale:'satisfaction'},
-  {key:'q3',label:'3. Busca por Termos Genéricos',scale:'satisfaction'},
-  {key:'q4',label:'4. Busca por Código (SKU / Referência)',scale:'satisfaction'},
-  {key:'q6',label:'6. Velocidade da Busca',scale:'satisfaction'},
-  {key:'q7',label:'7. Uso de Filtros',scale:'satisfaction'},
-  {key:'q8',label:'8. Agilidade na Venda',scale:'agility'}
+  {key:'q1',label:'Satisfação Geral',scale:'satisfaction'},
+  {key:'q2',label:'Facilidade por Nome Exato',scale:'ease'},
+  {key:'q3',label:'Relevância por Aplicação / Preposição',scale:'relevance'},
+  {key:'q4',label:'Busca por Código (SKU / Referência)',scale:'quality'},
+  {key:'q7',label:'Eficiência dos Filtros de Busca',scale:'efficiency'},
+  {key:'q8',label:'Impacto na Agilidade de Vendas',scale:'agility'}
 ];
 
 function surveyNorm(s){
@@ -5975,7 +6303,7 @@ function surveyClassify(value,scaleName){
 function surveyInferScale(values){
   const clean=values.map(v=>String(v??'').trim()).filter(Boolean);
   if(clean.length<3)return null;
-  const scores={satisfaction:0,agility:0};
+  const scores={satisfaction:0,ease:0,relevance:0,quality:0,efficiency:0,agility:0};
   clean.forEach(v=>Object.keys(scores).forEach(scale=>{if(surveyClassify(v,scale)!=='unrecognized')scores[scale]++;}));
   const best=Object.entries(scores).sort((a,b)=>b[1]-a[1])[0];
   return best&&best[1]/clean.length>=.65?best[0]:null;
@@ -5983,12 +6311,13 @@ function surveyInferScale(values){
 function surveyPrettyDimensionLabel(header){
   const raw=String(header??'').replace(/^\s*\d+[.\-:)\s]+/,'').trim();
   const norm=surveyNorm(raw);
-  if(norm.includes('nome exato'))return '2. Busca por Nome do Produto';
-  if(norm.includes('termos genericos')||norm.includes('frase com preposicao'))return '3. Busca por Termos Genéricos';
-  if(norm.includes('codigo')||norm.includes('sku'))return '4. Busca por Código (SKU / Referência)';
-  if(norm.includes('velocidade')||norm.includes('tempo de resposta'))return '6. Velocidade da Busca';
-  if(norm.includes('filtro'))return '7. Uso de Filtros';
-  if(norm.includes('agilidade'))return '8. Agilidade na Venda';
+  if(norm.includes('satisfacao com a ferramenta'))return 'Satisfação Geral';
+  if(norm.includes('nome exato'))return 'Facilidade por Nome Exato';
+  if(norm.includes('termos genericos')||norm.includes('frase com preposicao')||norm.includes('aplicacao'))return 'Relevância por Aplicação / Preposição';
+  if(norm.includes('codigo')||norm.includes('sku'))return 'Busca por Código (SKU / Referência)';
+  if(norm.includes('velocidade')||norm.includes('tempo de resposta'))return 'Velocidade da Busca';
+  if(norm.includes('filtro'))return 'Eficiência dos Filtros de Busca';
+  if(norm.includes('agilidade')||norm.includes('impacto da busca'))return 'Impacto na Agilidade de Vendas';
   return raw.length>46?raw.slice(0,43).trim()+'…':raw;
 }
 function surveyRowsFromMatrix(matrix){
@@ -6044,6 +6373,7 @@ function surveyQuestionDefs(rows=_surveyRows){
   return defs;
 }
 function surveyAnalyzeQuestion(rows,key,scale){
+  scale=surveyBestScaleForQuestion(rows,key,scale);
   const result={pos:0,neu:0,neg:0,unrecognized:0,blank:0,valid:0,answered:0,pct:null,invalidValues:{}};
   rows.forEach(row=>{
     const raw=String(surveyGetValue(row,key)??'').trim();
@@ -6076,16 +6406,18 @@ function surveyBuildMetrics(rows){
   const comparable=qs.filter(q=>q.valid>0&&Number.isFinite(q.pct));
   const validEvaluations=comparable.reduce((s,q)=>s+q.valid,0);
   const positiveEvaluations=comparable.reduce((s,q)=>s+q.pos,0);
-  const positivePct=validEvaluations?surveyPct(positiveEvaluations,validEvaluations):null;
-  const strength=[...comparable].sort((a,b)=>b.pct-a.pct||b.valid-a.valid)[0]||null;
-  const weakness=[...comparable].sort((a,b)=>a.pct-b.pct||b.valid-a.valid)[0]||null;
+  const general=surveyAnalyzeQuestion(rows,'q1','satisfaction');
+  const positivePct=general.pct;
+  const operationalComparable=comparable.filter(q=>q.key!=='q1');
+  const strength=[...operationalComparable].sort((a,b)=>b.pct-a.pct||b.valid-a.valid)[0]||null;
+  const weakness=[...operationalComparable].sort((a,b)=>a.pct-b.pct||b.valid-a.valid)[0]||null;
   const cd={};
   rows.forEach(row=>{const raw=String(row.cd??'').trim();const label=raw?raw.toUpperCase():'Não informado';cd[label]=(cd[label]||0)+1;});
   const cdSorted=Object.entries(cd).sort((a,b)=>b[1]-a[1]||a[0].localeCompare(b[0],'pt-BR'));
   const intrusive=surveyAnalyzeIntrusive(rows);
   const agility=surveyAnalyzeQuestion(rows,'q8','agility');
   const invalidTotal=qs.reduce((s,q)=>s+q.unrecognized,0)+intrusive.unrecognized;
-  return {total,defs,qs,comparable,positivePct,positiveEvaluations,validEvaluations,strength,weakness,cd,cdSorted,intrusive,agility,invalidTotal};
+  return {total,defs,qs,comparable,general,positivePct,positiveEvaluations:general.pos,validEvaluations:general.valid,strength,weakness,cd,cdSorted,intrusive,agility,invalidTotal};
 }
 function surveyDestroyChart(name){if(_surveyCharts[name]){_surveyCharts[name].destroy();delete _surveyCharts[name]}}
 function surveyColors(){
@@ -6120,50 +6452,78 @@ function surveyFitFirstTenComments(){
   list.style.maxHeight=Math.max(380,Math.round(h))+'px';list.style.overflowY='auto';
 }
 
-/* Motor de temas: os nomes dos temas nascem das palavras efetivamente presentes nas respostas. */
-const SURVEY_THEME_STOPWORDS=new Set('a o os as um uma uns umas de da do das dos e em no na nos nas para por com sem sobre ao aos ou que se ser estar foi sao é era como mais menos muito muita muitos muitas eu voce voces ele ela eles elas isso isto esse essa essa essas esses seu sua seus suas nossa nosso nossos nossas meu minha meus minhas ter tem tinha pode poderia gostaria quero queremos precisa precisam necessario necessária necessario melhoria melhorias melhorar ferramenta ferramentas busca buscas produto produtos resultado resultados cliente clientes venda vendas vendedor vendedores rotina dia hoje momento forma fazer feito uso usando usar sistema plataforma pagina tela campo opcao opções opcoes recurso recursos ajuste ajustes incluir adicionar facilitar ajudam ajuda ajudou bom boa boas bons melhor nova novo novas novos'.split(/\s+/));
+/* Motor de temas local: normalização + conceitos + similaridade de tokens.
+   Evita agrupar por uma única palavra. Quando houver backend de embeddings,
+   a função surveyExtractThemes pode ser substituída sem alterar o dashboard. */
+const SURVEY_THEME_STOPWORDS=new Set('a o os as um uma uns umas de da do das dos e em no na nos nas para por com sem sobre ao aos ou que se ser estar foi sao é era como mais menos muito muita muitos muitas eu voce voces ele ela eles elas isso isto esse essa essas esses seu sua seus suas nossa nosso nossos nossas meu minha meus minhas ter tem tinha pode poderia gostaria quero queremos precisa precisam necessario necessária necessario melhoria melhorias melhorar ferramenta ferramentas busca buscas produto produtos resultado resultados cliente clientes venda vendas vendedor vendedores rotina dia hoje momento forma fazer feito uso usando usar sistema plataforma pagina tela campo opcao opções opcoes recurso recursos ajuste ajustes incluir adicionar facilitar ajudam ajuda ajudou bom boa boas bons melhor nova novo novas novos'.split(/\s+/));
+const SURVEY_THEME_CONCEPTS=[
+  {label:'Filtro por aplicação',terms:['aplicacao','finalidade','utilizacao','tipo uso','uso produto']},
+  {label:'Filtros por marca / categoria / atributo',terms:['marca','categoria','atributo','filtro avancado','mais filtro']},
+  {label:'Busca por código / SKU',terms:['sku','codigo','referencia','cod produto']},
+  {label:'Relevância dos resultados',terms:['relevancia','relevante','intruso','sem relacao','nao tem relacao','resultado correto']},
+  {label:'Velocidade / carregamento',terms:['velocidade','rapidez','lento','lentidao','demora','carregamento','agilidade']},
+  {label:'Sinônimos / termos alternativos',terms:['sinonimo','sinonimos','termo alternativo','palavra parecida','nome parecido']},
+  {label:'Estoque / disponibilidade por CD',terms:['estoque','disponibilidade','disponivel','saldo','cd']},
+  {label:'Busca por voz',terms:['voz','microfone','falar']},
+  {label:'Interface / experiência de uso',terms:['interface','layout','visual','tela','experiencia','usabilidade']}
+];
 function surveyThemeStem(token){
   let t=surveyNorm(token);if(t.length>6&&t.endsWith('oes'))t=t.slice(0,-3)+'ao';else if(t.length>5&&t.endsWith('ais'))t=t.slice(0,-3)+'al';else if(t.length>5&&t.endsWith('s'))t=t.slice(0,-1);return t;
 }
 function surveyThemeTokens(text){
   return surveyNorm(text).split(' ').map(surveyThemeStem).filter(t=>t.length>=4&&!SURVEY_THEME_STOPWORDS.has(t)&&!/^[0-9]+$/.test(t));
 }
+function surveyThemeConcept(text){
+  const n=' '+surveyNorm(text)+' ';
+  let best=null,bestScore=0;
+  SURVEY_THEME_CONCEPTS.forEach(c=>{
+    let score=0;
+    c.terms.forEach(term=>{const t=surveyNorm(term);if(n.includes(' '+t+' ')||n.includes(t))score+=t.includes(' ')?3:2;});
+    if(score>bestScore){bestScore=score;best=c.label;}
+  });
+  return bestScore?best:null;
+}
+function surveyThemeSimilarity(a,b){
+  const A=new Set(a),B=new Set(b);if(!A.size||!B.size)return 0;
+  let inter=0;A.forEach(x=>{if(B.has(x))inter++;});
+  return inter/Math.max(1,Math.min(A.size,B.size));
+}
 function surveyThemeAction(theme,sample){
   const n=surveyNorm(theme+' '+sample);
-  if(/filtro|categoria|marca|atribut/.test(n))return 'Revisar a usabilidade, persistência e cobertura dos filtros citados pelos vendedores.';
-  if(/veloc|lento|demora|carreg/.test(n))return 'Medir tempo de resposta nos cenários citados e priorizar gargalos de carregamento.';
-  if(/sinon|termo|express|palavra|nome/.test(n))return 'Avaliar sinônimos, termos comerciais e correspondência textual para ampliar a relevância da busca.';
-  if(/codigo|sku|referenc/.test(n))return 'Validar indexação e precisão da pesquisa por código/SKU nos casos relatados.';
-  if(/intrus|relevan|relacao|relacion/.test(n))return 'Revisar ranking e relevância dos resultados para reduzir itens sem relação com a intenção pesquisada.';
-  if(/layout|visual|tela|interface/.test(n))return 'Avaliar a experiência visual e o fluxo de interação associados aos comentários deste tema.';
-  if(/estoque|disponib/.test(n))return 'Revisar a exibição e atualização das informações de disponibilidade apontadas nas respostas.';
-  return `Aprofundar os relatos relacionados a “${theme}” e validar com os vendedores a melhoria de maior impacto.`;
+  if(/aplicacao|finalidade/.test(n))return 'Avaliar filtro ou indexação por finalidade de uso para aproximar a busca da linguagem comercial.';
+  if(/filtro|categoria|marca|atribut/.test(n))return 'Revisar cobertura, persistência e facilidade de uso dos filtros mais citados.';
+  if(/veloc|lento|demora|carreg|agilidade/.test(n))return 'Medir tempo de resposta e priorizar os cenários com maior impacto operacional.';
+  if(/sinon|termo|palavra/.test(n))return 'Ampliar dicionário de sinônimos e equivalências usadas pelos vendedores.';
+  if(/codigo|sku|referenc/.test(n))return 'Validar indexação e precisão da pesquisa por código/SKU.';
+  if(/intrus|relevan|relacao/.test(n))return 'Revisar ranking dos resultados para reduzir produtos sem relação com a intenção de busca.';
+  if(/estoque|disponib|saldo/.test(n))return 'Avaliar exibição de estoque e disponibilidade por CD diretamente na experiência de busca.';
+  if(/layout|visual|tela|interface|usabilidade/.test(n))return 'Revisar experiência visual e fluxo de interação associados aos relatos.';
+  return `Aprofundar os relatos relacionados a “${theme}” e validar a melhoria de maior impacto com os usuários.`;
 }
 function surveyExtractThemes(rows){
   const comments=[];
-  rows.forEach(r=>['q9','q10'].forEach(key=>{const text=String(r[key]??'').trim();if(text)comments.push({text,cd:String(r.cd??'').trim()||'—'});}));
+  rows.forEach(r=>['q9','q10'].forEach(key=>{const text=String(r[key]??'').trim();if(text)comments.push({text,cd:String(r.cd??'').trim()||'—',tokens:surveyThemeTokens(text)});}));
   if(!comments.length)return [];
-  const docFreq={};const variant={};
+  const groups=[],byConcept=new Map(),byAnchor=new Map();
   comments.forEach(c=>{
-    const tokens=[...new Set(surveyThemeTokens(c.text))];
-    tokens.forEach(t=>{docFreq[t]=(docFreq[t]||0)+1;if(!variant[t])variant[t]=t;});
+    const concept=surveyThemeConcept(c.text);let group=concept?byConcept.get(concept):null;
+    if(!group&&!concept){
+      // Em bases grandes evita comparar cada comentário com todos os grupos (O(n²)).
+      // Compara apenas grupos que compartilham um token-âncora relevante.
+      const candidates=new Set();c.tokens.slice(0,4).forEach(t=>(byAnchor.get(t)||[]).forEach(g=>candidates.add(g)));
+      let best=null,bestScore=0;for(const g of candidates){const score=surveyThemeSimilarity(c.tokens,g.tokens);if(score>bestScore){bestScore=score;best=g;}}
+      if(bestScore>=.50)group=best;
+    }
+    if(!group){const label=concept||(c.tokens.slice(0,2).map(t=>t.charAt(0).toUpperCase()+t.slice(1)).join(' / ')||'Outros / não identificado');group={label,count:0,samples:[],cds:{},tokens:new Set(c.tokens)};groups.push(group);if(concept)byConcept.set(concept,group);c.tokens.slice(0,4).forEach(t=>{if(!byAnchor.has(t))byAnchor.set(t,[]);byAnchor.get(t).push(group);});}
+    group.count++;group.cds[c.cd]=(group.cds[c.cd]||0)+1;c.tokens.forEach(t=>group.tokens.add(t));if(group.samples.length<3)group.samples.push(c.text);
   });
-  const buckets={};
-  comments.forEach(c=>{
-    const tokens=[...new Set(surveyThemeTokens(c.text))];
-    if(!tokens.length)return;
-    tokens.sort((a,b)=>(docFreq[b]||0)-(docFreq[a]||0)||a.localeCompare(b,'pt-BR'));
-    const key=tokens[0];
-    if(!buckets[key])buckets[key]={key,label:key.charAt(0).toUpperCase()+key.slice(1),count:0,samples:[]};
-    buckets[key].count++;if(buckets[key].samples.length<2)buckets[key].samples.push(c.text);
-  });
-  return Object.values(buckets).sort((a,b)=>b.count-a.count||a.label.localeCompare(b.label,'pt-BR')).map(t=>({...t,action:surveyThemeAction(t.label,t.samples[0]||'')}));
+  const total=comments.length;return groups.sort((a,b)=>b.count-a.count||a.label.localeCompare(b.label,'pt-BR')).map(g=>({label:g.label,count:g.count,pct:surveyPct(g.count,total),samples:g.samples,cds:g.cds,action:surveyThemeAction(g.label,g.samples[0]||'')}));
 }
 function surveyRenderThemes(rows){
   const themes=surveyExtractThemes(rows),body=document.getElementById('surveyThemeBody'),badge=document.getElementById('surveyThemeCountBadge');
   if(badge)badge.textContent=`${themes.length} tema${themes.length===1?'':'s'}`;
   if(!body)return;
-  body.innerHTML=themes.length?themes.map(t=>`<tr><td><div class="survey-theme-title">${escapeHtml(t.label)}</div></td><td><span class="survey-theme-count">${t.count.toLocaleString('pt-BR')}</span></td><td><div class="survey-theme-action">${escapeHtml(t.action)}${t.samples[0]?`<span class="survey-theme-example">Ex.: “${escapeHtml(t.samples[0].slice(0,150))}${t.samples[0].length>150?'…':''}”</span>`:''}</div></td></tr>`).join(''):'<tr><td colspan="3" class="survey-empty">Sem respostas abertas suficientes para identificar temas.</td></tr>';
+  body.innerHTML=themes.length?themes.map(t=>`<tr><td><div class="survey-theme-title">${escapeHtml(t.label)}</div></td><td><span class="survey-theme-count">${t.count.toLocaleString('pt-BR')} · ${surveyFmtPct(t.pct)}</span></td><td><div class="survey-theme-action">${escapeHtml(t.action)}${t.samples[0]?`<span class="survey-theme-example">Ex.: “${escapeHtml(t.samples[0].slice(0,150))}${t.samples[0].length>150?'…':''}”</span>`:''}</div></td></tr>`).join(''):'<tr><td colspan="3" class="survey-empty">Sem respostas abertas suficientes para identificar temas.</td></tr>';
 }
 function surveyRenderCdComparison(m,rows){
   const head=document.getElementById('surveyCdMatrixHead'),body=document.getElementById('surveyCdMatrixBody');if(!head||!body)return;
@@ -6237,7 +6597,7 @@ function surveyRender(){
   surveyRenderThemes(rows);
 
   // Qualidade da base
-  document.getElementById('surveyQuestionBody').innerHTML=m.qs.map(q=>`<tr><td>${escapeHtml(q.label)}</td><td>${q.pos.toLocaleString('pt-BR')} (${surveyFmtPct(surveyPct(q.pos,q.valid))})</td><td>${q.neu.toLocaleString('pt-BR')} (${surveyFmtPct(surveyPct(q.neu,q.valid))})</td><td>${q.neg.toLocaleString('pt-BR')} (${surveyFmtPct(surveyPct(q.neg,q.valid))})</td><td>${q.unrecognized.toLocaleString('pt-BR')}</td><td>${q.valid.toLocaleString('pt-BR')}</td><td><div class="survey-score-wrap"><div class="survey-score-bar"><div class="survey-score-fill" style="width:${(q.pct??0).toFixed(1)}%"></div></div><span class="survey-score-num">${q.pct===null?'—':surveyFmtPct(q.pct)}</span></div></td></tr>`).join('')||'<tr><td colspan="7" class="survey-empty">Nenhuma pergunta avaliativa reconhecida.</td></tr>';
+  document.getElementById('surveyQuestionBody').innerHTML=m.qs.map(q=>`<tr><td>${escapeHtml(q.label)}</td><td>${q.pos.toLocaleString('pt-BR')} (${surveyFmtPct(surveyPct(q.pos,q.valid))})</td><td>${q.neu.toLocaleString('pt-BR')} (${surveyFmtPct(surveyPct(q.neu,q.valid))})</td><td class="survey-negative-cell">${q.neg.toLocaleString('pt-BR')} (${surveyFmtPct(surveyPct(q.neg,q.valid))})</td><td>${q.unrecognized.toLocaleString('pt-BR')}</td><td>${q.valid.toLocaleString('pt-BR')}</td><td><div class="survey-score-wrap"><div class="survey-score-bar"><div class="survey-score-fill" style="width:${(q.pct??0).toFixed(1)}%"></div></div><span class="survey-score-num">${q.pct===null?'—':surveyFmtPct(q.pct)}</span></div></td></tr>`).join('')||'<tr><td colspan="7" class="survey-empty">Nenhuma pergunta avaliativa reconhecida.</td></tr>';
   const invalidExamples=m.qs.flatMap(q=>Object.entries(q.invalidValues).map(([value,count])=>`${q.label}: “${value}” (${count}×)`)).concat(Object.entries(m.intrusive.invalidValues).map(([value,count])=>`5. Presença de Produtos Indesejados: “${value}” (${count}×)`));
   const validationNote=document.getElementById('surveyValidationNote');
   if(validationNote){validationNote.className='survey-quality-note show '+(m.invalidTotal?'warn':'ok');validationNote.innerHTML=m.invalidTotal?`<strong>${m.invalidTotal.toLocaleString('pt-BR')} resposta${m.invalidTotal===1?'':'s'} não reconhecida${m.invalidTotal===1?'':'s'}.</strong> Esses valores foram excluídos apenas do denominador da pergunta correspondente.${invalidExamples.length?' Exemplos: '+invalidExamples.slice(0,5).map(escapeHtml).join('; ')+'.':''}`:'<strong>Validação concluída:</strong> todas as respostas preenchidas das escalas avaliativas foram reconhecidas.';}
@@ -6250,7 +6610,7 @@ function surveyRenderEmpty(){
   const ccb=document.getElementById('surveyCompareCdBody');if(ccb)ccb.innerHTML='<tr><td colspan="5" class="survey-empty">Importe uma planilha para comparar os CDs.</td></tr>';
   ['surveyKpiTotal','surveyKpiSatisfaction','surveyKpiStrength','surveyKpiWeakness'].forEach(id=>{const el=document.getElementById(id);if(el)el.textContent='—'});
   const txt={surveyKpiTotalSub:'Respostas carregadas da planilha',surveyKpiSatisfactionSub:'Percentual das respostas válidas',surveyKpiStrengthSub:'Pergunta com maior índice positivo',surveyKpiWeaknessSub:'Pergunta com menor índice positivo',surveySuggestionMeta:'Nenhuma sugestão carregada.'};Object.entries(txt).forEach(([id,v])=>{const el=document.getElementById(id);if(el)el.textContent=v});
-  ['surveyDimensionSummary','surveyIntrusiveSummary','surveyAgilitySummary','surveyInsights','surveySuggestionsList'].forEach(id=>{const el=document.getElementById(id);if(el)el.innerHTML='<div class="survey-empty">Importe uma planilha para gerar esta análise.</div>'});
+  ['surveyDimensionSummary','surveyIntrusiveSummary','surveyAgilitySummary','surveyInsights','surveySuggestionsList','surveyGeneralCommentsList'].forEach(id=>{const el=document.getElementById(id);if(el)el.innerHTML='<div class="survey-empty">Importe uma planilha para gerar esta análise.</div>'});
   ['surveyQuestionBody','surveyCdBody','surveyCdMatrixBody','surveyThemeBody'].forEach(id=>{const el=document.getElementById(id);if(el)el.innerHTML='<tr><td colspan="8" class="survey-empty">Importe uma planilha para gerar esta análise.</td></tr>'});
   const mh=document.getElementById('surveyCdMatrixHead');if(mh)mh.innerHTML='<tr><th>Pergunta</th><th>CD</th></tr>';
   ['surveyDimensionCountBadge','surveyCdCountBadge','surveyThemeCountBadge'].forEach(id=>{const el=document.getElementById(id);if(el)el.textContent='0'});['surveyIntrusiveBaseBadge','surveyAgilityBaseBadge'].forEach(id=>{const el=document.getElementById(id);if(el)el.textContent='0 válidas'});
@@ -6261,7 +6621,18 @@ function surveySetSource(label,text,updatedAt){
   if(badge)badge.textContent=label;if(source)source.textContent=text;
   if(updated){const d=updatedAt?new Date(updatedAt):null;updated.textContent=d&&!Number.isNaN(d.getTime())?'Última importação: '+d.toLocaleString('pt-BR'):'Última importação: —';}
 }
-function surveySaveDivisionData(){try{localStorage.setItem(SURVEY_STORAGE_KEY,JSON.stringify(_surveyDivisionData));}catch(err){console.warn('Não foi possível salvar os relatórios no navegador.',err)}}
+function surveySaveDivisionData(){
+  try{
+    const safe={};
+    Object.entries(_surveyDivisionData).forEach(([key,val])=>{
+      const rows=Array.isArray(val?.rows)?val.rows:[];
+      // localStorage costuma ter ~5 MB. Bases grandes permanecem em memória nesta sessão
+      // para evitar serialização pesada, travamentos e estouro de quota.
+      safe[key]=rows.length<=4000?val:{rows:[],fileName:val?.fileName||'',updatedAt:val?.updatedAt||'',largeDataset:true,rowCount:rows.length};
+    });
+    localStorage.setItem(SURVEY_STORAGE_KEY,JSON.stringify(safe));
+  }catch(err){console.warn('Não foi possível salvar os relatórios no navegador.',err)}
+}
 function surveyRestoreDivisionData(){
   try{
     const saved=JSON.parse(localStorage.getItem(SURVEY_STORAGE_KEY)||'null');
@@ -6281,14 +6652,67 @@ function surveyClearActiveDivision(){
   const label=SURVEY_DIVISION_LABELS[_activeSurveyDivision];if(!confirm('Limpar o relatório importado de '+label+'?'))return;
   _surveyDivisionData[_activeSurveyDivision]={rows:[],fileName:'',updatedAt:''};surveySaveDivisionData();surveySelectDivision(_activeSurveyDivision);toast('Relatório de '+label+' removido.','success');
 }
+function surveySetProcessing(title,text,pct,step){
+  const overlay=document.getElementById('surveyProcessingOverlay'),bar=document.getElementById('surveyProcessingBar'),t=document.getElementById('surveyProcessingTitle'),d=document.getElementById('surveyProcessingText'),p=document.getElementById('surveyProcessingPct'),st=document.getElementById('surveyProcessingStep');
+  overlay?.classList.add('show');document.body.classList.add('survey-is-processing');
+  if(t)t.textContent=title||'Processando...';if(d)d.textContent=text||'';if(bar)bar.style.width=`${Math.max(4,Math.min(100,pct||0))}%`;if(p)p.textContent=`${Math.round(pct||0)}%`;if(st)st.textContent=step||'';
+}
+function surveyHideProcessing(){document.getElementById('surveyProcessingOverlay')?.classList.remove('show');document.body.classList.remove('survey-is-processing')}
+function surveyYield(){return new Promise(resolve=>setTimeout(resolve,0))}
+async function surveyReadFileWorker(file){
+  if(typeof Worker==='undefined')return null;
+  const workerCode=`
+    self.onmessage=async(e)=>{
+      try{
+        importScripts('https://cdn.jsdelivr.net/npm/xlsx@0.18.5/dist/xlsx.full.min.js');
+        const {buffer,name}=e.data; const ext=(name.split('.').pop()||'').toLowerCase();
+        let wb;
+        if(ext==='csv'){ const text=new TextDecoder('utf-8').decode(buffer); wb=XLSX.read(text,{type:'string',dense:true}); }
+        else wb=XLSX.read(buffer,{type:'array',dense:true,cellDates:false});
+        const norm=s=>String(s||'').normalize('NFD').replace(/[\\u0300-\\u036f]/g,'').toLowerCase().trim();
+        const target=wb.SheetNames.find(n=>norm(n)==='respostas detalhadas')||wb.SheetNames.find(n=>norm(n)==='report')||wb.SheetNames.find(n=>norm(n).includes('respostas'))||wb.SheetNames[0];
+        const ws=wb.Sheets[target];
+        const matrix=XLSX.utils.sheet_to_json(ws,{header:1,defval:'',raw:false,blankrows:false});
+        self.postMessage({ok:true,matrix});
+      }catch(err){self.postMessage({ok:false,error:err?.message||String(err)});}
+    };`;
+  const url=URL.createObjectURL(new Blob([workerCode],{type:'text/javascript'}));
+  try{
+    const buffer=await file.arrayBuffer();
+    return await new Promise((resolve,reject)=>{
+      const w=new Worker(url); const timer=setTimeout(()=>{w.terminate();reject(new Error('Tempo excedido ao ler a planilha.'));},120000);
+      w.onmessage=e=>{clearTimeout(timer);w.terminate();e.data?.ok?resolve(e.data.matrix):reject(new Error(e.data?.error||'Erro ao processar planilha.'));};
+      w.onerror=err=>{clearTimeout(timer);w.terminate();reject(err);};
+      w.postMessage({buffer,name:file.name},[buffer]);
+    });
+  }finally{URL.revokeObjectURL(url)}
+}
 async function surveyReadFile(file){
   const ext=(file.name.split('.').pop()||'').toLowerCase();if(!['xlsx','xls','csv'].includes(ext))throw new Error('Formato não suportado. Use Excel (.xlsx/.xls) ou CSV.');
-  if(ext==='csv'){const text=await file.text();const wb=XLSX.read(text,{type:'string'});const ws=wb.Sheets[wb.SheetNames[0]];return XLSX.utils.sheet_to_json(ws,{header:1,defval:'',raw:false});}
-  const buf=await file.arrayBuffer(),wb=XLSX.read(buf,{type:'array'});const target=wb.SheetNames.find(n=>surveyNorm(n)==='respostas detalhadas')||wb.SheetNames.find(n=>surveyNorm(n)==='report')||wb.SheetNames.find(n=>surveyNorm(n).includes('respostas'))||wb.SheetNames[0];const ws=wb.Sheets[target];return XLSX.utils.sheet_to_json(ws,{header:1,defval:'',raw:false});
+  try{const matrix=await surveyReadFileWorker(file);if(matrix)return matrix;}catch(err){console.warn('Worker indisponível; usando leitura compatível.',err)}
+  if(ext==='csv'){const text=await file.text();const wb=XLSX.read(text,{type:'string',dense:true});const ws=wb.Sheets[wb.SheetNames[0]];return XLSX.utils.sheet_to_json(ws,{header:1,defval:'',raw:false,blankrows:false});}
+  const buf=await file.arrayBuffer(),wb=XLSX.read(buf,{type:'array',dense:true,cellDates:false});const target=wb.SheetNames.find(n=>surveyNorm(n)==='respostas detalhadas')||wb.SheetNames.find(n=>surveyNorm(n)==='report')||wb.SheetNames.find(n=>surveyNorm(n).includes('respostas'))||wb.SheetNames[0];const ws=wb.Sheets[target];return XLSX.utils.sheet_to_json(ws,{header:1,defval:'',raw:false,blankrows:false});
 }
+async function surveyRowsFromMatrixAsync(matrix){
+  if(!Array.isArray(matrix)||matrix.length<2)throw new Error('O arquivo não possui respostas suficientes.');
+  const candidates=matrix.slice(0,Math.min(matrix.length,25)).map((r,i)=>({i,count:Array.isArray(r)?Object.keys(surveyMapHeaders(r)).length:0}));
+  const best=candidates.sort((a,b)=>b.count-a.count)[0],hi=best?.count>=2?best.i:0,headers=(matrix[hi]||[]).map(v=>String(v??'')),map=surveyMapHeaders(headers);
+  if(map.cd===undefined)throw new Error('Não reconheci a coluna da pergunta 1 (CD). Verifique o título no arquivo.');
+  const sourceRows=matrix.slice(hi+1).filter(r=>Array.isArray(r)),mappedIndexes=new Set(Object.values(map)),dynamicDefs=[];
+  headers.forEach((header,col)=>{if(mappedIndexes.has(col)||!String(header).trim())return;const scale=surveyInferScale(sourceRows.slice(0,250).map(r=>r[col]));if(scale)dynamicDefs.push({key:'dyn_'+col,label:surveyPrettyDimensionLabel(header),fullLabel:String(header).trim(),scale,col,dynamic:true});});
+  const hasKnown=SURVEY_DIMENSION_CONFIG.some(d=>map[d.key]!==undefined);if(!hasKnown&&!dynamicDefs.length)throw new Error('Não reconheci nenhuma pergunta avaliativa. Verifique os títulos e as escalas de resposta.');
+  const rows=[],defsCompact=dynamicDefs.map(({key,label,fullLabel,scale,dynamic})=>({key,label,fullLabel,scale,dynamic})),chunk=750,total=sourceRows.length;
+  for(let offset=0;offset<total;offset+=chunk){
+    const slice=sourceRows.slice(offset,offset+chunk);
+    slice.forEach((r,j)=>{const dynamic={};dynamicDefs.forEach(d=>dynamic[d.key]=r[d.col]??'');const rawDate=map.date!==undefined?r[map.date]:'';const row={id:map.id!==undefined?r[map.id]:offset+j+1,q1:map.q1!==undefined?r[map.q1]:'',cd:map.cd!==undefined?r[map.cd]:'',q2:map.q2!==undefined?r[map.q2]:'',q3:map.q3!==undefined?r[map.q3]:'',q4:map.q4!==undefined?r[map.q4]:'',q5:map.q5!==undefined?r[map.q5]:'',q6:map.q6!==undefined?r[map.q6]:'',q7:map.q7!==undefined?r[map.q7]:'',q8:map.q8!==undefined?r[map.q8]:'',q9:map.q9!==undefined?r[map.q9]:'',q10:map.q10!==undefined?r[map.q10]:'',_dateRaw:rawDate,_date:surveyDateToIso(rawDate),_dynamic:dynamic,_dynamicDefs:defsCompact};const fixed=['q1','q2','q3','q4','q5','q6','q7','q8','q9','q10'].some(k=>String(row[k]??'').trim()),extra=Object.values(dynamic).some(v=>String(v??'').trim());if(fixed||extra)rows.push(row);});
+    const done=Math.min(total,offset+chunk);surveySetProcessing('Organizando respostas...',`${done.toLocaleString('pt-BR')} de ${total.toLocaleString('pt-BR')} linhas preparadas`,35+(done/Math.max(1,total))*30,'Etapa 2 de 4');await surveyYield();
+  }
+  if(!rows.length)throw new Error('O arquivo não possui linhas de resposta válidas.');return rows;
+}
+
 function surveyDownloadCurrent(){
   if(!_surveyRows.length)return toast('Não existem respostas para baixar.','warn');if(!window.XLSX)return toast('A biblioteca de Excel não foi carregada.','error');
-  const baseCols=[['id','ID da Resposta'],['cd','1. CD mais utilizado'],['q1','Satisfação Geral'],['q2','2. Busca por Nome do Produto'],['q3','3. Busca por Termos Genéricos'],['q4','4. Busca por Código (SKU / Referência)'],['q5','5. Presença de Produtos Indesejados'],['q6','6. Velocidade da Busca'],['q7','7. Uso de Filtros'],['q8','8. Agilidade na Venda'],['q9','9. Melhorias e Novas Funcionalidades'],['q10','10. Comentários Gerais']].filter(([key])=>key==='id'||key==='cd'||_surveyRows.some(r=>String(r[key]??'').trim()));
+  const baseCols=[['id','ID da Resposta'],['cd','1. CD mais utilizado'],['q1','Satisfação Geral'],['q2','2. Busca por Nome do Produto'],['q3','3. Busca por Termos Genéricos'],['q4','4. Busca por Código (SKU / Referência)'],['q5','5. Presença de Produtos Indesejados'],['q7','Eficiência dos Filtros de Busca'],['q8','Impacto na Agilidade de Vendas'],['q9','9. Melhorias e Novas Funcionalidades'],['q10','10. Comentários Gerais']].filter(([key])=>key==='id'||key==='cd'||_surveyRows.some(r=>String(r[key]??'').trim()));
   const dyn=surveyQuestionDefs(_surveyRows).filter(d=>d.dynamic);
   const headers=baseCols.map(x=>x[1]).concat(dyn.map(d=>d.fullLabel||d.label));
   const matrix=[headers,..._surveyRows.map(r=>baseCols.map(([key])=>r[key]??'').concat(dyn.map(d=>surveyGetValue(r,d.key))))];
@@ -6305,7 +6729,25 @@ function surveyExportSummary(){
 function initSurveyDashboard(){
   if(!_surveyInitialized){
     _surveyInitialized=true;surveyRestoreDivisionData();const input=document.getElementById('surveyFileInput');
-    input?.addEventListener('change',async e=>{const file=e.target.files?.[0];if(!file)return;const st=document.getElementById('surveyFileStatus');try{if(st){st.textContent='Lendo, interpretando e recalculando '+file.name+'...';st.className='survey-file-status'}const matrix=await surveyReadFile(file),rows=surveyRowsFromMatrix(matrix);if(!rows.length)throw new Error('Nenhuma resposta válida encontrada.');_surveyRows=rows;const now=new Date().toISOString();_surveyDivisionData[_activeSurveyDivision]={rows,fileName:file.name,updatedAt:now};surveySaveDivisionData();if(st){st.textContent=`${file.name} · ${rows.length.toLocaleString('pt-BR')} respostas carregadas`;st.className='survey-file-status ok'}surveySetSource(SURVEY_DIVISION_LABELS[_activeSurveyDivision]+' · Excel',`${file.name} · ${rows.length.toLocaleString('pt-BR')} respostas`,now);surveyRender();toast('Pesquisa recalculada com sucesso.','success');}catch(err){console.error(err);if(st){st.textContent=err.message||'Erro ao ler o arquivo.';st.className='survey-file-status'}toast(err.message||'Erro ao importar pesquisa.','error')}finally{e.target.value=''}});
+    input?.addEventListener('change',async e=>{
+      const file=e.target.files?.[0];if(!file)return;const st=document.getElementById('surveyFileStatus');
+      try{
+        surveySetProcessing('Lendo planilha...',`Abrindo ${file.name}`,8,'Etapa 1 de 4');await surveyYield();
+        if(st){st.textContent='Lendo e preparando '+file.name+'...';st.className='survey-file-status'}
+        const matrix=await surveyReadFile(file);
+        surveySetProcessing('Planilha lida','Normalizando e validando as respostas...',35,'Etapa 2 de 4');await surveyYield();
+        const rows=await surveyRowsFromMatrixAsync(matrix);if(!rows.length)throw new Error('Nenhuma resposta válida encontrada.');
+        _surveyRows=rows;const now=new Date().toISOString();_surveyDivisionData[_activeSurveyDivision]={rows,fileName:file.name,updatedAt:now};
+        surveySetProcessing('Calculando indicadores...',`${rows.length.toLocaleString('pt-BR')} respostas válidas encontradas`,72,'Etapa 3 de 4');await surveyYield();
+        surveySaveDivisionData();surveySetSource(SURVEY_DIVISION_LABELS[_activeSurveyDivision]+' · Excel',`${file.name} · ${rows.length.toLocaleString('pt-BR')} respostas`,now);
+        surveySetProcessing('Montando dashboard...','Atualizando gráficos, filtros por CD e tabelas.',88,'Etapa 4 de 4');await surveyYield();
+        surveyRender();
+        if(st){st.textContent=`${file.name} · ${rows.length.toLocaleString('pt-BR')} respostas carregadas${rows.length>4000?' · base grande mantida em memória nesta sessão':''}`;st.className='survey-file-status ok'}
+        surveySetProcessing('Dashboard pronto!',`${rows.length.toLocaleString('pt-BR')} respostas processadas com sucesso.`,100,'Concluído');await new Promise(r=>setTimeout(r,320));
+        toast('Pesquisa recalculada com sucesso.','success');
+      }catch(err){console.error(err);if(st){st.textContent=err.message||'Erro ao ler o arquivo.';st.className='survey-file-status'}toast(err.message||'Erro ao importar pesquisa.','error')}
+      finally{surveyHideProcessing();e.target.value=''}
+    });
     surveySelectDivision(_activeSurveyDivision);
   }else requestAnimationFrame(()=>surveySelectDivision(_activeSurveyDivision));
 }
@@ -6321,6 +6763,9 @@ SURVEY_HEADER_KEYS.date=['carimbo de data hora','carimbo de data/hora','data hor
 let _surveySuggestionItems=[];
 let _surveySuggestionPage=0;
 let _surveySuggestionShowAll=false;
+let _surveyGeneralCommentItems=[];
+let _surveyGeneralCommentPage=0;
+let _surveyGeneralCommentShowAll=false;
 let _surveyDetailedRows=[];
 
 function surveyDateToIso(value){
@@ -6353,25 +6798,66 @@ function surveyShortLabel(label){return String(label||'').replace(/^\d+[.]\s*/,'
 function surveyDimensionIcon(i){return ['⌕','Aa','#','⏱','⌗','↗'][i%6]}
 function surveyLegendHtml(labels,counts,valid,colors){return labels.map((label,i)=>`<div class="survey-donut-legend-row"><span class="survey-donut-dot" style="background:${colors[i]}"></span><span>${escapeHtml(label)}</span><span class="survey-donut-val">${surveyFmtPct(surveyPct(counts[i],valid))} <small>(${counts[i].toLocaleString('pt-BR')})</small></span></div>`).join('')}
 
+function surveyOpenAnswerItems(rows,key){
+  return rows.map((r,i)=>({
+    text:String(r[key]??'').trim(),
+    cd:String(r.cd??'').trim().toUpperCase()||'—',
+    date:r._date||'',
+    id:r.id??i+1
+  })).filter(x=>x.text);
+}
+
+function surveyRenderOpenAnswerPage(config){
+  const {items,page,showAll,listId,metaId,pagerId,toggleId,prevId,nextId,pagesId,emptyText,goFn}=config;
+  const list=document.getElementById(listId),meta=document.getElementById(metaId),pager=document.getElementById(pagerId),toggle=document.getElementById(toggleId);
+  if(!list)return;
+  const total=items.length,pageSize=10,pages=Math.max(1,Math.ceil(total/pageSize));
+  const safePage=Math.max(0,Math.min(page,pages-1));
+  const visible=showAll?items:items.slice(safePage*pageSize,safePage*pageSize+pageSize);
+  if(meta)meta.textContent=total?`Exibindo ${showAll?total:Math.min(pageSize,total)} de ${total.toLocaleString('pt-BR')} comentário${total===1?'':'s'}`:'Nenhum comentário preenchido';
+  list.innerHTML=visible.length?visible.map(x=>`<div class="survey-comment"><div class="survey-comment-row"><div class="survey-comment-text" title="${escapeHtml(x.text)}">${escapeHtml(x.text)}</div><span class="survey-comment-cd">CD: ${escapeHtml(x.cd)}</span><span class="survey-comment-date">${surveyFormatDate(x.date)}</span></div></div>`).join(''):`<div class="survey-empty">${emptyText}</div>`;
+  list.style.maxHeight=showAll?'420px':'none';
+  list.style.overflowY=showAll?'auto':'visible';
+  if(toggle)toggle.textContent=showAll?'Mostrar 10':'Ver todos';
+  if(pager)pager.style.display=(!showAll&&total>pageSize)?'flex':'none';
+  const prev=document.getElementById(prevId),next=document.getElementById(nextId),pagesEl=document.getElementById(pagesId);
+  if(prev)prev.disabled=safePage<=0;
+  if(next)next.disabled=safePage>=pages-1;
+  if(pagesEl){
+    const nums=[];
+    for(let p=0;p<pages;p++){if(p<3||p===pages-1||Math.abs(p-safePage)<=1)nums.push(p);}
+    pagesEl.innerHTML=[...new Set(nums)].map((p,i,arr)=>`${i&&p-arr[i-1]>1?'<span style="font-size:.6rem;color:var(--text-muted);align-self:center">…</span>':''}<button class="survey-page-number ${p===safePage?'active':''}" type="button" onclick="${goFn}(${p})">${p+1}</button>`).join('');
+  }
+}
+
 function surveyRenderSuggestions(rows){
-  _surveySuggestionItems=rows.map((r,i)=>({text:String(r.q9??'').trim(),cd:String(r.cd??'').trim().toUpperCase()||'—',date:r._date||'',id:r.id??i+1})).filter(x=>x.text);
-  _surveySuggestionPage=0;_surveySuggestionShowAll=false;surveyRenderSuggestionPage();
+  _surveySuggestionItems=surveyOpenAnswerItems(rows,'q9');
+  _surveyGeneralCommentItems=surveyOpenAnswerItems(rows,'q10');
+  _surveySuggestionPage=0;
+  _surveyGeneralCommentPage=0;
+  _surveySuggestionShowAll=false;
+  _surveyGeneralCommentShowAll=false;
+  surveyRenderSuggestionPage();
+  surveyRenderGeneralCommentPage();
 }
 function surveyRenderSuggestionPage(){
-  const list=document.getElementById('surveySuggestionsList'),meta=document.getElementById('surveySuggestionMeta'),pager=document.getElementById('surveySuggestionPagination'),toggle=document.getElementById('surveySuggestionToggle');if(!list)return;
-  const total=_surveySuggestionItems.length,pageSize=10,pages=Math.max(1,Math.ceil(total/pageSize));_surveySuggestionPage=Math.min(_surveySuggestionPage,pages-1);
-  const visible=_surveySuggestionShowAll?_surveySuggestionItems:_surveySuggestionItems.slice(_surveySuggestionPage*pageSize,_surveySuggestionPage*pageSize+pageSize);
-  if(meta)meta.textContent=total?`Exibindo ${_surveySuggestionShowAll?total:Math.min(pageSize,total)} de ${total.toLocaleString('pt-BR')} comentário${total===1?'':'s'}`:'Nenhuma sugestão preenchida';
-  list.innerHTML=visible.length?visible.map(x=>`<div class="survey-comment"><div class="survey-comment-row"><div class="survey-comment-text" title="${escapeHtml(x.text)}">${escapeHtml(x.text)}</div><span class="survey-comment-cd">CD: ${escapeHtml(x.cd)}</span><span class="survey-comment-date">${surveyFormatDate(x.date)}</span></div></div>`).join(''):'<div class="survey-empty">Sem respostas na pergunta 9.</div>';
-  list.style.maxHeight=_surveySuggestionShowAll?'420px':'none';list.style.overflowY=_surveySuggestionShowAll?'auto':'visible';
-  if(toggle)toggle.textContent=_surveySuggestionShowAll?'Mostrar 10':'Ver todos';if(pager)pager.style.display=(!_surveySuggestionShowAll&&total>pageSize)?'flex':'none';
-  const prev=document.getElementById('surveySuggestionPrev'),next=document.getElementById('surveySuggestionNext'),pagesEl=document.getElementById('surveySuggestionPages');if(prev)prev.disabled=_surveySuggestionPage<=0;if(next)next.disabled=_surveySuggestionPage>=pages-1;
-  if(pagesEl){const nums=[];for(let p=0;p<pages;p++){if(p<3||p===pages-1||Math.abs(p-_surveySuggestionPage)<=1)nums.push(p);}pagesEl.innerHTML=[...new Set(nums)].map((p,i,arr)=>`${i&&p-arr[i-1]>1?'<span style="font-size:.6rem;color:var(--text-muted);align-self:center">…</span>':''}<button class="survey-page-number ${p===_surveySuggestionPage?'active':''}" type="button" onclick="surveySuggestionGo(${p})">${p+1}</button>`).join('');}
+  const pages=Math.max(1,Math.ceil(_surveySuggestionItems.length/10));
+  _surveySuggestionPage=Math.max(0,Math.min(_surveySuggestionPage,pages-1));
+  surveyRenderOpenAnswerPage({items:_surveySuggestionItems,page:_surveySuggestionPage,showAll:_surveySuggestionShowAll,listId:'surveySuggestionsList',metaId:'surveySuggestionMeta',pagerId:'surveySuggestionPagination',toggleId:'surveySuggestionToggle',prevId:'surveySuggestionPrev',nextId:'surveySuggestionNext',pagesId:'surveySuggestionPages',emptyText:'Sem respostas para a pergunta sobre melhorias e novas funcionalidades.',goFn:'surveySuggestionGo'});
 }
 function surveySuggestionMove(delta){_surveySuggestionPage+=delta;surveyRenderSuggestionPage()}
 function surveySuggestionGo(page){_surveySuggestionPage=page;surveyRenderSuggestionPage()}
 function surveyToggleAllSuggestions(){_surveySuggestionShowAll=!_surveySuggestionShowAll;surveyRenderSuggestionPage()}
-function surveyFitFirstTenComments(){surveyRenderSuggestionPage()}
+
+function surveyRenderGeneralCommentPage(){
+  const pages=Math.max(1,Math.ceil(_surveyGeneralCommentItems.length/10));
+  _surveyGeneralCommentPage=Math.max(0,Math.min(_surveyGeneralCommentPage,pages-1));
+  surveyRenderOpenAnswerPage({items:_surveyGeneralCommentItems,page:_surveyGeneralCommentPage,showAll:_surveyGeneralCommentShowAll,listId:'surveyGeneralCommentsList',metaId:'surveyGeneralCommentMeta',pagerId:'surveyGeneralCommentPagination',toggleId:'surveyGeneralCommentToggle',prevId:'surveyGeneralCommentPrev',nextId:'surveyGeneralCommentNext',pagesId:'surveyGeneralCommentPages',emptyText:'Sem respostas para críticas, elogios ou sugestões adicionais.',goFn:'surveyGeneralCommentGo'});
+}
+function surveyGeneralCommentMove(delta){_surveyGeneralCommentPage+=delta;surveyRenderGeneralCommentPage()}
+function surveyGeneralCommentGo(page){_surveyGeneralCommentPage=page;surveyRenderGeneralCommentPage()}
+function surveyToggleAllGeneralComments(){_surveyGeneralCommentShowAll=!_surveyGeneralCommentShowAll;surveyRenderGeneralCommentPage()}
+function surveyFitFirstTenComments(){surveyRenderSuggestionPage();surveyRenderGeneralCommentPage()}
 
 function surveyHeatStyle(pct){if(!Number.isFinite(pct))return '';if(pct>=80){const a=Math.min(.32,.10+(pct-80)/100);return `background:rgba(22,163,74,${a.toFixed(2)});`;}if(pct>=60){const a=.10+(pct-60)/160;return `background:rgba(245,158,11,${a.toFixed(2)});`;}const a=.09+(60-pct)/130;return `background:rgba(239,68,68,${Math.min(.30,a).toFixed(2)});`;}
 function surveyRenderCdComparison(m,rows,defsOverride=null){
@@ -6465,13 +6951,95 @@ function surveyApplyFilters(){_surveyDetailedRows=surveyFilterRows();surveyRende
 function surveyResetFilters(){['surveyQuickCd','surveyQuickDimension','surveyQuickResponse'].forEach(id=>{const e=document.getElementById(id);if(e)e.value='ALL'});_surveyDetailedRows=[..._surveyRows];surveyRenderDetailed(_surveyDetailedRows);surveyRenderScenarioAnalysis();const st=document.getElementById('surveyFilterStatus');if(st)st.textContent='Todos os registros'}
 function surveyToggleFilterPanel(){surveySetView('detailed');setTimeout(()=>document.getElementById('surveyFilterCard')?.scrollIntoView({behavior:'smooth',block:'center'}),80)}
 
+
+const SURVEY_CD_QUESTION_CARDS=[
+  {key:'q1',title:'Satisfação com a ferramenta de busca',special:'satisfaction'},
+  {key:'q2',title:'Facilidade de encontrar produto pelo nome exato'},
+  {key:'q3',title:'Relevância dos produtos exibidos por aplicação / preposição'},
+  {key:'q4',title:'Busca por Código (SKU / Referência)'},
+  {key:'q5',title:'Produtos intrusos nos resultados',special:'intrusive'},
+  {key:'q7',title:'Eficiência dos filtros de busca'},
+  {key:'q8',title:'Impacto da busca na agilidade para atender e fechar orçamentos'}
+];
+function surveyCdLabel(row){const x=String(row.cd??'').trim();return x?x.toUpperCase():'Não informado'}
+function surveyAvailableCds(rows=_surveyRows){return [...new Set((rows||[]).map(surveyCdLabel))].sort((a,b)=>a.localeCompare(b,'pt-BR'))}
+function surveyQuestionDefByKey(key,rows=_surveyRows){return surveyQuestionDefs(rows).find(d=>d.key===key)||SURVEY_DIMENSION_CONFIG.find(d=>d.key===key)||null}
+function surveyBestScaleForQuestion(rows,key,preferred){
+  const vals=(rows||[]).map(r=>surveyGetValue(r,key)).filter(v=>String(v??'').trim());
+  if(!vals.length)return preferred||'satisfaction';
+  const scales=Object.keys(SURVEY_SCALES),score=scale=>vals.reduce((n,v)=>n+(surveyClassify(v,scale)!=='unrecognized'?1:0),0);
+  const ranked=scales.map(scale=>[scale,score(scale)]).sort((a,b)=>b[1]-a[1]);
+  const pref=preferred?[preferred,score(preferred)]:null,best=ranked[0];
+  if(pref&&pref[1]>=best[1]*.9&&pref[1]/vals.length>=.65)return preferred;
+  return best&&best[1]/vals.length>=.55?best[0]:(preferred||'satisfaction');
+}
+function surveyRawDistribution(rows,key,orderHint=[]){
+  const counts={};let total=0;
+  (rows||[]).forEach(r=>{const raw=String(surveyGetValue(r,key)??'').trim();if(!raw)return;counts[raw]=(counts[raw]||0)+1;total++});
+  const rank=new Map(orderHint.map((x,i)=>[surveyNorm(x),i]));
+  const items=Object.entries(counts).sort((a,b)=>{const ra=rank.has(surveyNorm(a[0]))?rank.get(surveyNorm(a[0])):999,rb=rank.has(surveyNorm(b[0]))?rank.get(surveyNorm(b[0])):999;return ra-rb||b[1]-a[1]||a[0].localeCompare(b[0],'pt-BR')});
+  return {items,total};
+}
+function surveyScaleDisplayOrder(scale){
+  const sc=SURVEY_SCALES[scale]||{};return [...(sc.positive||[]),...(sc.neutral||[]),...(sc.negative||[])];
+}
+function surveyResponseTone(value,scale){
+  const category=surveyClassify(value,scale);
+  return category==='negative'?'is-negative':category==='neutral'?'is-neutral':category==='positive'?'is-positive':'';
+}
+function surveyIntrusiveTone(label){
+  const n=surveyNorm(label);
+  if(n==='sempre')return 'is-negative';
+  if(n==='frequentemente')return 'is-warning';
+  if(n==='as vezes')return 'is-neutral';
+  return 'is-positive';
+}
+
+function surveyRenderQuestionCdCards(){
+  const grid=document.getElementById('surveyQuestionCdGrid');if(!grid)return;
+  const cds=surveyAvailableCds(_surveyRows);
+  grid.innerHTML=SURVEY_CD_QUESTION_CARDS.map((cfg,i)=>`<section class="survey-card survey-question-cd-card" data-qkey="${cfg.key}"><div class="survey-card-head"><div><div class="survey-card-title">${escapeHtml(cfg.title)}</div><div class="survey-card-sub" id="surveyQMeta_${cfg.key}">Distribuição das respostas</div></div><label class="survey-question-filter"><span>Filtrar por CD</span><select class="survey-select" id="surveyQCd_${cfg.key}" onchange="surveyRenderQuestionCdCard('${cfg.key}')"><option value="ALL">Todos os CDs</option>${cds.map(cd=>`<option value="${escapeHtml(cd)}">${escapeHtml(cd)}</option>`).join('')}</select></label></div><div id="surveyQBody_${cfg.key}"></div></section>`).join('');
+  SURVEY_CD_QUESTION_CARDS.forEach(c=>surveyRenderQuestionCdCard(c.key));
+}
+function surveyRenderQuestionCdCard(key){
+  const cfg=SURVEY_CD_QUESTION_CARDS.find(c=>c.key===key);if(!cfg)return;
+  const select=document.getElementById('surveyQCd_'+key),selected=select?.value||'ALL';
+  const rows=selected==='ALL'?[..._surveyRows]:_surveyRows.filter(r=>surveyCdLabel(r)===selected);
+  const body=document.getElementById('surveyQBody_'+key),meta=document.getElementById('surveyQMeta_'+key);if(!body)return;
+  const filterLabel=selected==='ALL'?'Todos os CDs':'CD '+selected;
+
+  if(cfg.special==='intrusive'){
+    const q=surveyAnalyzeIntrusive(rows),labels=['Nunca','Raras vezes','Às vezes','Frequentemente','Sempre'],counts=[q.never,q.rarely,q.sometimes,q.frequently,q.always],valid=q.valid;
+    if(meta)meta.textContent=`${valid.toLocaleString('pt-BR')} respostas válidas · ${filterLabel}`;
+    const frequent=q.frequently+q.always;
+    body.innerHTML=`<div class="survey-answer-bars">${labels.map((l,i)=>`<div class="survey-answer-row ${surveyIntrusiveTone(l)}"><span class="survey-answer-label">${l}</span><span class="survey-answer-track"><span class="survey-answer-fill" style="width:${surveyPct(counts[i],valid).toFixed(1)}%"></span></span><span class="survey-answer-value">${surveyFmtPct(surveyPct(counts[i],valid))} · ${counts[i].toLocaleString('pt-BR')} resposta${counts[i]===1?'':'s'}</span></div>`).join('')}</div><div class="survey-question-summary"><div class="survey-mini-kpi is-positive"><span>Baixa ocorrência</span><strong>${surveyFmtPct(surveyPct(q.never+q.rarely,valid))} · ${(q.never+q.rarely).toLocaleString('pt-BR')}</strong></div><div class="survey-mini-kpi is-neutral"><span>Ocorrência intermediária</span><strong>${surveyFmtPct(surveyPct(q.sometimes,valid))} · ${q.sometimes.toLocaleString('pt-BR')}</strong></div><div class="survey-mini-kpi is-negative"><span>Taxa de ocorrências frequentes</span><strong>${surveyFmtPct(surveyPct(frequent,valid))} · ${frequent.toLocaleString('pt-BR')}</strong></div></div><div class="survey-question-total-line"><span>Total de respostas válidas no filtro</span><strong>${valid.toLocaleString('pt-BR')}</strong></div>`;
+    return;
+  }
+
+  const def=surveyQuestionDefByKey(key,rows)||{scale:'satisfaction'},scale=surveyBestScaleForQuestion(rows,key,def.scale),q=surveyAnalyzeQuestionWithScale(rows,key,scale),dist=surveyRawDistribution(rows,key,surveyScaleDisplayOrder(scale));
+  if(meta)meta.textContent=`${q.valid.toLocaleString('pt-BR')} respostas válidas · ${filterLabel}`;
+  const distribution=`<div class="survey-answer-bars">${dist.items.map(([label,count])=>`<div class="survey-answer-row ${surveyResponseTone(label,scale)}"><span class="survey-answer-label">${escapeHtml(label)}</span><span class="survey-answer-track"><span class="survey-answer-fill" style="width:${surveyPct(count,dist.total).toFixed(1)}%"></span></span><span class="survey-answer-value">${surveyFmtPct(surveyPct(count,dist.total))} · ${count.toLocaleString('pt-BR')} resposta${count===1?'':'s'}</span></div>`).join('')||'<div class="survey-empty">Sem respostas para este filtro.</div>'}</div>`;
+  const summary=`<div class="survey-question-summary"><div class="survey-mini-kpi is-positive"><span>Respostas boas</span><strong>${surveyFmtPct(surveyPct(q.pos,q.valid))} · ${q.pos.toLocaleString('pt-BR')}</strong></div><div class="survey-mini-kpi is-neutral"><span>Respostas médias</span><strong>${surveyFmtPct(surveyPct(q.neu,q.valid))} · ${q.neu.toLocaleString('pt-BR')}</strong></div><div class="survey-mini-kpi is-negative"><span>Respostas ruins</span><strong>${surveyFmtPct(surveyPct(q.neg,q.valid))} · ${q.neg.toLocaleString('pt-BR')}</strong></div></div>`;
+  const totals=key==='q1'?`<div class="survey-question-total-line"><span>Total da base importada</span><strong>${_surveyRows.length.toLocaleString('pt-BR')} registros</strong></div><div class="survey-question-total-line"><span>Total de respostas válidas no filtro</span><strong>${q.valid.toLocaleString('pt-BR')}</strong></div>${surveySatisfactionCdTotalsHtml()}`:`<div class="survey-question-total-line"><span>Total de respostas válidas no filtro</span><strong>${q.valid.toLocaleString('pt-BR')}</strong></div>`;
+  body.innerHTML=distribution+summary+totals;
+}
+function surveySatisfactionCdTotalsHtml(){
+  const cds=surveyAvailableCds(_surveyRows),rows=cds.map(cd=>{const subset=_surveyRows.filter(r=>surveyCdLabel(r)===cd),scale=surveyBestScaleForQuestion(subset,'q1','satisfaction'),q=surveyAnalyzeQuestionWithScale(subset,'q1',scale);return `<tr><td>${escapeHtml(cd)}</td><td>${q.valid.toLocaleString('pt-BR')}</td><td>${q.pos.toLocaleString('pt-BR')} (${surveyFmtPct(surveyPct(q.pos,q.valid))})</td><td>${q.neu.toLocaleString('pt-BR')} (${surveyFmtPct(surveyPct(q.neu,q.valid))})</td><td class="survey-negative-cell">${q.neg.toLocaleString('pt-BR')} (${surveyFmtPct(surveyPct(q.neg,q.valid))})</td><td>${surveyFmtPct(surveyPct(q.pos,q.valid))}</td></tr>`}).join('');
+  return `<details class="survey-cd-total-table" open><summary>Total de respostas por CD</summary><div class="survey-table-wrap"><table><thead><tr><th>CD</th><th>Total válido</th><th>Boas</th><th>Médias</th><th class="survey-negative-head">Ruins</th><th>% boas</th></tr></thead><tbody>${rows}</tbody></table></div></details>`;
+}
+function surveyAnalyzeQuestionWithScale(rows,key,scale){
+  const result={pos:0,neu:0,neg:0,unrecognized:0,blank:0,valid:0,answered:0,pct:null,invalidValues:{}};
+  (rows||[]).forEach(row=>{const raw=String(surveyGetValue(row,key)??'').trim(),category=surveyClassify(raw,scale);if(category==='positive')result.pos++;else if(category==='neutral')result.neu++;else if(category==='negative')result.neg++;else if(category==='blank')result.blank++;else{result.unrecognized++;result.invalidValues[raw||'Não informado']=(result.invalidValues[raw||'Não informado']||0)+1;}});
+  result.valid=result.pos+result.neu+result.neg;result.answered=result.valid+result.unrecognized;result.pct=result.valid?surveyPct(result.pos,result.valid):null;return result;
+}
+
 function surveyRenderDetailed(rows){
   const m=surveyBuildMetrics(rows),C=surveyColors(),allDefs=surveyQuestionDefs(rows),dim=document.getElementById('surveyQuickDimension')?.value||'ALL',defs=dim==='ALL'?m.qs:m.qs.filter(q=>q.key===dim);
-  const cdBadge=document.getElementById('surveyCdCountBadge');if(cdBadge)cdBadge.textContent=`${m.total.toLocaleString('pt-BR')} respostas · ${m.cdSorted.length} CD${m.cdSorted.length===1?'':'s'}`;
-  const cdBody=document.getElementById('surveyCdBody');if(cdBody)cdBody.innerHTML=m.cdSorted.map(([cd,n])=>`<tr><td><strong>${escapeHtml(cd)}</strong></td><td>${n.toLocaleString('pt-BR')}</td><td>${surveyFmtPct(surveyPct(n,m.total))}</td></tr>`).join('')||'<tr><td colspan="3" class="survey-empty">Sem respostas para os filtros.</td></tr>';
+  const cdValidTotal=m.cdSorted.reduce((sum,[,n])=>sum+n,0);const cdBadge=document.getElementById('surveyCdCountBadge');if(cdBadge)cdBadge.textContent=`Quantidade total: ${cdValidTotal.toLocaleString('pt-BR')} respostas · ${m.cdSorted.length} CD${m.cdSorted.length===1?'':'s'}`;const cdHi=document.getElementById('surveyCdHighlight');if(cdHi){const top=m.cdSorted[0];cdHi.innerHTML=top?`<span><strong style="display:block;color:var(--text);font-size:.72rem">CD mais utilizado para consultas e vendas</strong>Total válido por CD: ${cdValidTotal.toLocaleString('pt-BR')} respostas</span><strong>${escapeHtml(top[0])} · ${top[1].toLocaleString('pt-BR')} (${surveyFmtPct(surveyPct(top[1],cdValidTotal))})</strong>`:'<span>Sem dados de CD.</span>'; }
+  const cdBody=document.getElementById('surveyCdBody');if(cdBody)cdBody.innerHTML=m.cdSorted.map(([cd,n])=>`<tr><td><strong>${escapeHtml(cd)}</strong></td><td>${n.toLocaleString('pt-BR')}</td><td>${surveyFmtPct(surveyPct(n,cdValidTotal))}</td></tr>`).join('')||'<tr><td colspan="3" class="survey-empty">Sem respostas para os filtros.</td></tr>';
   const compareRows=surveyScenarioBaseRows(),compareM=surveyBuildMetrics(compareRows),compareDefs=dim==='ALL'?compareM.qs:compareM.qs.filter(q=>q.key===dim);
   surveyRenderCdComparison(compareM,compareRows,compareDefs);
-  const themes=surveyExtractThemes(rows),body=document.getElementById('surveyThemeBody'),badge=document.getElementById('surveyThemeCountBadge');if(badge)badge.textContent=`${themes.length} tema${themes.length===1?'':'s'}`;if(body)body.innerHTML=themes.length?themes.slice(0,10).map(t=>`<tr><td><div class="survey-theme-title">${escapeHtml(t.label)}</div></td><td><span class="survey-theme-count">${t.count.toLocaleString('pt-BR')}</span></td><td><div class="survey-theme-action">${escapeHtml(t.action)}</div></td></tr>`).join(''):'<tr><td colspan="3" class="survey-empty">Sem respostas abertas suficientes.</td></tr>';
+  const themes=surveyExtractThemes(rows),body=document.getElementById('surveyThemeBody'),badge=document.getElementById('surveyThemeCountBadge');if(badge)badge.textContent=`${themes.length} tema${themes.length===1?'':'s'}`;if(body)body.innerHTML=themes.length?themes.slice(0,10).map(t=>`<tr><td><div class="survey-theme-title">${escapeHtml(t.label)}</div></td><td><span class="survey-theme-count">${t.count.toLocaleString('pt-BR')} · ${surveyFmtPct(t.pct)}</span></td><td><div class="survey-theme-action">${escapeHtml(t.action)}</div></td></tr>`).join(''):'<tr><td colspan="3" class="survey-empty">Sem respostas abertas suficientes.</td></tr>';
   surveyRenderThemesChart(themes,C);
   const qb=document.getElementById('surveyQuestionBody');if(qb)qb.innerHTML=m.qs.map(q=>`<tr><td>${escapeHtml(q.label)}</td><td>${q.pos.toLocaleString('pt-BR')} (${surveyFmtPct(surveyPct(q.pos,q.valid))})</td><td>${q.neu.toLocaleString('pt-BR')} (${surveyFmtPct(surveyPct(q.neu,q.valid))})</td><td>${q.neg.toLocaleString('pt-BR')} (${surveyFmtPct(surveyPct(q.neg,q.valid))})</td><td>${q.unrecognized.toLocaleString('pt-BR')}</td><td>${q.valid.toLocaleString('pt-BR')}</td><td>${q.pct===null?'—':surveyFmtPct(q.pct)}</td></tr>`).join('')||'<tr><td colspan="7" class="survey-empty">Sem perguntas avaliativas.</td></tr>';
   const val=document.getElementById('surveyValidationNote');if(val){val.className='survey-quality-note show '+(m.invalidTotal?'warn':'ok');val.innerHTML=m.invalidTotal?`<strong>${m.invalidTotal.toLocaleString('pt-BR')} resposta${m.invalidTotal===1?'':'s'} não reconhecida${m.invalidTotal===1?'':'s'}.</strong> Foram excluídas apenas do denominador da pergunta correspondente.`:'<strong>Validação concluída:</strong> todas as respostas das escalas foram reconhecidas.';}
@@ -6480,16 +7048,16 @@ function surveyRenderDetailed(rows){
 function surveyRender(){
   const rows=_surveyRows;if(!rows.length)return surveyRenderEmpty();const m=surveyBuildMetrics(rows),C=surveyColors();
   const total=document.getElementById('surveyKpiTotal');if(total)total.textContent=m.total.toLocaleString('pt-BR');const totalSub=document.getElementById('surveyKpiTotalSub');if(totalSub)totalSub.textContent=`${m.total.toLocaleString('pt-BR')} respostas`;
-  const sat=document.getElementById('surveyKpiSatisfaction');if(sat)sat.textContent=m.positivePct===null?'—':surveyFmtPct(m.positivePct);const satSub=document.getElementById('surveyKpiSatisfactionSub');if(satSub)satSub.textContent=m.validEvaluations?`${m.positiveEvaluations.toLocaleString('pt-BR')} positivas de ${m.validEvaluations.toLocaleString('pt-BR')} avaliações válidas`:'Sem avaliações válidas';
+  const sat=document.getElementById('surveyKpiSatisfaction');if(sat)sat.textContent=m.positivePct===null?'—':surveyFmtPct(m.positivePct);const satSub=document.getElementById('surveyKpiSatisfactionSub');if(satSub)satSub.textContent=m.validEvaluations?`${m.positiveEvaluations.toLocaleString('pt-BR')} positivas de ${m.validEvaluations.toLocaleString('pt-BR')} respostas de satisfação geral`:'Sem avaliações válidas';
   const st=document.getElementById('surveyKpiStrength'),sts=document.getElementById('surveyKpiStrengthSub');if(st)st.textContent=m.strength?surveyShortLabel(m.strength.label):'—';if(sts)sts.textContent=m.strength?`${surveyFmtPct(m.strength.pct)} de satisfação · ${m.strength.valid} respostas`:'Sem respostas válidas';
   const wk=document.getElementById('surveyKpiWeakness'),wks=document.getElementById('surveyKpiWeaknessSub');if(wk)wk.textContent=m.weakness?surveyShortLabel(m.weakness.label):'—';if(wks)wks.textContent=m.weakness?`${surveyFmtPct(m.weakness.pct)} de satisfação · ${m.weakness.valid} respostas`:'Sem respostas válidas';
   const dimBadge=document.getElementById('surveyDimensionCountBadge');if(dimBadge)dimBadge.textContent=`${m.qs.length} dimensão${m.qs.length===1?'':'ões'}`;const dimList=document.getElementById('surveyDimensionSummary');if(dimList)dimList.innerHTML=m.qs.length?m.qs.map((q,i)=>`<div class="survey-dimension-row"><span class="survey-dimension-icon">${surveyDimensionIcon(i)}</span><span class="survey-dimension-name">${escapeHtml(surveyShortLabel(q.label))}</span><span class="survey-dimension-progress"><span style="width:${(q.pct??0).toFixed(1)}%"></span></span><span class="survey-dimension-score">${q.pct===null?'—':surveyFmtPct(q.pct)}</span><span class="survey-dimension-base">(${q.valid.toLocaleString('pt-BR')} respostas)</span></div>`).join(''):'<div class="survey-empty">Nenhuma dimensão reconhecida.</div>';
   const intrLabels=['Nunca','Raras vezes','Às vezes','Frequentemente','Sempre'],intrCounts=[m.intrusive.never,m.intrusive.rarely,m.intrusive.sometimes,m.intrusive.frequently,m.intrusive.always],intrColors=['#10b981','#6366f1','#f5b51b','#f97316','#f05264'];const intrBadge=document.getElementById('surveyIntrusiveBaseBadge');if(intrBadge)intrBadge.textContent=`${m.intrusive.valid.toLocaleString('pt-BR')} respostas válidas`;const intrLeg=document.getElementById('surveyIntrusiveLegend');if(intrLeg)intrLeg.innerHTML=surveyLegendHtml(intrLabels,intrCounts,m.intrusive.valid,intrColors);surveyDestroyChart('intr');const intrCanvas=document.getElementById('surveyIntrusiveChart');if(intrCanvas)_surveyCharts.intr=new Chart(intrCanvas,{type:'doughnut',data:{labels:intrLabels,datasets:[{data:intrCounts,backgroundColor:intrColors,borderWidth:0,hoverOffset:4}]},options:{maintainAspectRatio:false,cutout:'62%',plugins:{legend:{display:false},tooltip:{callbacks:{label:c=>` ${c.label}: ${surveyFmtPct(surveyPct(c.raw,m.intrusive.valid))} (${c.raw})`}}}}});
   const agLabels=['Muito Positivo','Positivo','Neutro','Negativo','Muito Negativo'],agCounts=[rows.filter(r=>['muito positivo','muito positiva'].includes(surveyNorm(r.q8))).length,rows.filter(r=>['positivo','positiva'].includes(surveyNorm(r.q8))).length,m.agility.neu,rows.filter(r=>['negativo','negativa'].includes(surveyNorm(r.q8))).length,rows.filter(r=>['muito negativo','muito negativa'].includes(surveyNorm(r.q8))).length],agColors=['#10b981','#6366f1','#f5b51b','#f97316','#f05264'];const agBadge=document.getElementById('surveyAgilityBaseBadge');if(agBadge)agBadge.textContent=`${m.agility.valid.toLocaleString('pt-BR')} respostas válidas`;const agLeg=document.getElementById('surveyAgilityLegend');if(agLeg)agLeg.innerHTML=surveyLegendHtml(agLabels,agCounts,m.agility.valid,agColors);surveyDestroyChart('agi');const agCanvas=document.getElementById('surveyAgilityChart');if(agCanvas)_surveyCharts.agi=new Chart(agCanvas,{type:'doughnut',data:{labels:agLabels,datasets:[{data:agCounts,backgroundColor:agColors,borderWidth:0,hoverOffset:4}]},options:{maintainAspectRatio:false,cutout:'62%',plugins:{legend:{display:false},tooltip:{callbacks:{label:c=>` ${c.label}: ${surveyFmtPct(surveyPct(c.raw,m.agility.valid))} (${c.raw})`}}}}});
-  surveyRenderSuggestions(rows);surveyPopulateFilters(rows,m);surveyPopulateScenarioControls(rows);_surveyDetailedRows=[...rows];surveyRenderDetailed(_surveyDetailedRows);surveyRenderScenarioAnalysis();
+  surveyRenderSuggestions(rows);surveyPopulateFilters(rows,m);surveyPopulateScenarioControls(rows);_surveyDetailedRows=[...rows];surveyRenderDetailed(_surveyDetailedRows);surveyRenderQuestionCdCards();surveyRenderScenarioAnalysis();
 }
 function surveyRenderEmpty(){
-  Object.keys(_surveyCharts).forEach(surveyDestroyChart);['surveyKpiTotal','surveyKpiSatisfaction','surveyKpiStrength','surveyKpiWeakness'].forEach(id=>{const e=document.getElementById(id);if(e)e.textContent='—'});['surveyDimensionSummary','surveySuggestionsList'].forEach(id=>{const e=document.getElementById(id);if(e)e.innerHTML='<div class="survey-empty">Importe uma planilha para gerar esta análise.</div>'});['surveyCdBody','surveyCdMatrixBody','surveyThemeBody','surveyQuestionBody'].forEach(id=>{const e=document.getElementById(id);if(e)e.innerHTML='<tr><td colspan="8" class="survey-empty">Importe uma planilha para gerar esta análise.</td></tr>'});const h=document.getElementById('surveyCdMatrixHead');if(h)h.innerHTML='<tr><th>Dimensão \\ CD</th><th>—</th></tr>';const theme=document.getElementById('surveyThemeTotal');if(theme)theme.innerHTML='0<br><small>menções</small>';const pager=document.getElementById('surveySuggestionPagination');if(pager)pager.style.display='none';
+  Object.keys(_surveyCharts).forEach(surveyDestroyChart);['surveyKpiTotal','surveyKpiSatisfaction','surveyKpiStrength','surveyKpiWeakness'].forEach(id=>{const e=document.getElementById(id);if(e)e.textContent='—'});['surveyDimensionSummary','surveySuggestionsList','surveyGeneralCommentsList'].forEach(id=>{const e=document.getElementById(id);if(e)e.innerHTML='<div class="survey-empty">Importe uma planilha para gerar esta análise.</div>'});['surveyCdBody','surveyCdMatrixBody','surveyThemeBody','surveyQuestionBody'].forEach(id=>{const e=document.getElementById(id);if(e)e.innerHTML='<tr><td colspan="8" class="survey-empty">Importe uma planilha para gerar esta análise.</td></tr>'});const h=document.getElementById('surveyCdMatrixHead');if(h)h.innerHTML='<tr><th>Dimensão \\ CD</th><th>—</th></tr>';const theme=document.getElementById('surveyThemeTotal');if(theme)theme.innerHTML='0<br><small>menções</small>';const pager=document.getElementById('surveySuggestionPagination');if(pager)pager.style.display='none';const generalPager=document.getElementById('surveyGeneralCommentPagination');if(generalPager)generalPager.style.display='none';
 }
 
 function surveyDownloadCurrent(){
@@ -6517,6 +7085,8 @@ async function surveyExportPdfComplete(){
   const oldView=_surveyCurrentView;
   const oldShowAll=_surveySuggestionShowAll;
   const oldPage=_surveySuggestionPage;
+  const oldGeneralShowAll=_surveyGeneralCommentShowAll;
+  const oldGeneralPage=_surveyGeneralCommentPage;
   const originalBtn=btn?.innerHTML;
   const main=document.querySelector('.main-area');
   const oldScroll=main?.scrollTop||0;
@@ -6527,7 +7097,9 @@ async function surveyExportPdfComplete(){
 
     // Garante conteúdo completo antes de clonar o relatório.
     _surveySuggestionShowAll=true;
+    _surveyGeneralCommentShowAll=true;
     surveyRenderSuggestionPage();
+    surveyRenderGeneralCommentPage();
     page.classList.add('survey-pdf-mode');
     surveyFitFirstTenComments();
     await new Promise(r=>requestAnimationFrame(()=>requestAnimationFrame(r)));
@@ -6551,6 +7123,22 @@ async function surveyExportPdfComplete(){
     }
     clone.querySelector('#surveySuggestionToggle')?.remove();
     clone.querySelector('#surveySuggestionPagination')?.remove();
+
+    // No PDF, a pergunta 10 também exibe somente 10 comentários como amostra.
+    const printGeneralList=clone.querySelector('#surveyGeneralCommentsList');
+    if(printGeneralList){
+      [...printGeneralList.children].slice(10).forEach(el=>el.remove());
+    }
+    const printGeneralMeta=clone.querySelector('#surveyGeneralCommentMeta');
+    if(printGeneralMeta){
+      const generalTotal=_surveyGeneralCommentItems.length;
+      const shown=Math.min(10,generalTotal);
+      printGeneralMeta.textContent=generalTotal
+        ? `Amostra de ${shown} de ${generalTotal.toLocaleString('pt-BR')} comentário${generalTotal===1?'':'s'}`
+        : 'Nenhum comentário preenchido';
+    }
+    clone.querySelector('#surveyGeneralCommentToggle')?.remove();
+    clone.querySelector('#surveyGeneralCommentPagination')?.remove();
 
     // cloneNode não copia o bitmap de <canvas>. Converte cada gráfico para imagem somente no PDF.
     const sourceCanvases=[...page.querySelectorAll('canvas')];
@@ -6660,6 +7248,8 @@ async function surveyExportPdfComplete(){
     page.classList.remove('survey-pdf-mode');
     _surveySuggestionShowAll=oldShowAll;
     _surveySuggestionPage=oldPage;
+    _surveyGeneralCommentShowAll=oldGeneralShowAll;
+    _surveyGeneralCommentPage=oldGeneralPage;
     surveyRenderSuggestionPage();
     surveySetView(oldView);
     requestAnimationFrame(surveyFitFirstTenComments);
