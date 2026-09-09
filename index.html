@@ -6530,7 +6530,23 @@ async function surveyExportPdfComplete(){
     surveyRenderSuggestionPage();
     page.classList.add('survey-pdf-mode');
     surveyFitFirstTenComments();
-    await new Promise(r=>requestAnimationFrame(()=>requestAnimationFrame(r)));
+
+    // PDF fix: both dashboard views become visible only in PDF mode.
+    // Force Chart.js to recalculate canvas sizes before capturing them.
+    async function settleSurveyCharts(){
+      for(let pass=0;pass<3;pass++){
+        Object.values(_surveyCharts||{}).forEach(chart=>{
+          try{
+            chart?.resize?.();
+            chart?.update?.('none');
+          }catch(err){
+            console.warn('PDF chart settle warning:',err);
+          }
+        });
+        await new Promise(r=>requestAnimationFrame(()=>requestAnimationFrame(r)));
+      }
+    }
+    await settleSurveyCharts();
 
     const clone=page.cloneNode(true);
     clone.classList.add('survey-pdf-mode','survey-print-document');
@@ -6555,24 +6571,57 @@ async function surveyExportPdfComplete(){
     // cloneNode não copia o bitmap de <canvas>. Converte cada gráfico para imagem somente no PDF.
     const sourceCanvases=[...page.querySelectorAll('canvas')];
     const cloneCanvases=[...clone.querySelectorAll('canvas')];
-    sourceCanvases.forEach((canvas,i)=>{
+    for(let i=0;i<sourceCanvases.length;i++){
+      const canvas=sourceCanvases[i];
       const target=cloneCanvases[i];
-      if(!target)return;
+      if(!target)continue;
       try{
+        // If a chart was created while its view was hidden, its bitmap can be 0x0.
+        // Resize/update it now that PDF mode exposes both views.
+        let chart=null;
+        try{
+          chart=(window.Chart?.getChart?.(canvas))||Object.values(_surveyCharts||{}).find(c=>c?.canvas===canvas)||null;
+        }catch(e){}
+        if((canvas.width<2||canvas.height<2)&&chart){
+          chart.resize?.();
+          chart.update?.('none');
+          await new Promise(r=>requestAnimationFrame(()=>requestAnimationFrame(r)));
+        }
+
+        let dataUrl='';
+        if(canvas.width>=2&&canvas.height>=2){
+          dataUrl=chart?.toBase64Image?.('image/png',1)||canvas.toDataURL('image/png',1);
+        }
+
+        if(!dataUrl||dataUrl==='data:,'||!/^data:image\/png;base64,/.test(dataUrl)){
+          const fallback=document.createElement('div');
+          fallback.className='survey-print-chart-fallback';
+          fallback.textContent='Sem grafico disponivel para esta base.';
+          target.replaceWith(fallback);
+          console.warn('PDF chart fallback:',canvas.id||i,'canvas',canvas.width,canvas.height);
+          continue;
+        }
+
         const img=document.createElement('img');
-        img.src=canvas.toDataURL('image/png',1);
-        img.alt=canvas.getAttribute('aria-label')||'Gráfico do relatório';
+        img.src=dataUrl;
+        img.alt=canvas.getAttribute('aria-label')||'Grafico do relatorio';
         img.className='survey-print-chart';
+        img.setAttribute('width',String(canvas.width));
+        img.setAttribute('height',String(canvas.height));
         img.style.width='100%';
         img.style.height='auto';
         img.style.display='block';
+        if(canvas.width&&canvas.height)img.style.aspectRatio=`${canvas.width} / ${canvas.height}`;
         target.replaceWith(img);
       }catch(err){
-        console.warn('Não foi possível converter um gráfico para o PDF:',err);
+        console.warn('PDF chart conversion warning:',err);
+        const fallback=document.createElement('div');
+        fallback.className='survey-print-chart-fallback';
+        fallback.textContent='Sem grafico disponivel para esta base.';
+        target.replaceWith(fallback);
       }
-    });
+    }
 
-    // Remove elementos que só fazem sentido na interface interativa.
     clone.querySelectorAll('.survey-import-card,.survey-mode-tabs,.survey-view-tabs,.survey-data-toolbar,.survey-proto-tabs,.survey-header-tools,.survey-pagination,.survey-clear-btn,.survey-file-btn,.survey-demo-btn,.survey-export-btn,.survey-pdf-btn').forEach(el=>el.remove());
     clone.querySelectorAll('.survey-comment-list,.survey-themes-wrap,.survey-table-wrap').forEach(el=>{
       el.style.maxHeight='none';el.style.height='auto';el.style.overflow='visible';
@@ -6613,6 +6662,7 @@ async function surveyExportPdfComplete(){
         .survey-print-document .survey-card-sub,.survey-print-document .survey-comment-text,.survey-print-document .survey-theme-action{color:#475569!important;}
         .survey-print-document .survey-chart{height:auto!important;min-height:0!important;}
         .survey-print-chart{max-width:100%!important;max-height:64mm!important;object-fit:contain!important;margin:2px auto!important;break-inside:avoid!important;page-break-inside:avoid!important;}
+        .survey-print-chart-fallback{min-height:34mm;display:flex!important;align-items:center;justify-content:center;border:1px dashed #cbd5e1!important;border-radius:8px!important;background:#f8fafc!important;color:#64748b!important;font-size:7.5pt!important;text-align:center!important;padding:8px!important;box-sizing:border-box!important;break-inside:avoid!important;page-break-inside:avoid!important;}
         .survey-print-document .survey-table-wrap{overflow:visible!important;border:1px solid #e2e8f0!important;break-inside:auto!important;page-break-inside:auto!important;}
         .survey-print-document table{width:100%!important;border-collapse:collapse!important;font-size:6.6pt!important;}
         .survey-print-document thead{display:table-header-group!important;}
@@ -6644,9 +6694,28 @@ async function surveyExportPdfComplete(){
     printWin.document.querySelectorAll('details').forEach(d=>d.open=true);
 
     const images=[...printWin.document.images];
-    await Promise.all(images.map(img=>img.complete?Promise.resolve():new Promise(resolve=>{img.onload=img.onerror=resolve;})));
+    await Promise.all(images.map(img=>new Promise(resolve=>{
+      if(img.complete)return resolve(img.naturalWidth>0);
+      img.onload=()=>resolve(true);
+      img.onerror=()=>resolve(false);
+    })));
+
+    // Do not print until every chart image has actually decoded.
+    const chartImages=[...printWin.document.querySelectorAll('img.survey-print-chart')];
+    const chartStatus=await Promise.all(chartImages.map(async img=>{
+      try{
+        if(img.decode)await img.decode();
+        return img.naturalWidth>0&&img.naturalHeight>0;
+      }catch(e){
+        return false;
+      }
+    }));
+    if(chartStatus.some(ok=>!ok)){
+      throw new Error('PDF_CHART_IMAGE_LOAD_FAILED');
+    }
+
     if(printWin.document.fonts?.ready)await printWin.document.fonts.ready;
-    await new Promise(r=>setTimeout(r,180));
+    await new Promise(r=>setTimeout(r,260));
 
     printWin.focus();
     printWin.onafterprint=()=>{try{printWin.close();}catch(e){}};
