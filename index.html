@@ -3720,35 +3720,69 @@ function switchTab(tab) {
   });
 }
 
+async function withBusyButton(buttonId, busyLabel, work) {
+  const button = document.getElementById(buttonId);
+  const originalLabel = button.textContent;
+  button.disabled = true;
+  button.textContent = busyLabel;
+  button.setAttribute('aria-busy', 'true');
+  try {
+    return await work();
+  } finally {
+    button.disabled = false;
+    button.textContent = originalLabel;
+    button.removeAttribute('aria-busy');
+  }
+}
+
+function showAuthRequestError(error, action) {
+  console.error(`Falha ao ${action}:`, error);
+  showMsg(error?.message ? 'Erro: ' + error.message :
+    'Não foi possível concluir a operação. Verifique sua conexão e tente novamente.', 'error');
+}
+
 async function doForgot() {
   const email = document.getElementById('forgotEmail').value.trim();
   if (!email) return showMsg('Digite seu e-mail.', 'error');
-  const btn = document.getElementById('btnForgot');
-  btn.disabled = true; btn.textContent = 'Enviando...';
-  const { error } = await _sb.auth.resetPasswordForEmail(email, { redirectTo: window.location.href });
-  btn.disabled = false; btn.textContent = 'Enviar link de redefinição';
-  if (error) return showMsg('Erro: ' + error.message, 'error');
-  showMsg('✅ Link enviado! Verifique seu e-mail.', 'success');
+  try {
+    await withBusyButton('btnForgot', 'Enviando...', async () => {
+      const { error } = await _sb.auth.resetPasswordForEmail(email, {
+        redirectTo: window.location.href,
+      });
+      if (error) throw error;
+      showMsg('✅ Link enviado! Verifique seu e-mail.', 'success');
+    });
+  } catch (error) {
+    showAuthRequestError(error, 'solicitar redefinição de senha');
+  }
 }
 
 async function doResetPassword() {
-  const pass = document.getElementById('newPass').value;
-  const conf = document.getElementById('newPassConfirm').value;
-  if (!pass || !conf) return showMsg('Preencha os dois campos.', 'error');
-  if (pass.length < 6)  return showMsg('Mínimo 6 caracteres.', 'error');
-  if (pass !== conf)    return showMsg('As senhas não coincidem.', 'error');
-  const btn = document.getElementById('btnReset');
-  btn.disabled = true; btn.textContent = 'Salvando...';
-  const { error } = await _sb.auth.updateUser({ password: pass });
-  btn.disabled = false; btn.textContent = 'Salvar nova senha';
-  if (error) return showMsg('Erro: ' + error.message, 'error');
-  showMsg('✅ Senha redefinida! Entrando...', 'success');
-  setTimeout(async () => {
-    window.location.hash = '';
-    const { data: { session } } = await _sb.auth.getSession();
-    if (session) enterApp(session.user.email);
-    else switchTab('login');
-  }, 1500);
+  const password = document.getElementById('newPass').value;
+  const confirmation = document.getElementById('newPassConfirm').value;
+  if (!password || !confirmation) return showMsg('Preencha os dois campos.', 'error');
+  if (password.length < 6) return showMsg('Mínimo 6 caracteres.', 'error');
+  if (password !== confirmation) return showMsg('As senhas não coincidem.', 'error');
+  try {
+    await withBusyButton('btnReset', 'Salvando...', async () => {
+      const { error } = await _sb.auth.updateUser({ password });
+      if (error) throw error;
+      showMsg('✅ Senha redefinida! Entrando...', 'success');
+      setTimeout(async () => {
+        window.location.hash = '';
+        try {
+          const { data: { session } } = await _sb.auth.getSession();
+          if (session) enterApp(session.user.email);
+          else switchTab('login');
+        } catch (sessionError) {
+          console.error('Falha ao recuperar sessão:', sessionError);
+          switchTab('login');
+        }
+      }, 1500);
+    });
+  } catch (error) {
+    showAuthRequestError(error, 'redefinir senha');
+  }
 }
 
 async function doLogin() {
@@ -3793,15 +3827,18 @@ async function doLogin() {
 
 async function doSignup() {
   const email = document.getElementById('signupEmail').value.trim();
-  const pass  = document.getElementById('signupPass').value;
-  if (!email || !pass) return showMsg('Preencha todos os campos.', 'error');
-  if (pass.length < 6)  return showMsg('Mínimo 6 caracteres.', 'error');
-  const btn = document.getElementById('btnSignup');
-  btn.disabled = true; btn.textContent = 'Criando...';
-  const { error } = await _sb.auth.signUp({ email, password: pass });
-  btn.disabled = false; btn.textContent = 'Criar conta';
-  if (error) return showMsg('Erro: ' + error.message, 'error');
-  showMsg('Conta criada! Entre com seu e-mail e senha.', 'success');
+  const password = document.getElementById('signupPass').value;
+  if (!email || !password) return showMsg('Preencha todos os campos.', 'error');
+  if (password.length < 6) return showMsg('Mínimo 6 caracteres.', 'error');
+  try {
+    await withBusyButton('btnSignup', 'Criando...', async () => {
+      const { error } = await _sb.auth.signUp({ email, password });
+      if (error) throw error;
+      showMsg('Conta criada! Entre com seu e-mail e senha.', 'success');
+    });
+  } catch (error) {
+    showAuthRequestError(error, 'criar conta');
+  }
 }
 
 async function doLogout() {
@@ -5267,28 +5304,45 @@ function campaignFileName(group) {
   return `${camp}_${lot} - ${map[group]}.csv`;
 }
 
+function downloadCampaignCsv(filename, csvText) {
+  const blob = new Blob(['\ufeff' + csvText], { type: 'text/csv;charset=utf-8;' });
+  const url = URL.createObjectURL(blob);
+  const link = document.createElement('a');
+  link.href = url;
+  link.download = filename;
+  link.click();
+  setTimeout(() => URL.revokeObjectURL(url), 1000);
+}
+
 function exportCampaignCsv(group) {
-  const rows=_campaignGroups[group]||[];
-  if(!rows.length){toast('Este grupo não possui registros para exportar.','warn');return;}
-  // O arquivo final contém SOMENTE as três colunas solicitadas.
-  const csv=['Id Contato;Nome completo;Whatsapp',...rows.map(r=>[r.cnpj,r.nome,r.whats].map(campaignCsvEscape).join(';'))].join('\r\n');
-  const blob=new Blob(['\ufeff'+csv],{type:'text/csv;charset=utf-8;'});
-  const url=URL.createObjectURL(blob); const a=document.createElement('a');
-  a.href=url; a.download=campaignFileName(group); a.click();
-  setTimeout(()=>URL.revokeObjectURL(url),1000);
-  toast('CSV gerado: '+a.download,'success');
+  const rows = _campaignGroups[group] || [];
+  if (!rows.length) {
+    toast('Este grupo não possui registros para exportar.', 'warn');
+    return;
+  }
+  // O layout de saída mantém somente as três colunas exigidas pela campanha.
+  const header = 'Id Contato;Nome completo;Whatsapp';
+  const contents = rows.map(row => [row.cnpj, row.nome, row.whats]
+    .map(campaignCsvEscape).join(';'));
+  const filename = campaignFileName(group);
+  downloadCampaignCsv(filename, [header, ...contents].join('\r\n'));
+  toast('CSV gerado: ' + filename, 'success');
 }
 
 function exportCampaignReviewCsv() {
-  if(!_campaignReview.length){toast('Não há registros de revisão para exportar.','warn');return;}
-  const head=['Motivo','Detalhe','CNPJ original','Nome','Whatsapp','Filial','Canal'];
-  const lines=_campaignReview.map(r=>[r.motivo,r.detalhe,r.cnpj,r.nome,r.whatsapp,r.filial,r.canal].map(campaignCsvEscape).join(';'));
-  const csv=[head.join(';'),...lines].join('\r\n');
-  const blob=new Blob(['\ufeff'+csv],{type:'text/csv;charset=utf-8;'});
-  const url=URL.createObjectURL(blob); const a=document.createElement('a');
-  const camp=(document.getElementById('campGenName').value||'CAMPANHA').trim().replace(/\s+/g,'_');
-  const lot=(document.getElementById('campGenLot').value||'001').trim().padStart(3,'0');
-  a.href=url; a.download=`${camp}_${lot}_REVISAO.csv`; a.click(); setTimeout(()=>URL.revokeObjectURL(url),1000);
+  if (!_campaignReview.length) {
+    toast('Não há registros de revisão para exportar.', 'warn');
+    return;
+  }
+  const header = ['Motivo', 'Detalhe', 'CNPJ original', 'Nome', 'Whatsapp', 'Filial', 'Canal'];
+  const contents = _campaignReview.map(row => [
+    row.motivo, row.detalhe, row.cnpj, row.nome, row.whatsapp, row.filial, row.canal,
+  ].map(campaignCsvEscape).join(';'));
+  const campaign = (document.getElementById('campGenName').value || 'CAMPANHA')
+    .trim().replace(/\s+/g, '_');
+  const lot = (document.getElementById('campGenLot').value || '001')
+    .trim().padStart(3, '0');
+  downloadCampaignCsv(`${campaign}_${lot}_REVISAO.csv`, [header.join(';'), ...contents].join('\r\n'));
 }
 
 
@@ -5837,230 +5891,689 @@ function initCnpjPreview() {
 <script>
 const RB_SEED_HISTORY = [{"id": "ref-1", "campaign": "Bons Negócios", "date": "", "origin": "Exemplo enviado", "file": "Bons Negocios  26.10(1).xlsx · itens", "items": [{"sku": "3198165220", "name": "DUCHA TELESCOPICA PORTATIL DTP220 VONDER"}, {"sku": "3198212010", "name": "ENGATE RAPIDO 1/2\" C/ BLOQUEADOR VDP"}, {"sku": "3198012010", "name": "ENGATE RAPIDO 1/2\" C/BLOQUEADOR VONDER"}, {"sku": "3198212002", "name": "ENGATE RAPIDO 1/2\" PASSAGEM LIVRE VDP"}, {"sku": "3198112002", "name": "ENGATE RAPIDO 1/2\"ALUM PASSAGEM LIVRE VD"}, {"sku": "3198212034", "name": "ENGATE RAPIDO 3/4\" PASSAGEM LIVRE VDP"}, {"sku": "3198012034", "name": "ENGATE RAPIDO 3/4\" PASSAGEM LIVRE VONDER"}, {"sku": "3198112104", "name": "ESGUICHO PLAST 6 FUNCOES JG C/ACES VONDE"}, {"sku": "3198012107", "name": "ESGUICHO PLAST 7 FUNCOES VONDER"}, {"sku": "3198012108", "name": "ESGUICHO PLAST 8 FUNCOES C/CONECT VONDER"}, {"sku": "3198012227", "name": "ESGUICHO PLAST MULTIPLO RETO ER 227 VOND"}, {"sku": "6864130001", "name": "LAVADORA A.PRESSAO LAV1300 127V VONDER"}, {"sku": "6864130002", "name": "LAVADORA A.PRESSAO LAV1300 220V VONDER"}, {"sku": "6864135001", "name": "LAVADORA A.PRESSAO LAV1350 127V VONDER"}, {"sku": "6864135002", "name": "LAVADORA A.PRESSAO LAV1350 220V VONDER"}, {"sku": "6864160001", "name": "LAVADORA A.PRESSAO LAV1600 127V VONDER"}, {"sku": "6864160002", "name": "LAVADORA A.PRESSAO LAV1600 220V VONDER"}, {"sku": "6864160220", "name": "LAVADORA A.PRESSAO LAV1600I 220V VONDER"}, {"sku": "6864200127", "name": "LAVADORA A.PRESSAO LAV2000 127V VONDER"}, {"sku": "6864200220", "name": "LAVADORA A.PRESSAO LAV2000 220V VONDER"}, {"sku": "6864203127", "name": "LAVADORA A.PRESSAO LAV2030I 127V VONDER"}, {"sku": "6864203220", "name": "LAVADORA A.PRESSAO LAV2030I 220V VONDER"}, {"sku": "6864220220", "name": "LAVADORA A.PRESSAO LAV2200I 220V VONDER"}, {"sku": "6864222220", "name": "LAVADORA A.PRESSAO LAV2220I 220V VONDER"}, {"sku": "6864230220", "name": "LAVADORA A.PRESSAO LAV2300I 220V VONDER"}, {"sku": "6864360000", "name": "LAVADORA ALTA PRESSAO GAS LGV 3600 VONDE"}, {"sku": "6864158127", "name": "LAVADORA+ASPIRADOR 2EM1 LAV1580 127V VD"}, {"sku": "6864158220", "name": "LAVADORA+ASPIRADOR 2EM1 LAV1580 220V VD"}, {"sku": "3198001000", "name": "ESGUICHO METALICO EMBOR EMP1000 VD PLUS"}, {"sku": "3198550000", "name": "ESGUICHO METALICO EMP550 VONDER PLUS"}, {"sku": "3198350000", "name": "ESGUICHO METALICO EMP350 VONDER PLUS"}, {"sku": "3198034012", "name": "TEMPORIZADOR MANUAL P/IRRIGACAO VONDER"}]}, {"id": "ref-2", "campaign": "Bons Negócios", "date": "", "origin": "Exemplo enviado", "file": "BN 04.11 - itens(1).xlsx · BN 04.11", "items": [{"sku": "3540500030", "name": "MOCHILA P/FERRAM BASE BORRACHA MOV 300 V"}, {"sku": "3540500020", "name": "MOCHILA P/FERRAMENTAS MOV 200 VONDER"}, {"sku": "3540500040", "name": "MOCHILA P/FERRAMENTAS MOV 400 VONDER"}, {"sku": "3540500025", "name": "MOCHILA P/FERRAMENTAS MOV 250 VONDER"}, {"sku": "3540500070", "name": "MOCHILA P/ FERRAMENTAS MOV 700 VONDER"}, {"sku": "3540500065", "name": "MOCHILA P/FERRAMENTAS MOV 650 VDP"}, {"sku": "3540500080", "name": "MOCHILA P/ FERRAMENTAS MOV 800 VDP"}, {"sku": "3540500050", "name": "MOCHILA P/FERRAMENTAS C/ RODA MOV 500 VD"}, {"sku": "3540500022", "name": "MOCHILA EXECUTIVA MOV 220 VONDER"}, {"sku": "6109545000", "name": "MALETA ANTI-IMPACTO C/RODA MAI545 VONDER"}, {"sku": "6109620000", "name": "MALETA ANTI-IMPACTO C/RODA MAI620 VONDER"}, {"sku": "6109415000", "name": "MALETA ANTI-IMPACTO MAI415 VONDER"}, {"sku": "6109570000", "name": "MALETA ANTI-IMPACTO MAI570 VONDER"}, {"sku": "6109345000", "name": "MALETA ANTI-IMPACTO MAI345 VONDER"}, {"sku": "3599455000", "name": "MALETA P/FERRAMENTAS MFV455 PRATA VONDER"}, {"sku": "3599931000", "name": "MALETA P/FERRAMENTAS MFV931 PRETA VONDER"}, {"sku": "3599957300", "name": "MALETA P/FERRAMENTAS MFV957 PEQ PRETA VD"}, {"sku": "6109000545", "name": "MALETA ANTI-IMPACTO MIV545 VONDER"}, {"sku": "6109000970", "name": "MALETA ANTI-IMPACTO MIV 970 VONDER"}, {"sku": "6109270000", "name": "MALETA ANTI-IMPACTO MAI270 VONDER"}, {"sku": "3540300005", "name": "BOLSA EM LONA BL 005 VONDER"}, {"sku": "3540432430", "name": "BOLSA EM LONA 430X240X300MM BL 017 VD"}, {"sku": "3540402030", "name": "BOLSA EM LONA 400X200X300MM BL 016 VD"}, {"sku": "3540412128", "name": "BOLSA EM LONA 410X210X280MM BL 128 VD"}, {"sku": "3540300070", "name": "BOLSA EM LONA BL 070 VONDER"}, {"sku": "3540300010", "name": "BOLSA EM LONA BL 010 VONDER"}, {"sku": "3540300008", "name": "BOLSA EM LONA BL 008 VONDER"}, {"sku": "3540300006", "name": "BOLSA ELETRICISTA EM LONA BE 006 VONDER"}]}, {"id": "ref-3", "campaign": "Bons Negócios", "date": "", "origin": "Exemplo enviado", "file": "BN 10.11 - itens(1).xlsx · itens 10.11 vonder", "items": [{"sku": "6864101020", "name": "ASPIRADOR DE PO/LIQUIDOS APV1010 220V VD"}, {"sku": "6864369020", "name": "ASPIRADOR DE PO/LIQUIDOS APV3690 220V VD"}, {"sku": "6864101010", "name": "ASPIRADOR DE PO/LIQUIDOS APV1010 127V VD"}, {"sku": "6864160230", "name": "ASPIRADOR DE PO/LIQUIDO APV1600 220V VDP"}, {"sku": "6864246020", "name": "ASPIRADOR DE PO/LIQUIDOS APV2460 220V VD"}, {"sku": "6864123020", "name": "ASPIRADOR DE PO/LIQUIDOS APV1230 220V VD"}, {"sku": "6864135010", "name": "ASPIRADOR DE PO APV1350TURBO 127V VONDER"}, {"sku": "6864248020", "name": "ASPIRADOR DE PO/LIQUIDOS APV2480 220V VD"}, {"sku": "6864135020", "name": "ASPIRADOR DE PO APV1350TURBO 220V VONDER"}, {"sku": "6864160127", "name": "ASPIRADOR DE PO/LIQUIDO APV1600 127V VDP"}, {"sku": "6864123010", "name": "ASPIRADOR DE PO/LIQUIDOS APV1230 127V VD"}, {"sku": "6864101820", "name": "ASPIRADOR DE PO/LIQUIDOS APV1018 220V VD"}, {"sku": "6864158220", "name": "LAVADORA+ASPIRADOR 2EM1 LAV1580 220V VD"}, {"sku": "6864158127", "name": "LAVADORA+ASPIRADOR 2EM1 LAV1580 127V VD"}, {"sku": "6864120230", "name": "ASPIRADOR DE PO APV1200 220V VONDER"}, {"sku": "6864101810", "name": "ASPIRADOR DE PO/LIQUIDOS APV1018 127V VD"}, {"sku": "6864120127", "name": "ASPIRADOR DE PO APV1200 127V VONDER"}, {"sku": "6864146020", "name": "ASPIRADOR DE PO/LIQUIDOS APV1460 220V VD"}, {"sku": "6864143520", "name": "ASPIRADOR DE PO/LIQUIDOS APV1435 220V VD"}]}, {"id": "ref-4", "campaign": "Bons Negócios", "date": "", "origin": "Exemplo enviado", "file": "BN 10.11 - itens(1).xlsx · 05.11 Grandes marcas", "items": [{"sku": "1641793020", "name": "ADESIVO INSTANTÂNEO 793 20G – TEKBOND"}, {"sku": "3062370055", "name": "ALIC UNIVERSAL 8\" 3370055 – ROBUS"}, {"sku": "1655016010", "name": "ARALDITE HOBBY 10MIN BISN 16G – TEK BOND"}, {"sku": "7499000018", "name": "CATRACA P/ARAME LISO ZZ-60R/12.70 – CACULA"}, {"sku": "1699472001", "name": "CIMENTO VIPAFIX 1KG – VIPAL"}, {"sku": "7421256013", "name": "ELETRODO OK 60.13 2,50MM SERRALHEIRO – ESA"}, {"sku": "7421326013", "name": "ELETRODO OK 60.13 3,25MM SERRALHEIRO – ESA"}, {"sku": "1037011805", "name": "FITA ISOL 18MMX05M IMPERIAL – 3M"}, {"sku": "1037011810", "name": "FITA ISOL 18MMX10M IMPERIAL – 3M"}, {"sku": "1037011820", "name": "FITA ISOL 18MMX20M IMPERIAL – 3M"}, {"sku": "4380018000", "name": "LIMA P/ENXADA 8\" – K&F"}, {"sku": "4380028000", "name": "LIMA P/ENXADA 8\" NICHOLSON"}, {"sku": "5145000300", "name": "LUBRIFICANTE SPRAY 300ML MULTIUSO – WD-40"}, {"sku": "6045267010", "name": "MARTELETE ROT/ROMP HR2670 127V – MAKITA"}, {"sku": "6045267020", "name": "MARTELETE ROT/ROMP HR2670 220V – MAKITA"}, {"sku": "3217505000", "name": "REGULADOR GAS BLINDADO 505/01 – ALIANÇA"}]}, {"id": "ref-5", "campaign": "Bons Negócios", "date": "", "origin": "Exemplo enviado", "file": "BN 10.11 - itens(1).xlsx · 09.11 Grandes marcas", "items": [{"sku": "4636410122", "name": "LAM BIM NF-24DTS-NF1224B-CRESCENT/NICHOL"}, {"sku": "3817510000", "name": "TRENA LUFKIN 3M C/TRAVA L-510CME"}, {"sku": "3817516000", "name": "TRENA LUFKIN 5M C/TRAVA L-516CME"}, {"sku": "6265104000", "name": "JIMO CUPIM INCOLOR 400ML AEROSSOL"}, {"sku": "7423601302", "name": "ELETRODO E6013 2,50MM WELD 740617   ESAB"}, {"sku": "7423601303", "name": "ELETRODO E6013 3,25MM WELD 740616   ESAB"}, {"sku": "6047090110", "name": "ESMERILHADEIRA ANG. M0901B 127V MAKITA"}, {"sku": "6047090120", "name": "ESMERILHADEIRA ANG. M0901B 220V MAKITA"}, {"sku": "1284412781", "name": "DISCO CORTE 115,0X1,0X22,23 STANDARD NOR"}, {"sku": "1232003600", "name": "LIXA FERRO K-246 G 36 NORTON"}, {"sku": "1232004000", "name": "LIXA FERRO K-246 G 40 NORTON"}, {"sku": "1232005000", "name": "LIXA FERRO K-246 G 50 NORTON"}, {"sku": "1232006000", "name": "LIXA FERRO K-246 G 60 NORTON"}, {"sku": "1232008000", "name": "LIXA FERRO K-246 G 80 NORTON"}, {"sku": "1232010000", "name": "LIXA FERRO K-246 G100 NORTON"}, {"sku": "1232012000", "name": "LIXA FERRO K-246 G120 NORTON"}, {"sku": "1232015000", "name": "LIXA FERRO K-246 G150 NORTON"}, {"sku": "1232018000", "name": "LIXA FERRO K-246 G180 NORTON"}, {"sku": "1232022000", "name": "LIXA FERRO K-246 G220 NORTON"}, {"sku": "1232024000", "name": "LIXA FERRO K-246 G240 NORTON"}, {"sku": "1232028000", "name": "LIXA FERRO K-246 G280 NORTON"}, {"sku": "1232032000", "name": "LIXA FERRO K-246 G320 NORTON"}, {"sku": "1614002800", "name": "CASCOLA       S/TOLUOL  2,8 KG    HENKEL"}, {"sku": "1621100200", "name": "DUREPOXI 100G  2 HORAS           LOCTITE"}, {"sku": "3063632015", "name": "CH COMBINADA JG  6A32MM 15PCS GEDORE RED"}, {"sku": "3022301832", "name": "ALIC PRESSAO 10\"  810/10 GEDORE RED"}, {"sku": "3054212832", "name": "SOQ ESTR ENC  1/2\" JG 08A32MM 20PC ROBU"}, {"sku": "1641002280", "name": "BOR SILIC ACETICO 256G TRANSP   TEK BOND"}, {"sku": "1639000030", "name": "ADESIVO VEDA JUNTAS JMD 73G           3M"}, {"sku": "7060097510", "name": "ABAFADOR DE RUIDOS CONCHA 20DB MUFFLER3M"}]}, {"id": "ref-6", "campaign": "Oferta Relâmpago", "date": "", "origin": "Exemplo enviado", "file": "Oferta Relampago 29.10(1).xlsx · 26.10", "items": [{"sku": "6220110127", "name": "MAQ DE PINT AIRLESS MPA1010 127V VONDE"}, {"sku": "6220110220", "name": "MAQ DE PINT AIRLESS MPA1010 220V VONDE"}, {"sku": "6220001127", "name": "MAQ DE PINT AIRLESS MPA120 1,2HP 127V VD"}, {"sku": "6220001220", "name": "MAQ DE PINT AIRLESS MPA120 1,2HP 220V VD"}, {"sku": "6220300220", "name": "MAQ DE PINT AIRLESS MPA300 3,0HP 220V VD"}, {"sku": "6220350220", "name": "MAQ DE PINT AIRLESS MPA350B 3,5HP 220V V"}, {"sku": "6220540220", "name": "MAQ DE PINT AIRLESS MPA540B 5,4HP 220V V"}, {"sku": "6220200100", "name": "PISTOLA CANECA ALUMINIO PSV100 VONDER"}, {"sku": "6220200200", "name": "PISTOLA CANECA ALUMINIO PSV200 VONDER"}, {"sku": "6220600000", "name": "PISTOLA GRAVIDADE PGV600 VONDER"}, {"sku": "6220125000", "name": "PISTOLA GRAVIDADE PRECISAO PGV125 VONDER"}, {"sku": "6220090000", "name": "PISTOLA MOD-PDV90 750ML CANECA PLAST VD"}, {"sku": "6220900000", "name": "PISTOLA MOD-PPV90 600ML CANECA PLAST VD"}, {"sku": "6220200000", "name": "PISTOLA P/TANQUE PINTURA PTV200 VONDER"}, {"sku": "6220600127", "name": "PISTOLA PINTURA ELET PEV600 127V VONDER"}, {"sku": "6220600220", "name": "PISTOLA PINTURA ELET PEV600 220V VONDER"}, {"sku": "6220750127", "name": "PISTOLA PINTURA ELET PEV750 127 C/RODA V"}, {"sku": "6220750220", "name": "PISTOLA PINTURA ELET PEV750 220 C/RODA V"}, {"sku": "6220083000", "name": "PISTOLA PROJETORA DE TEXTURA PTV83 VONDE"}, {"sku": "6220026010", "name": "TANQUE 10L C/PISTOLA P/PINTURA VONDER"}, {"sku": "6220400127", "name": "PISTOLA PINTURA ELET PEV400 127V VONDER"}, {"sku": "6220400220", "name": "PISTOLA PINTURA ELET PEV400 220V VONDER"}]}, {"id": "ref-7", "campaign": "Oferta Relâmpago", "date": "", "origin": "Exemplo enviado", "file": "Oferta Relampago 06.11(1).xlsx · OR 06.11", "items": [{"sku": "1014105015", "name": "FITA ANTIDERRAP 50MMX15M PRETA VONDER"}, {"sku": "1014105005", "name": "FITA ANTIDERRAP 50MMX 5M PRETA VONDER"}, {"sku": "1014305005", "name": "FITA ANTIDERRAP 50MMX 5M TRANSP VONDER"}, {"sku": "1014305015", "name": "FITA ANTIDERRAP 50MMX15M TRANSP VONDER"}, {"sku": "1014205015", "name": "FITA ANTIDERRAP 50MMX15M CINZA VONDER"}, {"sku": "1014205005", "name": "FITA ANTIDERRAP 50MMX 5M CINZA VONDER"}, {"sku": "1137192013", "name": "FITA ISOL 19MMX20M PRETA VONDER"}, {"sku": "1137192071", "name": "FITA ISOL 19MMX20M PRETA VONDER PLUS"}, {"sku": "1137191013", "name": "FITA ISOL 19MMX10M PRETA VONDER"}, {"sku": "1137190513", "name": "FITA ISOL 19MMX05M PRETA VONDER"}, {"sku": "1137191071", "name": "FITA ISOL 19MMX10M PRETA VONDER PLUS"}, {"sku": "1137190571", "name": "FITA ISOL 19MMX05M PRETA VONDER PLUS"}, {"sku": "1137191023", "name": "FITA ISOL 19MMX10M BRANCA VONDER"}, {"sku": "1137191063", "name": "FITA ISOL 19MMX10M VERMELHA VONDER"}, {"sku": "1137191033", "name": "FITA ISOL 19MMX10M AZUL VONDER"}, {"sku": "1137191043", "name": "FITA ISOL 19MMX10M VERDE VONDER"}, {"sku": "1137191053", "name": "FITA ISOL 19MMX10M AMARELA VONDER"}, {"sku": "1065504301", "name": "FITA DEMARC ADESIV 48MMX30M AMARELA VD"}, {"sku": "1065504372", "name": "FITA DEMARC ADESIV 48MMX30M ZEBRADA VD"}, {"sku": "1065504391", "name": "FITA DEMARC ADESIV 48MMX30M VERMELHA VD"}, {"sku": "1065504371", "name": "FITA DEMARC ADESIV 48MMX30M PRETA VONDER"}, {"sku": "1065504321", "name": "FITA DEMARC ADESIV 48MMX30M BRANCA VD"}, {"sku": "1065504311", "name": "FITA DEMARC ADESIV 48MMX30M AZUL VONDER"}, {"sku": "1065504381", "name": "FITA DEMARC ADESIV 48MMX30M VERDE VONDER"}, {"sku": "1065100030", "name": "FITA DEMARC ADESIV 100MMX30M AMARELA VD"}, {"sku": "1065100230", "name": "FITA DEMARC ADESIV 100MMX30M ZEBRADA VD"}, {"sku": "1065100130", "name": "FITA DEMARC ADESIV 100MMX30M VERMELHA VD"}, {"sku": "1055019002", "name": "FITA DUPLA FACE ACRILICA 19MMX02M VONDER"}, {"sku": "1055012002", "name": "FITA DUPLA FACE ACRILICA 12MMX02M VONDER"}, {"sku": "1055012020", "name": "FITA DUPLA FACE ACRILICA 12MMX20M VONDER"}, {"sku": "1055019020", "name": "FITA DUPLA FACE ACRILICA 19MMX20M VONDER"}, {"sku": "1055009002", "name": "FITA DUPLA FACE ACRILICA 09MMX02M VONDER"}, {"sku": "1055009020", "name": "FITA DUPLA FACE ACRILICA 09MMX20M VONDER"}]}];
 /* Robô OVD: módulo client-side, integrado ao menu e sessão do Orbit. */
-const RB_MIN_REVENUE=300000;
-const RB_STORAGE_KEY='ovd_robot_history_v1';
-const rbState={source:[],file:'',campaign:'BN',family:'',candidateIndex:0,candidates:[],current:[],skipped:0,period:'',info:''};
-const rbMoney=n=>new Intl.NumberFormat('pt-BR',{style:'currency',currency:'BRL',maximumFractionDigits:2}).format(n||0);
-const rbShortMoney=n=>new Intl.NumberFormat('pt-BR',{style:'currency',currency:'BRL',maximumFractionDigits:0}).format(n||0);
-const rbEsc=x=>String(x??'').replace(/[&<>"']/g,c=>({'&':'&amp;','<':'&lt;','>':'&gt;','"':'&quot;',"'":'&#39;'}[c]));
-const rbNorm=x=>String(x??'').normalize('NFD').replace(/[\u0300-\u036f]/g,'').toLowerCase().replace(/[^a-z0-9]/g,'');
-function rbNotify(text,type='success'){if(typeof toast==='function')toast(text,type);else alert(text)}
-function rbSavedHistory(){try{const val=JSON.parse(localStorage.getItem(RB_STORAGE_KEY)||'[]');return Array.isArray(val)?val:[]}catch{return []}}
-function rbStoreHistory(records){try{localStorage.setItem(RB_STORAGE_KEY,JSON.stringify(records.slice(0,60)));return true}catch{rbNotify('Não foi possível salvar o histórico neste navegador.','warn');return false}}
-function rbAllHistory(){return [...rbSavedHistory(),...RB_SEED_HISTORY]}
-function rbPreviouslyUsed(){const s=new Set();for(const event of rbAllHistory())for(const item of event.items||[])s.add(String(item.sku));return s}
-function rbNumeric(value){
- if(typeof value==='number')return Number.isFinite(value)?value:NaN;
- let v=String(value??'').trim().replace(/\s|R\$/gi,'').replace(/[−–]/g,'-');if(!v)return NaN;
- const comma=v.lastIndexOf(','),dot=v.lastIndexOf('.');
- if(comma>=0 && dot>=0){v=comma>dot?v.replace(/\./g,'').replace(',','.'):v.replace(/,/g,'')}
- else if(comma>=0){v=v.replace(/\./g,'').replace(',','.')}
- else if((v.match(/\./g)||[]).length>1){v=v.replace(/\./g,'')}
- return Number(v);
+/*
+ * Robô de Seleção de Produtos — módulo do Orbit Analytics.
+ * As funções rb* são a API pública usada pelos eventos do HTML existente.
+ * A lógica de negócio é mantida separada do DOM, da importação e da exportação.
+ */
+const RB_MIN_REVENUE = 300000;
+const RB_STORAGE_KEY = 'ovd_robot_history_v1';
+const RB_MAX_HISTORY_RECORDS = 60;
+const RB_MAX_FILE_SIZE = 20 * 1024 * 1024;
+const RB_CAMPAIGNS = Object.freeze({
+  BN: { name: 'Bons Negócios', min: 15, normal: 20, max: 40, defaultQuantity: 25 },
+  OR: { name: 'Oferta Relâmpago', min: 10, normal: 10, max: 70, defaultQuantity: 20 },
+});
+
+const rbState = {
+  source: [], file: '', campaign: 'BN', family: '',
+  candidateIndex: 0, candidates: [], current: [],
+  skipped: 0, period: '', info: '',
+};
+
+const rbGetElement = id => document.getElementById(id);
+const rbSumRevenue = products => products.reduce((total, product) => total + product.revenue, 0);
+const rbCampaignSettings = () => RB_CAMPAIGNS[rbState.campaign];
+const rbMoney = amount => new Intl.NumberFormat('pt-BR', {
+  style: 'currency', currency: 'BRL', maximumFractionDigits: 2,
+}).format(amount || 0);
+const rbShortMoney = amount => new Intl.NumberFormat('pt-BR', {
+  style: 'currency', currency: 'BRL', maximumFractionDigits: 0,
+}).format(amount || 0);
+const rbEsc = value => String(value ?? '').replace(/[&<>"']/g, character => ({
+  '&': '&amp;', '<': '&lt;', '>': '&gt;', '"': '&quot;', "'": '&#39;',
+})[character]);
+const rbNorm = value => String(value ?? '').normalize('NFD')
+  .replace(/[\u0300-\u036f]/g, '').toLowerCase().replace(/[^a-z0-9]/g, '');
+
+function rbNotify(message, type = 'success') {
+  if (typeof toast === 'function') toast(message, type);
+  else alert(message);
 }
-function rbColumn(header,possible){const keys=header.map(rbNorm);return keys.findIndex(h=>possible.some(p=>h===p||h.includes(p)))}
-function rbParseWorkbook(wb){
- let best=null;
- for(const sheetName of wb.SheetNames){
-  const table=XLSX.utils.sheet_to_json(wb.Sheets[sheetName],{header:1,defval:'',raw:true,blankrows:false});
-  for(let i=0;i<Math.min(30,table.length);i++){
-   const headings=(table[i]||[]).map(x=>String(x??''));
-   const cols={sku:rbColumn(headings,['itemsku','sku','codigoproduto','codigodoitem','codigo']),brand:rbColumn(headings,['marca']),group:rbColumn(headings,['grupo','familia']),category:rbColumn(headings,['categoria','linha']),revenue:rbColumn(headings,['fatliquidoperiodoselecionado','faturamentoliquido','fatliquido','receitaliquida','faturamento','receita']),description:rbColumn(headings,['descricao','nomeproduto','produto'])};
-   const score=['sku','brand','group','category','revenue'].filter(k=>cols[k]>=0).length;
-   if(score===5){best={sheetName,table,row:i,cols};break}
+
+// Persistência local: falhas no armazenamento não interrompem a seleção.
+function rbSavedHistory() {
+  try {
+    const saved = JSON.parse(localStorage.getItem(RB_STORAGE_KEY) || '[]');
+    return Array.isArray(saved) ? saved : [];
+  } catch {
+    return [];
   }
-  if(best)break;
- }
- if(!best)throw new Error('Colunas obrigatórias não encontradas. Use o relatório do BI com Item SKU, Marca, Grupo, Categoria e Fat. Líquido Período Selecionado.');
- const map=new Map();let duplicates=0,invalid=0;
- for(let i=best.row+1;i<best.table.length;i++){
-  const row=best.table[i]||[],c=best.cols;let raw=String(row[c.sku]??'').trim();
-  if(!raw)continue;
-  const parts=raw.match(/^([^\s]+)\s+-\s+(.+)$/);
-  let sku=String(parts?parts[1]:raw).trim().replace(/\.0$/,'');
-  const name=String(row[c.description]|| (parts?parts[2]:'') || sku).trim();
-  const brand=String(row[c.brand]??'').trim();const group=String(row[c.group]??'').trim();const category=String(row[c.category]??'').trim();
-  const revenue=rbNumeric(row[c.revenue]);
-  if(!sku||!brand||!group||!category||!Number.isFinite(revenue)||revenue<=0){invalid++;continue}
-  const product={sku,name,brand,group,category,revenue};
-  if(map.has(sku)){duplicates++;if(revenue>map.get(sku).revenue)map.set(sku,product)}else map.set(sku,product);
- }
- if(!map.size)throw new Error('Nenhum produto com faturamento válido encontrado no relatório.');
- return {rows:[...map.values()],duplicates,invalid,sheetName:best.sheetName};
 }
-function rbInvalidate(){rbState.candidates=[];rbState.current=[];rbState.candidateIndex=0;document.getElementById('rbResults').hidden=true;document.getElementById('rbEmpty').hidden=false}
-function rbSetCampaign(kind){
- rbState.campaign=kind;document.getElementById('rbBnBtn').classList.toggle('active',kind==='BN');document.getElementById('rbOrBtn').classList.toggle('active',kind==='OR');
- const qty=document.getElementById('rbQty');qty.min=kind==='BN'?'15':'10';qty.max=kind==='BN'?'40':'70';qty.value=kind==='BN'?'25':'20';
- document.getElementById('rbRuleLabel').textContent=kind==='BN'?'BN: 20–40 itens · exceção 15–19 · R$ 300 mil selecionados':'OR: 10–70 itens · R$ 300 mil no agrupamento completo';document.getElementById('rbRevenueExplanation').textContent=kind==='BN'?'BN: o mínimo de R$ 300 mil considera somente os SKUs selecionados após os filtros.':'Oferta Relâmpago: os R$ 300 mil são verificados em todos os produtos da mesma combinação Grupo + Categoria + Marca, após os filtros; o valor dos SKUs selecionados também será exibido.';
- rbInvalidate();
-}
-function rbControlsChanged(){rbInvalidate()}
-function rbRefreshSelectors(){
- const group=document.getElementById('rbGroup'),cat=document.getElementById('rbCategory'),brand=document.getElementById('rbBrand');
- const selected={group:group.value,category:cat.value,brand:brand.value};
- const values=(field,rows)=>[...new Set(rows.map(p=>p[field]))].sort((a,b)=>a.localeCompare(b,'pt-BR'));
- function fill(control,items,label,keep){control.innerHTML='<option value="">'+label+'</option>'+items.map(x=>`<option value="${rbEsc(x)}">${rbEsc(x)}</option>`).join('');if(items.includes(keep))control.value=keep}
- fill(group,values('group',rbState.source),'Todos os grupos',selected.group);
- const subset1=rbState.source.filter(p=>!group.value||p.group===group.value);
- fill(cat,values('category',subset1),'Todas as categorias',selected.category);
- const subset2=subset1.filter(p=>!cat.value||p.category===cat.value);
- fill(brand,values('brand',subset2),'Todas as marcas',selected.brand);
-}
-function rbFilterChanged(field){
- if(field==='group'){document.getElementById('rbCategory').value='';document.getElementById('rbBrand').value=''}
- if(field==='category')document.getElementById('rbBrand').value='';
- rbRefreshSelectors();rbInvalidate();
-}
-function rbClearFilters(){for(const id of ['rbGroup','rbCategory','rbBrand'])document.getElementById(id).value='';rbRefreshSelectors();rbInvalidate()}
-async function rbLoadFile(ev){
- const file=ev.target.files?.[0];if(!file)return;
- if(!/\.(xlsx|xls)$/i.test(file.name)){rbNotify('Importe um arquivo .xlsx ou .xls.','error');return}
- if(file.size>20*1024*1024){rbNotify('O limite permitido é de 20 MB.','error');return}
- if(typeof XLSX==='undefined'){rbNotify('O leitor Excel não está disponível. Verifique sua conexão.','error');return}
- try{
-  const wb=XLSX.read(await file.arrayBuffer(),{type:'array'});const parsed=rbParseWorkbook(wb);
-  rbState.source=parsed.rows;rbState.file=file.name;rbState.skipped=parsed.invalid;
-  document.getElementById('rbFileText').textContent=file.name;
-  document.getElementById('rbFileDetail').textContent=`${parsed.rows.length.toLocaleString('pt-BR')} SKUs únicos · aba ${parsed.sheetName}`;
-  document.getElementById('rbImportNote').textContent=`Importação concluída: ${parsed.rows.length.toLocaleString('pt-BR')} SKUs válidos; ${parsed.duplicates} duplicados removidos; ${parsed.invalid} linhas inválidas descartadas. Confirme que o relatório é do mês anterior completo.`;
-  rbClearFilters();rbNotify('Relatório importado. Clique em Gerar sugestão para iniciar a análise.');
- }catch(e){rbState.source=[];rbState.file='';rbInvalidate();rbRefreshSelectors();document.getElementById('rbFileText').textContent='Clique para selecionar um arquivo Excel';document.getElementById('rbFileDetail').textContent='.xlsx / .xls · até 20 MB';rbNotify(e.message||'Erro ao ler o Excel.','error')}
- ev.target.value='';
-}
-function rbFilters(){return {group:document.getElementById('rbGroup').value,category:document.getElementById('rbCategory').value,brand:document.getElementById('rbBrand').value}}
-function rbFilteredBase(){const f=rbFilters();return rbState.source.filter(p=>(!f.group||p.group===f.group)&&(!f.category||p.category===f.category)&&(!f.brand||p.brand===f.brand))}
-function rbFamilyKey(p){return rbState.campaign==='BN'?p.group:[p.group,p.category,p.brand].join('\x1f')}
-function rbDefaultQty(){return rbState.campaign==='BN'?25:20}
-function rbBounds(){return rbState.campaign==='BN'?{minimum:15,normal:20,max:40}:{minimum:10,normal:10,max:70}}
-function rbGenerate(next){
- if(!rbState.source.length){rbNotify('Importe primeiro o relatório de faturamento do BI.','warn');return}
- const limits=rbBounds();const field=document.getElementById('rbQty');const desired=Number(field.value);
- if(!Number.isInteger(desired)||desired<limits.minimum||desired>limits.max){rbNotify(`Informe uma quantidade entre ${limits.minimum} e ${limits.max} itens.`,'warn');return}
- if(!next || !rbState.candidates.length){
-  const groups=new Map();for(const p of rbFilteredBase()){const k=rbFamilyKey(p);if(!groups.has(k))groups.set(k,[]);groups.get(k).push(p)}
-  const used=rbPreviouslyUsed();const candidates=[];const seen=new Set();
-  for(const [key,items] of groups){
-   const sorted=[...items].sort((a,b)=>b.revenue-a.revenue || a.sku.localeCompare(b.sku));
-   if(sorted.length<limits.minimum)continue;
-   const groupRevenue=sorted.reduce((sum,p)=>sum+p.revenue,0);
-   if(rbState.campaign==='OR'&&groupRevenue<RB_MIN_REVENUE)continue;
-   const step=Math.max(5,Math.floor(desired*.75));
-   for(let variant=0;variant<7;variant++){
-    const start=variant*step;let chosen=sorted.slice(start,start+desired);
-    if(chosen.length<limits.minimum)continue;
-    let rev=chosen.reduce((acc,p)=>acc+p.revenue,0);
-    // Em BN, o limite de faturamento vale para os itens selecionados. Em OR, vale para a linha/agrupamento completo.
-    if(rbState.campaign==='BN')for(let idx=start+chosen.length;rev<RB_MIN_REVENUE&&idx<sorted.length&&chosen.length<limits.max;idx++){chosen.push(sorted[idx]);rev+=sorted[idx].revenue}
-    if((rbState.campaign==='BN'&&rev<RB_MIN_REVENUE)||chosen.length<limits.minimum||chosen.length>limits.max)continue;
-    const signature=chosen.map(p=>p.sku).sort().join('|');if(seen.has(signature))continue;seen.add(signature);
-    const recentlyUsed=chosen.reduce((sum,p)=>sum+Number(used.has(p.sku)),0);
-    candidates.push({family:key,items:chosen,rev,groupRevenue,used:recentlyUsed,rank:rev-recentlyUsed*5000,exception:rbState.campaign==='BN'&&chosen.length<20});
-   }
+
+function rbStoreHistory(records) {
+  try {
+    localStorage.setItem(RB_STORAGE_KEY, JSON.stringify(records.slice(0, RB_MAX_HISTORY_RECORDS)));
+    return true;
+  } catch {
+    rbNotify('Não foi possível salvar o histórico neste navegador.', 'warn');
+    return false;
   }
-  candidates.sort((a,b)=>b.rank-a.rank || a.used-b.used || a.family.localeCompare(b.family));
-  rbState.candidates=candidates;rbState.candidateIndex=0;
- }else rbState.candidateIndex++;
- const candidate=rbState.candidates[rbState.candidateIndex];
- if(!candidate){
-  if(!next){rbInvalidate();document.getElementById('rbEmpty').querySelector('h3').textContent='Nenhuma combinação elegível encontrada';document.getElementById('rbEmpty').querySelector('p').textContent=rbState.campaign==='BN'?`Nenhum grupo apresentou pelo menos ${limits.minimum} itens com R$ 300 mil de faturamento nos itens escolhidos. Revise os filtros ou a quantidade.`:`Nenhuma combinação de Grupo + Categoria + Marca apresentou ao menos ${limits.minimum} itens e R$ 300 mil de faturamento no agrupamento completo. Revise os filtros.`;rbNotify('Nenhuma sugestão atendeu às regras.','warn')}
-  else {rbState.candidateIndex--;rbNotify('Não há outras combinações elegíveis com estes filtros.','warn')}
-  return;
- }
- rbState.family=candidate.family;rbState.current=[...candidate.items];
- document.getElementById('rbResults').hidden=false;document.getElementById('rbEmpty').hidden=true;
- rbRenderSelection();rbNotify(next?'Nova combinação encontrada.':'Sugestão gerada com base no BI.');
 }
-function rbIsSameFamily(p){return rbFamilyKey(p)===rbState.family}
-function rbInFilters(p){const f=rbFilters();return(!f.group||p.group===f.group)&&(!f.category||p.category===f.category)&&(!f.brand||p.brand===f.brand)}
-function rbAssessment(){
- const cur=rbState.current;const lim=rbBounds();const revenue=cur.reduce((sum,p)=>sum+p.revenue,0);
- const groupRevenue=rbFilteredBase().filter(p=>rbFamilyKey(p)===rbState.family).reduce((sum,p)=>sum+p.revenue,0);
- const qualifyingRevenue=rbState.campaign==='BN'?revenue:groupRevenue;let issues=[];
- if(cur.length<lim.minimum)issues.push(`mínimo de ${lim.minimum} itens`);
- if(cur.length>lim.max)issues.push(`máximo de ${lim.max} itens`);
- if(qualifyingRevenue<RB_MIN_REVENUE)issues.push(rbState.campaign==='BN'?'faturamento dos itens selecionados inferior a R$ 300 mil':'faturamento do agrupamento inferior a R$ 300 mil');
- if(new Set(cur.map(x=>x.sku)).size!==cur.length)issues.push('SKUs duplicados');
- if(cur.some(p=>!rbIsSameFamily(p)||!rbInFilters(p)))issues.push('itens fora da família ou dos filtros');
- return {ok:issues.length===0,issues,revenue,groupRevenue,qualifyingRevenue,exception:rbState.campaign==='BN'&&cur.length>=15&&cur.length<20};
+
+function rbAllHistory() {
+  return [...rbSavedHistory(), ...RB_SEED_HISTORY];
 }
-function rbRenderSelection(){
- const rows=document.getElementById('rbRows');const assess=rbAssessment();const used=rbPreviouslyUsed();
- rows.innerHTML=rbState.current.map((p,i)=>`<tr><td><strong>${rbEsc(p.sku)}</strong></td><td>${rbEsc(p.name)}</td><td>${rbEsc(p.brand)}</td><td><small>${rbEsc(p.category)}</small></td><td class="rb-money">${rbMoney(p.revenue)}</td><td>${used.has(p.sku)?'<span class="rb-pill used">Já utilizado</span>':'<span class="rb-pill">Sem registro</span>'}</td><td style="white-space:nowrap"><button class="rb-act" onclick="rbReplaceAt(${i})" title="Substituir por outro SKU elegível">Substituir</button><button class="rb-act" onclick="rbRemoveAt(${i})" title="Remover item">Remover</button></td></tr>`).join('');
- document.getElementById('rbCount').textContent=String(rbState.current.length);
- document.getElementById('rbRevenue').textContent=rbShortMoney(assess.revenue);
- document.getElementById('rbQualificationLabel').textContent=rbState.campaign==='BN'?'Critério: faturamento dos itens':'Faturamento do agrupamento';
- document.getElementById('rbQualificationValue').textContent=rbShortMoney(assess.qualifyingRevenue);
- document.getElementById('rbBaseCount').textContent=rbState.source.length.toLocaleString('pt-BR');
- const p=rbState.current[0];document.getElementById('rbScope').textContent=p?`Grupo: ${p.group} ${rbState.campaign==='OR'?`· Categoria: ${p.category} · Marca: ${p.brand}`:'· categorias e marcas podem variar'} · ${rbState.candidates.length} sugestões disponíveis`:'Nenhum produto na seleção';
- const status=document.getElementById('rbStatus');status.className='rb-banner'+(!assess.ok?' bad':assess.exception?' warn':'');
- status.textContent=assess.ok?(assess.exception?`Sugestão excepcional de BN: ${rbState.current.length} itens (abaixo do padrão de 20) e ${rbMoney(assess.revenue)} nos itens selecionados. A decisão comercial sobre a exceção permanece manual.`:rbState.campaign==='OR'?`Sugestão válida para Oferta Relâmpago: ${rbState.current.length} itens; agrupamento completo com ${rbMoney(assess.groupRevenue)} (mínimo R$ 300 mil); itens selecionados somam ${rbMoney(assess.revenue)}.`:`Sugestão válida para Bons Negócios: ${rbState.current.length} itens e ${rbMoney(assess.revenue)} de faturamento líquido selecionado.`):`Seleção fora das regras: ${assess.issues.join('; ')}. Ajuste a seleção para habilitar a exportação.`;
- document.getElementById('rbExportBtn').disabled=!assess.ok;
-}
-function rbRemoveAt(i){const p=rbState.current[i];if(p)rbRemove(p.sku)}
-function rbReplaceAt(i){const p=rbState.current[i];if(p)rbReplace(p.sku)}
-function rbRemove(sku){rbState.current=rbState.current.filter(p=>p.sku!==sku);rbRenderSelection()}
-function rbReplace(sku){
- const selected=new Set(rbState.current.map(p=>p.sku));const candidates=rbFilteredBase().filter(p=>rbIsSameFamily(p)&&!selected.has(p.sku)).sort((a,b)=>b.revenue-a.revenue);
- const alternate=candidates[0];if(!alternate){rbNotify('Não existe outro SKU elegível para substituição.','warn');return}
- rbState.current=rbState.current.map(p=>p.sku===sku?alternate:p);rbRenderSelection();rbNotify('SKU substituído, respeitando os filtros e o agrupamento.');
-}
-function rbAddProduct(){
- const field=document.getElementById('rbAddSku'),sku=field.value.trim().replace(/\.0$/,'');
- if(!sku){rbNotify('Informe o SKU que deseja incluir.','warn');return}
- if(rbState.current.some(p=>p.sku===sku)){rbNotify('Este SKU já está selecionado.','warn');return}
- if(rbState.current.length>=rbBounds().max){rbNotify(`A quantidade máxima é de ${rbBounds().max} itens.`,'warn');return}
- const p=rbState.source.find(item=>item.sku===sku);
- if(!p){rbNotify('SKU não encontrado no relatório importado.','warn');return}
- if(!rbIsSameFamily(p)||!rbInFilters(p)){rbNotify('O SKU informado não pertence à mesma família ou não corresponde aos filtros.','warn');return}
- rbState.current.push(p);field.value='';rbRenderSelection();rbNotify('Item incluído na seleção.');
-}
-function rbExport(){
- const assessment=rbAssessment();if(!assessment.ok){rbNotify('Ajuste a seleção para atender às regras antes de exportar.','warn');return}
- if(typeof XLSX==='undefined'){rbNotify('Não foi possível acessar o recurso de exportação Excel.','error');return}
- const selected=rbState.current;const meta={campaign:rbState.campaign==='BN'?'Bons Negócios':'Oferta Relâmpago',file:rbState.file,date:new Date().toLocaleString('pt-BR'),count:selected.length,revenue:assessment.revenue,groupRevenue:assessment.groupRevenue,qualifyingRevenue:assessment.qualifyingRevenue,exception:assessment.exception};
- const wb=XLSX.utils.book_new();
- const summary=[['Campo','Valor'],['Campanha',meta.campaign],['Arquivo BI',meta.file],['Data da exportação',meta.date],['Quantidade de itens',meta.count],['Faturamento líquido selecionado',meta.revenue],['Faturamento do agrupamento',meta.groupRevenue],['Faturamento utilizado para elegibilidade',meta.qualifyingRevenue],['Critério de faturamento',rbState.campaign==='BN'?'Itens selecionados':'Todos os SKUs do agrupamento'],['Mínimo de faturamento',RB_MIN_REVENUE],['Exceção de quantidade',meta.exception?'Sim – 15 a 19 itens BN':'Não'],['Observação','Histórico salvo somente neste navegador; aprovação comercial não automatizada.']];
- const outSelected=selected.map(p=>({'SKU':p.sku,'Produto':p.name,'Marca':p.brand,'Grupo':p.group,'Categoria':p.category,'Faturamento líquido':p.revenue,'Campanha':meta.campaign}));
- const outBase=rbState.source.map(p=>({'SKU':p.sku,'Produto':p.name,'Marca':p.brand,'Grupo':p.group,'Categoria':p.category,'Faturamento líquido':p.revenue,'Selecionado':selected.some(s=>s.sku===p.sku)?'SIM':'NÃO'}));
- for(const [name,data] of [['Resumo',summary],['Itens selecionados',outSelected],['Base BI completa',outBase]]){
-  const sheet=name==='Resumo'?XLSX.utils.aoa_to_sheet(data):XLSX.utils.json_to_sheet(data);
-  sheet['!cols']=[{wch:17},{wch:43},{wch:22},{wch:48},{wch:26},{wch:20},{wch:18}];XLSX.utils.book_append_sheet(wb,sheet,name);
- }
- const time=new Date();const d=`${time.getFullYear()}${String(time.getMonth()+1).padStart(2,'0')}${String(time.getDate()).padStart(2,'0')}`;
- XLSX.writeFile(wb,`OVD_${rbState.campaign==='BN'?'Bons_Negocios':'Oferta_Relampago'}_${d}.xlsx`);
- const historyRecord={id:'local-'+Date.now(),campaign:meta.campaign,date:meta.date,origin:'Seleção exportada',file:meta.file,items:selected.map(p=>({sku:p.sku,name:p.name})),revenue:meta.revenue};
- rbStoreHistory([historyRecord,...rbSavedHistory()]);rbRenderHistory();rbRenderSelection();rbNotify('Excel exportado com três abas e histórico registrado.');
-}
-async function rbLoadHistory(ev){
- const file=ev.target.files?.[0];if(!file)return;
- if(!/\.(xlsx|xls)$/i.test(file.name)||file.size>20*1024*1024){rbNotify('Importe um Excel de histórico de até 20 MB.','error');return}
- if(typeof XLSX==='undefined'){rbNotify('Leitor Excel indisponível.','error');return}
- try{
-  const wb=XLSX.read(await file.arrayBuffer(),{type:'array'}),records=[];
-  for(const sheetName of wb.SheetNames){
-   const rows=XLSX.utils.sheet_to_json(wb.Sheets[sheetName],{header:1,defval:''});const items=[],seen=new Set();
-   for(const row of rows){const code=String(row[0]??'').trim().replace(/\.0$/,'');if(!/^\d{7,16}$/.test(code)||seen.has(code))continue;seen.add(code);items.push({sku:code,name:String(row[1]??'').trim()})}
-   if(items.length)records.push({id:'local-'+Date.now()+'-'+records.length,campaign:rbState.campaign==='BN'?'Bons Negócios':'Oferta Relâmpago',date:new Date().toLocaleString('pt-BR'),origin:'Histórico importado',file:file.name+' · '+sheetName,items});
+
+function rbPreviouslyUsed() {
+  const usedSkus = new Set();
+  for (const record of rbAllHistory()) {
+    for (const product of record.items || []) usedSkus.add(String(product.sku));
   }
-  if(!records.length)throw new Error('Nenhum SKU válido encontrado. Use códigos na primeira coluna.');
-  rbStoreHistory([...records,...rbSavedHistory()]);rbRenderHistory();if(rbState.current.length)rbRenderSelection();rbNotify(`${records.length} aba(s) importada(s) para o histórico da campanha selecionada.`);
- }catch(e){rbNotify(e.message||'Falha ao importar histórico.','error')}
- ev.target.value='';
+  return usedSkus;
 }
-function rbRenderHistory(){
- const records=rbAllHistory(),container=document.getElementById('rbHistoryList');
- container.innerHTML=records.map(event=>`<div class="rb-history-row"><div><strong>${rbEsc(event.campaign)}</strong><small>${rbEsc(event.date||'Referência sem data confirmada')}</small></div><div><strong>${(event.items||[]).length} SKUs</strong><small>${rbEsc(event.file||'')}</small></div><span class="rb-pill ${event.origin==='Exemplo enviado'?'used':''}">${rbEsc(event.origin||'Histórico')}</span><button type="button" onclick="rbShowHistoryItems('${rbEsc(event.id)}')">Ver itens</button></div>`).join('')||'<div class="rb-muted">Nenhuma referência histórica disponível.</div>';
+
+// Converte números brasileiros e números já interpretados pelo Excel.
+function rbNumeric(value) {
+  if (typeof value === 'number') return Number.isFinite(value) ? value : NaN;
+  let normalized = String(value ?? '').trim().replace(/\s|R\$/gi, '').replace(/[−–]/g, '-');
+  if (!normalized) return NaN;
+  const comma = normalized.lastIndexOf(',');
+  const dot = normalized.lastIndexOf('.');
+  if (comma >= 0 && dot >= 0) {
+    normalized = comma > dot
+      ? normalized.replace(/\./g, '').replace(',', '.')
+      : normalized.replace(/,/g, '');
+  } else if (comma >= 0) {
+    normalized = normalized.replace(/\./g, '').replace(',', '.');
+  } else if ((normalized.match(/\./g) || []).length > 1) {
+    normalized = normalized.replace(/\./g, '');
+  }
+  return Number(normalized);
 }
-function rbShowHistoryItems(id){
- const rec=rbAllHistory().find(event=>event.id===id);if(!rec)return;
- const old=document.getElementById('rbHistoryDetail');if(old)old.remove();
- const el=document.createElement('div');el.id='rbHistoryDetail';el.className='rb-info';el.style.display='block';el.style.maxHeight='240px';el.style.overflow='auto';
- el.innerHTML=`<strong>${rbEsc(rec.campaign)} — ${rbEsc(rec.file)}</strong><div style="margin-top:6px">${(rec.items||[]).map(i=>`<div>${rbEsc(i.sku)} — ${rbEsc(i.name)}</div>`).join('')}</div>`;
- document.getElementById('rbHistoryPanel').append(el);el.scrollIntoView({block:'nearest',behavior:'smooth'});
+
+function rbColumn(headers, aliases) {
+  const normalized = headers.map(rbNorm);
+  return normalized.findIndex(name => aliases.some(alias => name === alias || name.includes(alias)));
 }
-function rbInit(){rbRefreshSelectors();rbRenderHistory()}
-if(document.readyState==='loading')document.addEventListener('DOMContentLoaded',rbInit);else rbInit();
+
+function rbFindWorkbookHeader(workbook) {
+  for (const sheetName of workbook.SheetNames) {
+    const table = XLSX.utils.sheet_to_json(workbook.Sheets[sheetName], {
+      header: 1, defval: '', raw: true, blankrows: false,
+    });
+    for (let headerRow = 0; headerRow < Math.min(30, table.length); headerRow++) {
+      const headers = (table[headerRow] || []).map(value => String(value ?? ''));
+      const columns = {
+        sku: rbColumn(headers, ['itemsku', 'sku', 'codigoproduto', 'codigodoitem', 'codigo']),
+        brand: rbColumn(headers, ['marca']),
+        group: rbColumn(headers, ['grupo', 'familia']),
+        category: rbColumn(headers, ['categoria', 'linha']),
+        revenue: rbColumn(headers, ['fatliquidoperiodoselecionado', 'faturamentoliquido', 'fatliquido', 'receitaliquida', 'faturamento', 'receita']),
+        description: rbColumn(headers, ['descricao', 'nomeproduto', 'produto']),
+      };
+      if (['sku', 'brand', 'group', 'category', 'revenue'].every(key => columns[key] >= 0)) {
+        return { sheetName, table, headerRow, columns };
+      }
+    }
+  }
+  throw new Error('Colunas obrigatórias não encontradas. Use o relatório do BI com Item SKU, Marca, Grupo, Categoria e Fat. Líquido Período Selecionado.');
+}
+
+function rbParseProductRow(row, columns) {
+  const originalSku = String(row[columns.sku] ?? '').trim();
+  if (!originalSku) return null;
+  const skuAndName = originalSku.match(/^([^\s]+)\s+-\s+(.+)$/);
+  const sku = (skuAndName ? skuAndName[1] : originalSku).trim().replace(/\.0$/, '');
+  const name = String(row[columns.description] || (skuAndName ? skuAndName[2] : '') || sku).trim();
+  const brand = String(row[columns.brand] ?? '').trim();
+  const group = String(row[columns.group] ?? '').trim();
+  const category = String(row[columns.category] ?? '').trim();
+  const revenue = rbNumeric(row[columns.revenue]);
+  if (!sku || !brand || !group || !category || !Number.isFinite(revenue) || revenue <= 0) return null;
+  return { sku, name, brand, group, category, revenue };
+}
+
+function rbParseWorkbook(workbook) {
+  const { sheetName, table, headerRow, columns } = rbFindWorkbookHeader(workbook);
+  const productsBySku = new Map();
+  let duplicates = 0;
+  let invalid = 0;
+  for (const row of table.slice(headerRow + 1)) {
+    const skuValue = String((row || [])[columns.sku] ?? '').trim();
+    if (!skuValue) continue;
+    const product = rbParseProductRow(row, columns);
+    if (!product) { invalid++; continue; }
+    const previous = productsBySku.get(product.sku);
+    if (previous) {
+      duplicates++;
+      if (product.revenue > previous.revenue) productsBySku.set(product.sku, product);
+    } else {
+      productsBySku.set(product.sku, product);
+    }
+  }
+  if (!productsBySku.size) throw new Error('Nenhum produto com faturamento válido encontrado no relatório.');
+  return { rows: [...productsBySku.values()], duplicates, invalid, sheetName };
+}
+
+function rbInvalidate() {
+  rbState.candidates = [];
+  rbState.current = [];
+  rbState.family = '';
+  rbState.candidateIndex = 0;
+  rbGetElement('rbResults').hidden = true;
+  rbGetElement('rbEmpty').hidden = false;
+}
+
+function rbSetCampaign(campaign) {
+  if (!RB_CAMPAIGNS[campaign]) return;
+  rbState.campaign = campaign;
+  const settings = rbCampaignSettings();
+  rbGetElement('rbBnBtn').classList.toggle('active', campaign === 'BN');
+  rbGetElement('rbOrBtn').classList.toggle('active', campaign === 'OR');
+  const quantity = rbGetElement('rbQty');
+  quantity.min = String(settings.min);
+  quantity.max = String(settings.max);
+  quantity.value = String(settings.defaultQuantity);
+  rbGetElement('rbRuleLabel').textContent = campaign === 'BN'
+    ? 'BN: 20–40 itens · exceção 15–19 · R$ 300 mil selecionados'
+    : 'OR: 10–70 itens · R$ 300 mil no agrupamento completo';
+  rbGetElement('rbRevenueExplanation').textContent = campaign === 'BN'
+    ? 'BN: o mínimo de R$ 300 mil considera somente os SKUs selecionados após os filtros.'
+    : 'Oferta Relâmpago: os R$ 300 mil são verificados em todos os produtos da mesma combinação Grupo + Categoria + Marca, após os filtros; o valor dos SKUs selecionados também será exibido.';
+  rbInvalidate();
+}
+
+function rbControlsChanged() { rbInvalidate(); }
+
+function rbUniqueSortedValues(products, field) {
+  return [...new Set(products.map(product => product[field]))]
+    .sort((left, right) => left.localeCompare(right, 'pt-BR'));
+}
+
+function rbFillSelect(select, values, placeholder, previousValue) {
+  select.innerHTML = `<option value="">${placeholder}</option>` +
+    values.map(value => `<option value="${rbEsc(value)}">${rbEsc(value)}</option>`).join('');
+  if (values.includes(previousValue)) select.value = previousValue;
+}
+
+function rbRefreshSelectors() {
+  const group = rbGetElement('rbGroup');
+  const category = rbGetElement('rbCategory');
+  const brand = rbGetElement('rbBrand');
+  const previous = { group: group.value, category: category.value, brand: brand.value };
+  rbFillSelect(group, rbUniqueSortedValues(rbState.source, 'group'), 'Todos os grupos', previous.group);
+  const groupProducts = rbState.source.filter(product => !group.value || product.group === group.value);
+  rbFillSelect(category, rbUniqueSortedValues(groupProducts, 'category'), 'Todas as categorias', previous.category);
+  const categoryProducts = groupProducts.filter(product => !category.value || product.category === category.value);
+  rbFillSelect(brand, rbUniqueSortedValues(categoryProducts, 'brand'), 'Todas as marcas', previous.brand);
+}
+
+function rbFilterChanged(field) {
+  if (field === 'group') rbGetElement('rbCategory').value = '';
+  if (field === 'group' || field === 'category') rbGetElement('rbBrand').value = '';
+  rbRefreshSelectors();
+  rbInvalidate();
+}
+
+function rbClearFilters() {
+  for (const field of ['rbGroup', 'rbCategory', 'rbBrand']) rbGetElement(field).value = '';
+  rbRefreshSelectors();
+  rbInvalidate();
+}
+
+function rbValidateExcelFile(file) {
+  if (!/\.(xlsx|xls)$/i.test(file.name)) throw new Error('Importe um arquivo .xlsx ou .xls.');
+  if (file.size > RB_MAX_FILE_SIZE) throw new Error('O limite permitido é de 20 MB.');
+  if (typeof XLSX === 'undefined') throw new Error('O leitor Excel não está disponível. Verifique sua conexão.');
+}
+
+async function rbLoadFile(event) {
+  const input = event.target;
+  const file = input.files?.[0];
+  if (!file) return;
+  try {
+    rbValidateExcelFile(file);
+  } catch (error) {
+    rbNotify(error.message, 'error');
+    input.value = '';
+    return;
+  }
+  try {
+    const workbook = XLSX.read(await file.arrayBuffer(), { type: 'array' });
+    const parsed = rbParseWorkbook(workbook);
+    rbState.source = parsed.rows;
+    rbState.file = file.name;
+    rbState.skipped = parsed.invalid;
+    rbGetElement('rbFileText').textContent = file.name;
+    rbGetElement('rbFileDetail').textContent = `${parsed.rows.length.toLocaleString('pt-BR')} SKUs únicos · aba ${parsed.sheetName}`;
+    rbGetElement('rbImportNote').textContent = `Importação concluída: ${parsed.rows.length.toLocaleString('pt-BR')} SKUs válidos; ${parsed.duplicates} duplicados removidos; ${parsed.invalid} linhas inválidas descartadas. Confirme que o relatório é do mês anterior completo.`;
+    rbClearFilters();
+    rbNotify('Relatório importado. Clique em Gerar sugestão para iniciar a análise.');
+  } catch (error) {
+    rbState.source = [];
+    rbState.file = '';
+    rbInvalidate();
+    rbRefreshSelectors();
+    rbGetElement('rbFileText').textContent = 'Clique para selecionar um arquivo Excel';
+    rbGetElement('rbFileDetail').textContent = '.xlsx / .xls · até 20 MB';
+    rbNotify(error.message || 'Erro ao ler o Excel.', 'error');
+  } finally {
+    input.value = '';
+  }
+}
+
+function rbFilters() {
+  return {
+    group: rbGetElement('rbGroup').value,
+    category: rbGetElement('rbCategory').value,
+    brand: rbGetElement('rbBrand').value,
+  };
+}
+
+function rbInFilters(product, filters = rbFilters()) {
+  return (!filters.group || product.group === filters.group) &&
+    (!filters.category || product.category === filters.category) &&
+    (!filters.brand || product.brand === filters.brand);
+}
+
+function rbFilteredBase() {
+  const filters = rbFilters();
+  return rbState.source.filter(product => rbInFilters(product, filters));
+}
+
+function rbFamilyKey(product) {
+  return rbState.campaign === 'BN'
+    ? product.group
+    : [product.group, product.category, product.brand].join('\x1f');
+}
+
+function rbDefaultQty() { return rbCampaignSettings().defaultQuantity; }
+function rbBounds() {
+  const { min, normal, max } = rbCampaignSettings();
+  return { minimum: min, normal, max };
+}
+
+function rbGroupProducts(products) {
+  const families = new Map();
+  for (const product of products) {
+    const key = rbFamilyKey(product);
+    if (!families.has(key)) families.set(key, []);
+    families.get(key).push(product);
+  }
+  return families;
+}
+
+function rbBuildCandidate(family, sorted, start, desired, groupRevenue, usedSkus) {
+  const limits = rbBounds();
+  const chosen = sorted.slice(start, start + desired);
+  if (chosen.length < limits.minimum) return null;
+  let selectedRevenue = rbSumRevenue(chosen);
+
+  // BN exige R$ 300 mil nos SKUs escolhidos; OR exige o valor da família completa.
+  if (rbState.campaign === 'BN') {
+    for (let index = start + chosen.length;
+      selectedRevenue < RB_MIN_REVENUE && index < sorted.length && chosen.length < limits.max;
+      index++) {
+      chosen.push(sorted[index]);
+      selectedRevenue += sorted[index].revenue;
+    }
+  }
+  if (chosen.length < limits.minimum || chosen.length > limits.max) return null;
+  if (rbState.campaign === 'BN' && selectedRevenue < RB_MIN_REVENUE) return null;
+
+  const previouslyUsedCount = chosen.filter(product => usedSkus.has(product.sku)).length;
+  return {
+    family, items: chosen, rev: selectedRevenue, groupRevenue,
+    used: previouslyUsedCount,
+    rank: selectedRevenue - previouslyUsedCount * 5000,
+    exception: rbState.campaign === 'BN' && chosen.length < 20,
+  };
+}
+
+function rbBuildCandidates(desired) {
+  const limits = rbBounds();
+  const usedSkus = rbPreviouslyUsed();
+  const uniqueSignatures = new Set();
+  const candidates = [];
+  for (const [family, products] of rbGroupProducts(rbFilteredBase())) {
+    const sorted = [...products].sort((a, b) => b.revenue - a.revenue || a.sku.localeCompare(b.sku));
+    if (sorted.length < limits.minimum) continue;
+    const groupRevenue = rbSumRevenue(sorted);
+    if (rbState.campaign === 'OR' && groupRevenue < RB_MIN_REVENUE) continue;
+    const step = Math.max(5, Math.floor(desired * .75));
+    for (let variant = 0; variant < 7; variant++) {
+      const candidate = rbBuildCandidate(family, sorted, variant * step, desired, groupRevenue, usedSkus);
+      if (!candidate) continue;
+      const signature = candidate.items.map(product => product.sku).sort().join('|');
+      if (uniqueSignatures.has(signature)) continue;
+      uniqueSignatures.add(signature);
+      candidates.push(candidate);
+    }
+  }
+  return candidates.sort((a, b) => b.rank - a.rank || a.used - b.used || a.family.localeCompare(b.family));
+}
+
+function rbNotifyNoSuggestions(isNext, limits) {
+  if (isNext) {
+    rbState.candidateIndex--;
+    rbNotify('Não há outras combinações elegíveis com estes filtros.', 'warn');
+    return;
+  }
+  rbInvalidate();
+  rbGetElement('rbEmpty').querySelector('h3').textContent = 'Nenhuma combinação elegível encontrada';
+  rbGetElement('rbEmpty').querySelector('p').textContent = rbState.campaign === 'BN'
+    ? `Nenhum grupo apresentou pelo menos ${limits.minimum} itens com R$ 300 mil de faturamento nos itens escolhidos. Revise os filtros ou a quantidade.`
+    : `Nenhuma combinação de Grupo + Categoria + Marca apresentou ao menos ${limits.minimum} itens e R$ 300 mil de faturamento no agrupamento completo. Revise os filtros.`;
+  rbNotify('Nenhuma sugestão atendeu às regras.', 'warn');
+}
+
+function rbGenerate(next) {
+  if (!rbState.source.length) {
+    rbNotify('Importe primeiro o relatório de faturamento do BI.', 'warn');
+    return;
+  }
+  const limits = rbBounds();
+  const desired = Number(rbGetElement('rbQty').value);
+  if (!Number.isInteger(desired) || desired < limits.minimum || desired > limits.max) {
+    rbNotify(`Informe uma quantidade entre ${limits.minimum} e ${limits.max} itens.`, 'warn');
+    return;
+  }
+  if (!next || !rbState.candidates.length) {
+    rbState.candidates = rbBuildCandidates(desired);
+    rbState.candidateIndex = 0;
+  } else {
+    rbState.candidateIndex++;
+  }
+  const candidate = rbState.candidates[rbState.candidateIndex];
+  if (!candidate) {
+    rbNotifyNoSuggestions(next, limits);
+    return;
+  }
+  rbState.family = candidate.family;
+  rbState.current = [...candidate.items];
+  rbGetElement('rbResults').hidden = false;
+  rbGetElement('rbEmpty').hidden = true;
+  rbRenderSelection();
+  rbNotify(next ? 'Nova combinação encontrada.' : 'Sugestão gerada com base no BI.');
+}
+
+function rbIsSameFamily(product) { return rbFamilyKey(product) === rbState.family; }
+
+function rbAssessment() {
+  const selected = rbState.current;
+  const limits = rbBounds();
+  const revenue = rbSumRevenue(selected);
+  const groupRevenue = rbSumRevenue(rbFilteredBase().filter(rbIsSameFamily));
+  const qualifyingRevenue = rbState.campaign === 'BN' ? revenue : groupRevenue;
+  const issues = [];
+  if (selected.length < limits.minimum) issues.push(`mínimo de ${limits.minimum} itens`);
+  if (selected.length > limits.max) issues.push(`máximo de ${limits.max} itens`);
+  if (qualifyingRevenue < RB_MIN_REVENUE) {
+    issues.push(rbState.campaign === 'BN'
+      ? 'faturamento dos itens selecionados inferior a R$ 300 mil'
+      : 'faturamento do agrupamento inferior a R$ 300 mil');
+  }
+  if (new Set(selected.map(product => product.sku)).size !== selected.length) issues.push('SKUs duplicados');
+  if (selected.some(product => !rbIsSameFamily(product) || !rbInFilters(product))) {
+    issues.push('itens fora da família ou dos filtros');
+  }
+  return {
+    ok: issues.length === 0, issues, revenue, groupRevenue, qualifyingRevenue,
+    exception: rbState.campaign === 'BN' && selected.length >= 15 && selected.length < 20,
+  };
+}
+
+function rbSelectionStatus(assessment) {
+  if (!assessment.ok) {
+    return `Seleção fora das regras: ${assessment.issues.join('; ')}. Ajuste a seleção para habilitar a exportação.`;
+  }
+  if (assessment.exception) {
+    return `Sugestão excepcional de BN: ${rbState.current.length} itens (abaixo do padrão de 20) e ${rbMoney(assessment.revenue)} nos itens selecionados. A decisão comercial sobre a exceção permanece manual.`;
+  }
+  if (rbState.campaign === 'OR') {
+    return `Sugestão válida para Oferta Relâmpago: ${rbState.current.length} itens; agrupamento completo com ${rbMoney(assessment.groupRevenue)} (mínimo R$ 300 mil); itens selecionados somam ${rbMoney(assessment.revenue)}.`;
+  }
+  return `Sugestão válida para Bons Negócios: ${rbState.current.length} itens e ${rbMoney(assessment.revenue)} de faturamento líquido selecionado.`;
+}
+
+function rbProductRow(product, index, usedSkus) {
+  return `<tr>
+    <td><strong>${rbEsc(product.sku)}</strong></td>
+    <td>${rbEsc(product.name)}</td>
+    <td>${rbEsc(product.brand)}</td>
+    <td><small>${rbEsc(product.category)}</small></td>
+    <td class="rb-money">${rbMoney(product.revenue)}</td>
+    <td>${usedSkus.has(product.sku) ? '<span class="rb-pill used">Já utilizado</span>' : '<span class="rb-pill">Sem registro</span>'}</td>
+    <td style="white-space:nowrap">
+      <button class="rb-act" onclick="rbReplaceAt(${index})" title="Substituir por outro SKU elegível">Substituir</button>
+      <button class="rb-act" onclick="rbRemoveAt(${index})" title="Remover item">Remover</button>
+    </td>
+  </tr>`;
+}
+
+function rbRenderSelection() {
+  const assessment = rbAssessment();
+  const usedSkus = rbPreviouslyUsed();
+  rbGetElement('rbRows').innerHTML = rbState.current
+    .map((product, index) => rbProductRow(product, index, usedSkus))
+    .join('');
+  rbGetElement('rbCount').textContent = String(rbState.current.length);
+  rbGetElement('rbRevenue').textContent = rbShortMoney(assessment.revenue);
+  rbGetElement('rbQualificationLabel').textContent = rbState.campaign === 'BN'
+    ? 'Critério: faturamento dos itens' : 'Faturamento do agrupamento';
+  rbGetElement('rbQualificationValue').textContent = rbShortMoney(assessment.qualifyingRevenue);
+  rbGetElement('rbBaseCount').textContent = rbState.source.length.toLocaleString('pt-BR');
+  const first = rbState.current[0];
+  rbGetElement('rbScope').textContent = first
+    ? `Grupo: ${first.group} ${rbState.campaign === 'OR' ? `· Categoria: ${first.category} · Marca: ${first.brand}` : '· categorias e marcas podem variar'} · ${rbState.candidates.length} sugestões disponíveis`
+    : 'Nenhum produto na seleção';
+  const status = rbGetElement('rbStatus');
+  status.className = 'rb-banner' + (!assessment.ok ? ' bad' : assessment.exception ? ' warn' : '');
+  status.textContent = rbSelectionStatus(assessment);
+  rbGetElement('rbExportBtn').disabled = !assessment.ok;
+}
+
+function rbRemoveAt(index) { const product = rbState.current[index]; if (product) rbRemove(product.sku); }
+function rbReplaceAt(index) { const product = rbState.current[index]; if (product) rbReplace(product.sku); }
+function rbRemove(sku) {
+  rbState.current = rbState.current.filter(product => product.sku !== sku);
+  rbRenderSelection();
+}
+function rbReplace(sku) {
+  const selectedSkus = new Set(rbState.current.map(product => product.sku));
+  const replacement = rbFilteredBase()
+    .filter(product => rbIsSameFamily(product) && !selectedSkus.has(product.sku))
+    .sort((a, b) => b.revenue - a.revenue)[0];
+  if (!replacement) { rbNotify('Não existe outro SKU elegível para substituição.', 'warn'); return; }
+  rbState.current = rbState.current.map(product => product.sku === sku ? replacement : product);
+  rbRenderSelection();
+  rbNotify('SKU substituído, respeitando os filtros e o agrupamento.');
+}
+
+function rbAddProduct() {
+  const field = rbGetElement('rbAddSku');
+  const sku = field.value.trim().replace(/\.0$/, '');
+  if (!sku) { rbNotify('Informe o SKU que deseja incluir.', 'warn'); return; }
+  if (rbState.current.some(product => product.sku === sku)) {
+    rbNotify('Este SKU já está selecionado.', 'warn'); return;
+  }
+  if (rbState.current.length >= rbBounds().max) {
+    rbNotify(`A quantidade máxima é de ${rbBounds().max} itens.`, 'warn'); return;
+  }
+  const product = rbState.source.find(item => item.sku === sku);
+  if (!product) { rbNotify('SKU não encontrado no relatório importado.', 'warn'); return; }
+  if (!rbIsSameFamily(product) || !rbInFilters(product)) {
+    rbNotify('O SKU informado não pertence à mesma família ou não corresponde aos filtros.', 'warn');
+    return;
+  }
+  rbState.current.push(product);
+  field.value = '';
+  rbRenderSelection();
+  rbNotify('Item incluído na seleção.');
+}
+
+function rbExportSummary(metadata, assessment) {
+  return [
+    ['Campo', 'Valor'], ['Campanha', metadata.campaign], ['Arquivo BI', metadata.file],
+    ['Data da exportação', metadata.date], ['Quantidade de itens', metadata.count],
+    ['Faturamento líquido selecionado', metadata.revenue],
+    ['Faturamento do agrupamento', metadata.groupRevenue],
+    ['Faturamento utilizado para elegibilidade', metadata.qualifyingRevenue],
+    ['Critério de faturamento', rbState.campaign === 'BN' ? 'Itens selecionados' : 'Todos os SKUs do agrupamento'],
+    ['Mínimo de faturamento', RB_MIN_REVENUE],
+    ['Exceção de quantidade', assessment.exception ? 'Sim – 15 a 19 itens BN' : 'Não'],
+    ['Observação', 'Histórico salvo somente neste navegador; aprovação comercial não automatizada.'],
+  ];
+}
+
+function rbExportRows(products, campaign) {
+  return products.map(product => ({
+    'SKU': product.sku, 'Produto': product.name, 'Marca': product.brand,
+    'Grupo': product.group, 'Categoria': product.category,
+    'Faturamento líquido': product.revenue, 'Campanha': campaign,
+  }));
+}
+
+function rbCreateWorkbook(metadata, assessment) {
+  const workbook = XLSX.utils.book_new();
+  const selectedSkus = new Set(rbState.current.map(product => product.sku));
+  const allProducts = rbState.source.map(product => ({
+    'SKU': product.sku, 'Produto': product.name, 'Marca': product.brand,
+    'Grupo': product.group, 'Categoria': product.category,
+    'Faturamento líquido': product.revenue,
+    'Selecionado': selectedSkus.has(product.sku) ? 'SIM' : 'NÃO',
+  }));
+  const sheets = [
+    ['Resumo', rbExportSummary(metadata, assessment), 'matrix'],
+    ['Itens selecionados', rbExportRows(rbState.current, metadata.campaign), 'objects'],
+    ['Base BI completa', allProducts, 'objects'],
+  ];
+  for (const [name, data, format] of sheets) {
+    const sheet = format === 'matrix'
+      ? XLSX.utils.aoa_to_sheet(data)
+      : XLSX.utils.json_to_sheet(data);
+    sheet['!cols'] = [{ wch: 17 }, { wch: 43 }, { wch: 22 }, { wch: 48 },
+      { wch: 26 }, { wch: 20 }, { wch: 18 }];
+    XLSX.utils.book_append_sheet(workbook, sheet, name);
+  }
+  return workbook;
+}
+
+function rbExport() {
+  const assessment = rbAssessment();
+  if (!assessment.ok) {
+    rbNotify('Ajuste a seleção para atender às regras antes de exportar.', 'warn'); return;
+  }
+  if (typeof XLSX === 'undefined') {
+    rbNotify('Não foi possível acessar o recurso de exportação Excel.', 'error'); return;
+  }
+  const metadata = {
+    campaign: rbCampaignSettings().name, file: rbState.file,
+    date: new Date().toLocaleString('pt-BR'), count: rbState.current.length,
+    revenue: assessment.revenue, groupRevenue: assessment.groupRevenue,
+    qualifyingRevenue: assessment.qualifyingRevenue, exception: assessment.exception,
+  };
+  const now = new Date();
+  const fileDate = `${now.getFullYear()}${String(now.getMonth() + 1).padStart(2, '0')}${String(now.getDate()).padStart(2, '0')}`;
+  const name = rbState.campaign === 'BN' ? 'Bons_Negocios' : 'Oferta_Relampago';
+  try {
+    XLSX.writeFile(rbCreateWorkbook(metadata, assessment), `OVD_${name}_${fileDate}.xlsx`);
+  } catch (error) {
+    rbNotify('Falha ao exportar o Excel. Tente novamente.', 'error');
+    console.error('Falha na exportação do Robô:', error);
+    return;
+  }
+  const record = {
+    id: 'local-' + Date.now(), campaign: metadata.campaign,
+    date: metadata.date, origin: 'Seleção exportada', file: metadata.file,
+    items: rbState.current.map(product => ({ sku: product.sku, name: product.name })),
+    revenue: metadata.revenue,
+  };
+  rbStoreHistory([record, ...rbSavedHistory()]);
+  rbRenderHistory();
+  rbRenderSelection();
+  rbNotify('Excel exportado com três abas e histórico registrado.');
+}
+
+function rbHistoryRecordsFromWorkbook(workbook, fileName) {
+  const records = [];
+  for (const sheetName of workbook.SheetNames) {
+    const rows = XLSX.utils.sheet_to_json(workbook.Sheets[sheetName], { header: 1, defval: '' });
+    const used = new Set();
+    const items = [];
+    for (const row of rows) {
+      const sku = String(row[0] ?? '').trim().replace(/\.0$/, '');
+      if (!/^\d{7,16}$/.test(sku) || used.has(sku)) continue;
+      used.add(sku);
+      items.push({ sku, name: String(row[1] ?? '').trim() });
+    }
+    if (items.length) {
+      records.push({
+        id: `local-${Date.now()}-${records.length}`,
+        campaign: rbCampaignSettings().name,
+        date: new Date().toLocaleString('pt-BR'), origin: 'Histórico importado',
+        file: `${fileName} · ${sheetName}`, items,
+      });
+    }
+  }
+  return records;
+}
+
+async function rbLoadHistory(event) {
+  const input = event.target;
+  const file = input.files?.[0];
+  if (!file) return;
+  try {
+    if (!/\.(xlsx|xls)$/i.test(file.name) || file.size > RB_MAX_FILE_SIZE) {
+      throw new Error('Importe um Excel de histórico de até 20 MB.');
+    }
+    if (typeof XLSX === 'undefined') throw new Error('Leitor Excel indisponível.');
+    const workbook = XLSX.read(await file.arrayBuffer(), { type: 'array' });
+    const records = rbHistoryRecordsFromWorkbook(workbook, file.name);
+    if (!records.length) throw new Error('Nenhum SKU válido encontrado. Use códigos na primeira coluna.');
+    rbStoreHistory([...records, ...rbSavedHistory()]);
+    rbRenderHistory();
+      if (rbState.current.length) rbRenderSelection();
+    rbNotify(`${records.length} aba(s) importada(s) para o histórico da campanha selecionada.`);
+  } catch (error) {
+    rbNotify(error.message || 'Falha ao importar histórico.', 'error');
+  } finally {
+    input.value = '';
+  }
+}
+
+function rbRenderHistory() {
+  const records = rbAllHistory();
+  const panel = rbGetElement('rbHistoryList');
+  panel.innerHTML = records.map((record, index) => `<div class="rb-history-row">
+    <div><strong>${rbEsc(record.campaign)}</strong><small>${rbEsc(record.date || 'Referência sem data confirmada')}</small></div>
+    <div><strong>${(record.items || []).length} SKUs</strong><small>${rbEsc(record.file || '')}</small></div>
+    <span class="rb-pill ${record.origin === 'Exemplo enviado' ? 'used' : ''}">${rbEsc(record.origin || 'Histórico')}</span>
+    <button type="button" data-rb-history-index="${index}">Ver itens</button>
+  </div>`).join('') || '<div class="rb-muted">Nenhuma referência histórica disponível.</div>';
+}
+
+function rbShowHistoryItems(id) {
+  const record = rbAllHistory().find(item => item.id === id);
+  if (!record) return;
+  rbGetElement('rbHistoryDetail')?.remove();
+  const detail = document.createElement('div');
+  detail.id = 'rbHistoryDetail';
+  detail.className = 'rb-info';
+  detail.style.display = 'block';
+  detail.style.maxHeight = '240px';
+  detail.style.overflow = 'auto';
+  detail.innerHTML = `<strong>${rbEsc(record.campaign)} — ${rbEsc(record.file)}</strong>
+    <div style="margin-top:6px">${(record.items || []).map(item =>
+      `<div>${rbEsc(item.sku)} — ${rbEsc(item.name)}</div>`).join('')}</div>`;
+  rbGetElement('rbHistoryPanel').append(detail);
+  detail.scrollIntoView({ block: 'nearest', behavior: 'smooth' });
+}
+
+function rbInit() {
+  rbRefreshSelectors();
+  rbRenderHistory();
+  rbGetElement('rbHistoryList').addEventListener('click', event => {
+    const button = event.target.closest('[data-rb-history-index]');
+    if (!button) return;
+    const record = rbAllHistory()[Number(button.dataset.rbHistoryIndex)];
+    if (record) rbShowHistoryItems(record.id);
+  });
+}
+
+if (document.readyState === 'loading') document.addEventListener('DOMContentLoaded', rbInit);
+else rbInit();
 
 </script>
 </body>
