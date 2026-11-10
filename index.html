@@ -3611,11 +3611,6 @@ body,#appScreen,.app-layout,.main-area{background:#f3f3f2;color:#25231e}
 const SUPABASE_URL = 'https://gddgmpkshwhukrzopiyt.supabase.co';
 const SUPABASE_ANON = 'sb_publishable_VlDABo7hBs51_Nnz8fk3Yw_I1_jbha1';
 
-const _sb = window.supabase.createClient(
-  SUPABASE_URL,
-  SUPABASE_ANON
-);
-
 if (!window.supabase) {
   alert('Erro ao carregar Supabase. Tente recarregar a página ou verifique o bloqueio do CDN.');
   throw new Error('Supabase não carregado');
