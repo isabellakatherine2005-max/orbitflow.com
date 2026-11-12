@@ -2890,6 +2890,255 @@ body,#appScreen,.app-layout,.main-area{background:#f3f3f2;color:#25231e}
 @media(max-width:740px){#page-robot .rb-grid{grid-template-columns:1fr}#page-robot .rb-controls{grid-template-columns:1fr}#page-robot .rb-stats{grid-template-columns:1fr 1fr}#page-robot .rb-panel{padding:15px}#page-robot .rb-history-row{grid-template-columns:1fr auto}#page-robot .rb-history-row small{grid-column:1/-1}}
 
 </style>
+<style id="rb-modern-ui">
+.rb-upload-modern{display:flex;flex-direction:column;align-items:center;justify-content:center;gap:8px;text-align:center;min-height:180px;padding:24px;cursor:pointer;border:2px dashed var(--border-2);border-radius:14px;background:var(--surface-2);color:var(--text-2)}
+.rb-upload-modern:hover,.rb-upload-modern.drag-over{border-color:var(--primary);background:var(--primary-dim)}
+.rb-upload-modern strong{font-size:1rem;color:var(--text)}.rb-upload-modern small{font-size:.73rem;color:var(--text-muted)}
+.rb-requirements{font-size:.76rem;color:var(--text-2);margin:12px 0;line-height:1.7}.rb-requirements span{display:block;color:var(--text-muted)}
+.rb-multi{position:relative;min-width:0;font-weight:400;text-transform:none;letter-spacing:normal}
+.rb-multi-chips{display:flex;flex-wrap:wrap;gap:5px;align-items:center;min-height:43px;padding:5px;border:1px solid var(--border-2);border-radius:9px;background:var(--surface-2)}
+.rb-chip{display:inline-flex;align-items:center;gap:5px;padding:3px 7px;border-radius:6px;background:var(--primary-dim);color:var(--text);font-size:.73rem;max-width:100%;overflow-wrap:anywhere}.rb-chip button{background:none;border:0;color:var(--danger);font-size:1rem}
+.rb-multi-toggle{background:transparent;border:0;color:var(--text-2);padding:5px;font-size:.78rem;text-align:left}
+.rb-multi-menu{position:absolute;z-index:80;top:100%;left:0;right:0;min-width:210px;padding:10px;background:var(--surface);border:1px solid var(--border-2);border-radius:10px;box-shadow:0 12px 28px rgba(0,0,0,.14)}
+.rb-multi-menu[hidden]{display:none}.rb-multi-menu input[type=search]{width:100%;padding:8px;border:1px solid var(--border);border-radius:7px;background:var(--surface-2);color:var(--text)}
+.rb-multi-options{max-height:210px;overflow:auto;margin:8px 0}.rb-multi-options label{display:flex;gap:8px;align-items:center;padding:6px;font-size:.77rem;color:var(--text-2);cursor:pointer}.rb-multi-options label[hidden]{display:none}.rb-multi-clear{border:0;background:none;color:var(--primary);padding:5px;font-size:.75rem}
+.rb-controls{grid-template-columns:repeat(auto-fit,minmax(180px,1fr))!important}
+@media(max-width:680px){.rb-controls{grid-template-columns:1fr!important}}
+</style>
+
+<style id="ovd-brand-theme-2026">
+/* Grupo OVD: preto grafite, amarelo comercial, branco e cinzas neutros.
+   Camada exclusivamente visual. Nenhuma regra ou evento alterado. */
+:root, [data-theme="light"] {
+  --primary:#EAB308;--primary-dim:rgba(234,179,8,.13);--primary-glow:rgba(234,179,8,.20);
+  --accent:#188765;--accent-dim:rgba(24,135,101,.09);--accent-glow:rgba(24,135,101,.16);
+  --bg:#F4F5F7;--surface:#FFFFFF;--surface-2:#FAFAF8;--surface-3:#F0F1F2;
+  --border:#E3E5E8;--border-2:#CFD2D6;--text:#1C2026;--text-2:#444B56;--text-muted:#69727D;
+  --sidebar-bg:#111318;--sidebar-text:#E4E5E7;--sidebar-icon:#B8BDC5;
+  --sidebar-hover-bg:rgba(234,179,8,.11);--sidebar-active-a:#EAB308;--sidebar-active-b:#F4C430;
+  --sidebar-focus:#FACC15;
+}
+/* Navegacao e hierarquia visual */
+.sidebar,[data-theme="light"] .sidebar{background:#111318!important;border-right-color:#24272B!important}
+.sidebar .nav-item.active,[data-theme="light"] .sidebar .nav-item.active{background:#EAB308!important;color:#171717!important;border-color:#D6A200!important;box-shadow:none!important}
+.sidebar .nav-item.active svg,[data-theme="light"] .sidebar .nav-item.active svg{color:#171717!important}
+.sidebar .nav-item.active::before{background:#171717!important}
+.sidebar .nav-item:hover:not(.active){background:rgba(234,179,8,.13)!important;color:#FFF!important}
+.sidebar-brand .brand-name,.sidebar .brand-name{color:#F2C230!important;text-shadow:none!important}
+.sidebar .nav-section-label{color:#AAB2BE!important}
+.sidebar .profile-name{color:#FFF!important}
+/* Acoes e campos comuns */
+.btn-primary,.btn-analyze,.btn-save,.btn-process,.survey-file-btn,.cnpj-consult-btn,.survey-primary-btn,.survey-import-btn,
+[data-theme="light"] .btn-primary,[data-theme="light"] .btn-analyze{background:#EAB308!important;border-color:#E0A800!important;color:#191919!important;box-shadow:0 4px 12px rgba(234,179,8,.16)!important}
+.btn-primary:hover:not(:disabled),.btn-analyze:hover:not(:disabled),.btn-save:hover:not(:disabled),.btn-process:hover:not(:disabled),.survey-file-btn:hover,.cnpj-consult-btn:hover{background:#FACC15!important;color:#181818!important}
+.page-btn.active,.survey-page-number.active,.survey-mode-tab.active,.survey-view-tab.active{background:#EAB308!important;border-color:#EAB308!important;color:#191919!important}
+.survey-view-tab.active::after,.survey-proto-tabs .survey-view-tab.active::after{background:#EAB308!important}
+.form-input:focus,.form-select:focus,.field-input:focus,.filter-input:focus,.filter-select:focus,textarea:focus,
+#page-cnpj #cnpjSearchInput:focus{outline-color:#EAB308!important;border-color:#EAB308!important;box-shadow:0 0 0 3px rgba(234,179,8,.17)!important}
+.quick-card:hover,.history-card:hover{border-color:#E7C661!important}
+.qc-arrow,.cnpj-link,.survey-link-btn,.rb-multi-clear{color:#966B00!important}
+/* Tela de robo: harmonizacao de todos os componentes existentes */
+#page-robot{--rb-ink:#202226;--rb-sub:#616A76;--rb-line:#E2E4E8;--rb-gold:#EAB308;--rb-soft:#FFF9E7;--rb-green:#188765;color:#202226}
+#page-robot .rb-panel,#page-robot .rb-stat,#page-robot .rb-history-row{background:#FFF;border-color:#E2E4E8}
+#page-robot .rb-step{background:#FFF2C2;color:#6C4A00}
+#page-robot .rb-kicker,#page-robot .rb-link{color:#866000}
+#page-robot .rb-drop,#page-robot .rb-upload-modern{background:#FFFBF0;border-color:#D8BE73;color:#3A3320}
+#page-robot .rb-drop:hover,#page-robot .rb-upload-modern:hover,#page-robot .rb-upload-modern.drag-over{background:#FFF3CE;border-color:#EAB308}
+#page-robot .rb-campaign.active{background:#FFF8E3;border-color:#D8AD33;box-shadow:0 0 0 2px rgba(234,179,8,.14)}
+#page-robot .rb-campaign .rb-campaign-ic{background:#F5F5F2}
+#page-robot button.rb-button.rb-primary{background:#EAB308;border-color:#D6A100;color:#202020}
+#page-robot button.rb-button.rb-primary:hover{background:#FACC15}
+#page-robot button.rb-button.rb-dark{background:#23262B;border-color:#23262B;color:#FFF}
+#page-robot .rb-stat.rb-highlight{background:#FFFAEB;border-color:#F1D992}
+#page-robot .rb-chip{background:#FFF2C9;color:#28231B}
+#page-robot .rb-multi-chips{background:#FAFAF8;border-color:#D2D5DB}
+#page-robot .rb-multi-clear{color:#896300}
+#page-robot .rb-banner{background:#EDF8F2;border-color:#CDE7D9}
+#page-robot select:focus,#page-robot input.rb-input:focus{outline-color:#EAB308;border-color:#EAB308}
+#page-robot .rb-tablebox th{background:#F5F6F7}
+/* Login em contraste com o restante do sistema */
+#authScreen .auth-wordmark{background:linear-gradient(135deg,#FFE17A,#EAB308 75%,#D5A200)!important;-webkit-background-clip:text!important;background-clip:text!important;color:transparent!important}
+#authScreen .auth-tab.active{background:#EAB308!important;color:#171717!important}
+#authScreen .btn-primary,#authScreen .btn-accent{background:#EAB308!important;color:#171717!important;border-color:#EAB308!important}
+#authScreen .btn-primary:hover,#authScreen .btn-accent:hover{background:#FACC15!important;color:#171717!important}
+@media(max-width:680px){#page-robot .rb-panel{padding:16px}}
+</style>
+
+<style id="rb-enterprise-redesign-2026">
+/* Corporate product-design layer. Scoped to the product selector; business logic unchanged. */
+#page-robot{max-width:1360px;padding-top:26px!important;color:#20242b;font-family:var(--font-body)}
+#page-robot .rb-intro{margin:0 0 22px;padding:0 1px 18px;border-bottom:1px solid #e1e4e9;align-items:center}
+#page-robot .rb-kicker{font-size:10px;font-weight:750;letter-spacing:1.05px;color:#9a7008;margin-bottom:7px}
+#page-robot h2{font-size:clamp(24px,2.2vw,30px);font-weight:750;letter-spacing:-.045em;line-height:1.16}
+#page-robot .rb-intro p{font-size:12px;margin-top:5px;color:#636c79}
+#page-robot .rb-identity{background:transparent;color:#677180;border:1px solid #dfe4eb;font-size:10px;border-radius:7px;padding:7px 10px;white-space:nowrap}
+#page-robot .rb-grid{grid-template-columns:minmax(0,1.12fr) minmax(290px,.88fr);gap:16px}
+#page-robot .rb-panel{padding:20px 22px;border:1px solid #e3e6ec;border-radius:12px;box-shadow:0 1px 3px rgba(14,21,34,.025);background:#fff}
+#page-robot .rb-title{font-size:13px;font-weight:750;gap:9px;margin-bottom:7px;letter-spacing:-.01em}
+#page-robot .rb-step{border-radius:6px;background:#f4edda;width:24px;height:24px;flex-basis:24px;color:#865f00;font-weight:750;font-size:11px}
+#page-robot .rb-muted{font-size:11px;color:#6d7785;line-height:1.5;margin-bottom:15px}
+#page-robot .rb-upload-modern{min-height:136px;padding:18px 12px;gap:5px;border:1.5px dashed #c9cdd4;background:#fafbfc;border-radius:10px;color:#647084;transition:background-color .18s,border-color .18s;position:relative}
+#page-robot .rb-upload-modern>svg{width:28px;height:28px;color:#857031;margin-bottom:3px}
+#page-robot .rb-upload-modern strong{font-size:12px;font-weight:750;color:#222833}
+#page-robot .rb-upload-modern>span{font-size:11px}
+#page-robot .rb-upload-modern small{font-size:10px}
+#page-robot .rb-upload-modern:hover,#page-robot .rb-upload-modern.drag-over{background:#fffaf0;border-color:#cfaa40;transform:none;box-shadow:inset 0 0 0 1px rgba(222,174,24,.08)}
+#page-robot .rb-upload-modern.is-processing{cursor:progress;opacity:.75}
+#page-robot .rb-requirements{font-size:10.5px;color:#4e5765;line-height:1.6;margin:11px 0 0}
+#page-robot .rb-requirements span{font-size:10px}
+#page-robot .rb-info{font-size:10.5px;margin-top:11px;padding:10px 11px;background:#f7f8fa;border:1px solid #e7eaf0;color:#637083;line-height:1.5;border-radius:8px}
+#page-robot .rb-campaigns{gap:9px}
+#page-robot .rb-campaign{padding:13px 12px;min-height:70px;border:1px solid #e0e4ea;border-radius:9px;transition:border-color .18s,background-color .18s,box-shadow .18s}
+#page-robot .rb-campaign.active{border-color:#d7b04b;background:#fffaf0;box-shadow:inset 3px 0 0 #e4b328}
+#page-robot .rb-campaign:hover{border-color:#d1b86a}
+#page-robot .rb-campaign .rb-campaign-ic{height:35px;width:35px;flex:0 0 35px;color:#9a7617;background:#f5f1e5;border-radius:8px}
+#page-robot .rb-campaign .rb-campaign-ic svg{height:19px;width:19px}
+#page-robot .rb-campaign strong{font-size:12px;font-weight:750}
+#page-robot .rb-campaign small{font-size:10px;line-height:1.4;margin-top:4px}
+#page-robot .rb-controls{grid-template-columns:repeat(3,minmax(0,1fr)) repeat(2,minmax(160px,.75fr))!important;align-items:start;gap:13px}
+#page-robot .rb-label,#page-robot label.rb-label{font-size:10.5px;font-weight:700;color:#465162;letter-spacing:0;line-height:1.4}
+#page-robot .rb-multi-chips,#page-robot input.rb-input{min-height:43px;background:#fff;border:1px solid #d9dee6;border-radius:8px;box-shadow:none}
+#page-robot input.rb-input{font-size:12px;padding:0 11px}
+#page-robot .rb-multi-chips{padding:5px;align-content:start}
+#page-robot .rb-chip{background:#faf2dc;border:1px solid #f1e4c3;color:#534327;font-size:10px;font-weight:650;border-radius:6px;padding:4px 6px}
+#page-robot .rb-chip button{color:#966f0e;font-size:14px;line-height:1}
+#page-robot .rb-multi-toggle{color:#677281;font-size:11px}
+#page-robot .rb-multi-menu{border-radius:9px;box-shadow:0 12px 24px rgba(18,28,42,.10)}
+#page-robot .rb-toolbar{margin-top:14px;align-items:center;padding-top:15px;border-top:1px solid #eceef2}
+#page-robot .rb-link{text-decoration:none;color:#866100;font-size:10.5px;padding:4px 0}
+#page-robot .rb-link:hover{text-decoration:underline}
+#page-robot .rb-pill{font-size:10px;font-weight:550;background:#f5f6f8;color:#6b7482;border-radius:6px;padding:5px 8px;margin-left:8px}
+#page-robot button.rb-button{font-size:11px;font-weight:750;padding:9px 13px;border-radius:8px;min-height:38px;box-shadow:none!important}
+#page-robot button.rb-button.rb-primary{background:#e6b51e;border-color:#d7a716;color:#222018}
+#page-robot button.rb-button.rb-primary:hover{background:#f2c231}
+#page-robot .rb-preflight{margin-top:18px;padding:14px 15px;background:#fbfcfd;border:1px solid #e5e8ed;border-radius:9px}
+#page-robot .rb-preflight-header{display:flex;justify-content:space-between;align-items:center;gap:10px;margin-bottom:12px}
+#page-robot .rb-preflight-header h3{font-size:12px;font-weight:750;letter-spacing:-.01em}
+#page-robot #rbReadyLabel{font-size:10px;font-weight:650;color:#717c88}
+#page-robot .rb-preflight-grid{display:grid;grid-template-columns:repeat(4,minmax(0,1fr));gap:12px 15px}
+#page-robot .rb-preflight-grid>div{min-width:0}
+#page-robot .rb-preflight-grid span{display:block;font-size:10px;color:#747e8c;margin-bottom:3px}
+#page-robot .rb-preflight-grid strong{font-size:11px;display:block;color:#2d3644;font-weight:650;overflow-wrap:anywhere;line-height:1.45}
+#page-robot .rb-stats{gap:12px;margin-top:14px}
+#page-robot .rb-stat{padding:14px 16px;border-radius:10px;border-color:#e3e6ec}
+#page-robot .rb-stat strong{font-size:19px;font-weight:750}
+#page-robot .rb-stat small{font-size:10px}
+#page-robot .rb-stat.rb-highlight{background:#fffcf4;border-color:#ecdfb8}
+#page-robot .rb-banner{border-radius:9px;padding:12px 15px;font-size:11px}
+#page-robot .rb-empty{border:1px dashed #d6dce4;background:#fff;border-radius:12px;padding:25px;margin-top:16px}
+#page-robot .rb-empty .rb-illustration{height:38px;width:38px;border-radius:10px;background:#f7f8fa;display:grid;place-items:center;margin:0 auto 9px;color:#798492}
+#page-robot .rb-empty .rb-illustration svg{width:21px;height:21px}
+#page-robot .rb-empty h3{font-size:13px;font-weight:750}
+#page-robot .rb-empty p{font-size:11px}
+#page-robot .rb-tablebox{border-radius:9px;max-height:490px}
+#page-robot th{font-size:10px;font-weight:750;letter-spacing:.01em;background:#f7f8fa;padding:11px 10px}
+#page-robot td{font-size:11px;padding:10px}
+#page-robot tbody tr:hover{background:#fcfcfd}
+#page-robot .rb-history-note{font-size:10px;color:#78818c}
+@media(max-width:1180px){#page-robot .rb-controls{grid-template-columns:repeat(3,minmax(0,1fr))!important}#page-robot .rb-preflight-grid{grid-template-columns:repeat(3,minmax(0,1fr))}}
+@media(max-width:820px){#page-robot .rb-grid{grid-template-columns:1fr}#page-robot .rb-controls{grid-template-columns:repeat(2,minmax(0,1fr))!important}#page-robot .rb-preflight-grid{grid-template-columns:repeat(2,minmax(0,1fr))}}
+@media(max-width:520px){#page-robot{padding:16px!important}#page-robot .rb-panel{padding:15px}#page-robot .rb-controls{grid-template-columns:1fr!important}#page-robot .rb-preflight-grid{grid-template-columns:1fr 1fr}#page-robot .rb-identity{display:none}#page-robot .rb-toolbar{align-items:stretch;flex-direction:column}#page-robot .rb-toolbar button.rb-primary{width:100%}#page-robot .rb-stats{grid-template-columns:1fr 1fr}}
+@media(prefers-reduced-motion:reduce){#page-robot .rb-upload-modern,#page-robot .rb-campaign{transition:none}}
+</style>
+
+<style id="rb-product-design-system-2026">
+/* Identity and component standards. Scoped to Robot; no behavior changes. */
+#page-robot{
+  --rb-ink:#202328;--rb-sub:#66717d;--rb-line:#dce1e5;
+  --rb-gold:#d6a300;--rb-soft:#f9f6ec;--rb-green:#247657;
+  max-width:1320px;padding:24px 28px 60px!important;
+  color:var(--rb-ink);font-size:13px;line-height:1.5;
+}
+#page-robot *{letter-spacing:normal}
+#page-robot .rb-intro{margin:0 0 24px;padding:0 0 18px;border-bottom:1px solid var(--rb-line);gap:16px}
+#page-robot .rb-kicker{color:#776324;font-size:10px;letter-spacing:.055em;text-transform:uppercase;font-weight:650;margin:0 0 4px}
+#page-robot h2{font-size:24px!important;line-height:1.25;font-weight:700;letter-spacing:-.025em!important;margin:0 0 5px}
+#page-robot .rb-intro p{font-size:12px;color:var(--rb-sub);margin:0;max-width:650px}
+#page-robot .rb-identity{border:1px solid var(--rb-line);background:#fff;border-radius:4px;padding:6px 10px;color:#606b76;font-weight:550;font-size:11px;box-shadow:none}
+#page-robot .rb-grid{grid-template-columns:minmax(0,1.08fr) minmax(330px,.92fr);gap:0;border:1px solid var(--rb-line);background:#fff;border-radius:7px;overflow:visible}
+#page-robot .rb-grid>.rb-panel{border:0!important;border-radius:0!important;box-shadow:none!important;padding:22px 24px!important;min-width:0}
+#page-robot .rb-grid>.rb-panel+ .rb-panel{border-left:1px solid var(--rb-line)!important}
+#page-robot .rb-panel{border:1px solid var(--rb-line)!important;border-radius:7px!important;box-shadow:none!important;padding:22px 24px!important;background:#fff!important}
+#page-robot .rb-grid + .rb-panel{margin-top:16px!important}
+#page-robot .rb-title{gap:9px;font-size:13px;font-weight:700;color:#23272e;margin-bottom:5px}
+#page-robot .rb-step{background:#f7f3e8;color:#80621d;border:1px solid #ebdfc3;border-radius:4px;height:23px;width:29px;flex:0 0 29px;font-size:10px;font-weight:700}
+#page-robot .rb-muted{font-size:11px;color:var(--rb-sub);line-height:1.5;margin-bottom:13px}
+#page-robot .rb-upload-modern{min-height:126px!important;padding:15px 16px!important;border:1px dashed #aeb7c0!important;background:#fafbfc!important;border-radius:6px!important;box-shadow:none!important;transition:border-color .15s,background-color .15s;gap:3px}
+#page-robot .rb-upload-modern>svg{width:24px;height:24px;color:#6b737e;margin-bottom:5px}
+#page-robot .rb-upload-modern strong{font-size:12px;color:#202328;font-weight:650}
+#page-robot .rb-upload-modern>span{font-size:11px;color:#515f6e}
+#page-robot .rb-upload-modern small{font-size:10px;color:#78828c}
+#page-robot .rb-upload-modern:hover,#page-robot .rb-upload-modern.drag-over{border-color:#aa852b!important;background:#fcfaf3!important;box-shadow:none!important;transform:none!important}
+#page-robot .rb-requirements{font-size:11px;color:#555f6c;margin-top:13px;line-height:1.6}
+#page-robot .rb-requirements strong{color:#363d46}
+#page-robot .rb-requirements span{display:block;font-size:10px;color:#78828c;margin-top:3px}
+#page-robot #rbImportNote{margin-top:10px;padding:8px 0 0!important;border:0!important;border-top:1px solid #edf0f2!important;background:transparent!important;border-radius:0!important;font-size:10.5px;box-shadow:none}
+#page-robot .rb-campaigns{gap:0;border:1px solid var(--rb-line);border-radius:6px;overflow:hidden}
+#page-robot .rb-campaign{border:0!important;border-radius:0!important;background:#fff!important;box-shadow:none!important;min-height:66px;padding:12px 14px!important;gap:11px;position:relative}
+#page-robot .rb-campaign+.rb-campaign{border-top:1px solid #e9ecef!important}
+#page-robot .rb-campaign.active{background:#fbf9f3!important;box-shadow:inset 3px 0 0 #d5a32c!important}
+#page-robot .rb-campaign:hover{background:#f8f9fa!important}
+#page-robot .rb-campaign .rb-campaign-ic{width:30px;height:30px;flex:0 0 30px;border-radius:5px;background:#f0f1f2;color:#56616c}
+#page-robot .rb-campaign.active .rb-campaign-ic{background:#f4eacb;color:#806018}
+#page-robot .rb-campaign .rb-campaign-ic svg{width:16px;height:16px}
+#page-robot .rb-campaign strong{font-size:12px;font-weight:650;color:#252b33}
+#page-robot .rb-campaign small{font-size:10px;line-height:1.45;margin-top:3px;color:#6c7682}
+#page-robot .rb-controls{grid-template-columns:repeat(3,minmax(0,1fr)) repeat(2,minmax(145px,.78fr))!important;gap:14px!important;margin-top:17px}
+#page-robot .rb-label,#page-robot label.rb-label{font-size:11px;font-weight:600;color:#39424d}
+#page-robot .rb-multi-chips,#page-robot input.rb-input{border-radius:5px!important;border:1px solid #cbd3db!important;min-height:40px!important;background:#fff!important;box-shadow:none!important}
+#page-robot .rb-multi-chips{padding:5px!important}
+#page-robot input.rb-input{font-size:12px;color:#202328;padding:0 10px}
+#page-robot .rb-chip{border-radius:3px;background:#f5f2e9;border:1px solid #e5ddc6;color:#4f4735;font-weight:550;font-size:10.5px;padding:4px 6px}
+#page-robot .rb-multi-toggle{font-size:11px;color:#586471}
+#page-robot .rb-multi-menu{border:1px solid #ccd3dc;border-radius:5px;box-shadow:0 9px 22px rgba(23,31,40,.11)}
+#page-robot .rb-multi-chips:focus-within,#page-robot input.rb-input:focus{outline:0!important;border-color:#aa8426!important;box-shadow:0 0 0 2px rgba(211,163,36,.13)!important}
+#page-robot .rb-preflight{border:0!important;border-top:1px solid #e5e8ec!important;margin:21px 0 0!important;padding:18px 0 0!important;border-radius:0!important;background:#fff!important}
+#page-robot .rb-preflight-header{margin-bottom:10px}
+#page-robot .rb-preflight-header h3{font-size:12px!important;font-weight:700}
+#page-robot #rbReadyLabel{font-size:10px;font-weight:500;color:#687380}
+#page-robot .rb-preflight-grid{gap:0!important;border:1px solid #e5e8ed;border-radius:5px;overflow:hidden;background:#fff;grid-template-columns:repeat(4,minmax(0,1fr))!important}
+#page-robot .rb-preflight-grid>div{background:#fff!important;border:0!important;border-right:1px solid #e9ecf0!important;border-bottom:1px solid #e9ecf0!important;border-radius:0!important;min-height:62px;padding:10px 12px!important}
+#page-robot .rb-preflight-grid>div span{font-size:10px;color:#75808a}
+#page-robot .rb-preflight-grid>div strong{font-size:11px;color:#29313a;line-height:1.45;font-weight:600;overflow-wrap:anywhere}
+#page-robot .rb-toolbar{margin-top:18px;padding-top:16px;border-top:1px solid #edf0f2}
+#page-robot .rb-toolbar>div{display:flex;align-items:center;gap:10px;flex-wrap:wrap}
+#page-robot .rb-pill{margin-left:0;background:#f2f3f5;border-radius:4px;color:#606b77;font-size:10px;font-weight:500}
+#page-robot button.rb-button{min-height:36px;border-radius:5px!important;font-size:11px;font-weight:650;padding:8px 13px;box-shadow:none!important}
+#page-robot button.rb-button.rb-primary{background:#e7b728!important;border-color:#d5a622!important;color:#292414!important}
+#page-robot button.rb-button.rb-primary:hover{background:#efc540!important}
+#page-robot button.rb-button.rb-dark{background:#24282d;border-color:#24282d;color:#fff}
+#page-robot .rb-link{font-size:11px;color:#8b6b15;text-decoration:underline;text-underline-offset:2px}
+#page-robot #rbRevenueExplanation{padding:9px 0 0!important;background:transparent!important;border:0!important;border-top:1px solid #f0f1f2!important;border-radius:0!important;font-size:10px;color:#727b84}
+#page-robot .rb-empty{border:1px solid var(--rb-line);border-radius:7px;background:#fff;box-shadow:none;padding:30px 20px}
+#page-robot .rb-empty .rb-illustration{width:30px;height:30px;color:#77828d;margin:0 auto 10px}
+#page-robot .rb-empty h3{font-size:13px;font-weight:650}
+#page-robot .rb-empty p{font-size:11px}
+#page-robot .rb-result-panel{margin-top:16px}
+#page-robot .rb-banner{padding:11px 13px!important;border-radius:5px!important;background:#f0f7f3;border-color:#d1e3d7;font-size:11px;color:#2f6048}
+#page-robot .rb-banner.warn{background:#faf5e9;border-color:#ead9ad;color:#775922}
+#page-robot .rb-banner.bad{background:#fcf1f1;border-color:#efcaca;color:#963c3c}
+#page-robot .rb-stats{display:grid;grid-template-columns:repeat(4,minmax(0,1fr));gap:0!important;border:1px solid var(--rb-line);border-radius:6px;overflow:hidden;background:#fff;margin:12px 0 16px}
+#page-robot .rb-stat,#page-robot .rb-stat.rb-highlight{background:#fff!important;border:0!important;border-radius:0!important;padding:14px 17px!important;box-shadow:none!important}
+#page-robot .rb-stat+.rb-stat{border-left:1px solid #e5e8eb!important}
+#page-robot .rb-stat small{font-size:10px;color:#6d7782;margin-bottom:6px}
+#page-robot .rb-stat strong{font-size:20px;font-weight:700;letter-spacing:-.02em!important;color:#242a31}
+#page-robot .rb-stat.rb-highlight strong{color:#8e6a14}
+#page-robot .rb-table-top h3{font-size:14px;font-weight:700}
+#page-robot .rb-tablebox{border:1px solid #dfe4e9;border-radius:5px;max-height:575px}
+#page-robot th{background:#f7f8f9!important;padding:11px 12px;border-bottom:1px solid #dfe4e8;font-size:10px;font-weight:650;color:#53616e;white-space:nowrap}
+#page-robot td{padding:10px 12px;border-bottom:1px solid #edf0f2;font-size:11px;color:#343b45}
+#page-robot tbody tr:hover td{background:#fafbfc}
+#page-robot td .rb-act{border-radius:4px;padding:5px 8px}
+#page-robot .rb-table-footer{padding-top:10px}
+#page-robot #rbHistoryPanel{margin-top:16px!important}
+#page-robot .rb-history-row{border-radius:4px;border-color:#e5e8ec;box-shadow:none!important}
+#page-robot .rb-history-note{font-size:10px;color:#77808b}
+#page-robot button:focus-visible,#page-robot [role=button]:focus-visible{outline:2px solid #b48b2d;outline-offset:2px}
+@media(max-width:1120px){#page-robot .rb-controls{grid-template-columns:repeat(3,minmax(0,1fr))!important}#page-robot .rb-preflight-grid{grid-template-columns:repeat(3,minmax(0,1fr))!important}}
+@media(max-width:860px){#page-robot{padding:20px!important}#page-robot .rb-grid{grid-template-columns:1fr}#page-robot .rb-grid>.rb-panel+ .rb-panel{border-left:0!important;border-top:1px solid var(--rb-line)!important}#page-robot .rb-controls{grid-template-columns:repeat(2,minmax(0,1fr))!important}#page-robot .rb-preflight-grid{grid-template-columns:repeat(2,minmax(0,1fr))!important}#page-robot .rb-stats{grid-template-columns:repeat(2,minmax(0,1fr))}}
+@media(max-width:540px){#page-robot{padding:16px!important}#page-robot .rb-panel,#page-robot .rb-grid>.rb-panel{padding:17px!important}#page-robot h2{font-size:21px!important}#page-robot .rb-controls{grid-template-columns:1fr!important}#page-robot .rb-preflight-grid{grid-template-columns:1fr!important}#page-robot .rb-preflight-grid>div{min-height:54px}#page-robot .rb-stats{grid-template-columns:1fr}#page-robot .rb-stat+.rb-stat{border-left:0!important;border-top:1px solid var(--rb-line)!important}#page-robot .rb-toolbar{flex-direction:column;align-items:stretch}#page-robot .rb-toolbar button.rb-primary{width:100%}#page-robot .rb-identity{display:none}}
+@media(prefers-reduced-motion:reduce){#page-robot .rb-upload-modern,#page-robot .rb-campaign{transition:none!important}}
+</style>
 </head>
 <body>
 <!-- ═══════════════ AUTH ═══════════════ -->
@@ -3390,44 +3639,62 @@ body,#appScreen,.app-layout,.main-area{background:#f3f3f2;color:#25231e}
       <h2>Robô de Seleção de Produtos</h2>
       <p>Importe o faturamento do BI, escolha a campanha e revise sugestões fundamentadas nos dados.</p>
     </div>
-    <div class="rb-identity">● Análise executada sob demanda</div>
+    <div class="rb-identity">Seleção assistida por dados</div>
   </div>
   <div class="rb-grid">
     <div class="rb-panel">
-      <div class="rb-title"><span class="rb-step">1</span> Base de faturamento</div>
+      <div class="rb-title"><span class="rb-step">01</span> Base de faturamento</div>
       <div class="rb-muted">Relatório Excel do BI do mês anterior completo. A seleção não é iniciada na importação.</div>
-      <button type="button" class="rb-drop" onclick="document.getElementById('rbFile').click()">
-        <span class="rb-file-ic">▤</span><span><strong id="rbFileText">Clique para selecionar um arquivo Excel</strong><small id="rbFileDetail">.xlsx / .xls · até 20 MB · dados mantidos no navegador</small></span>
-      </button>
+      <div class="rb-drop rb-upload-modern" id="rbDrop" role="button" tabindex="0" aria-label="Selecionar ou arrastar arquivo Excel" onclick="document.getElementById('rbFile').click()" onkeydown="if(event.key==='Enter'||event.key===' '){event.preventDefault();document.getElementById('rbFile').click()}">
+        <svg width="42" height="42" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.5" aria-hidden="true"><path d="M12 16V4m0 0L7 9m5-5 5 5"/><path d="M4 16v3a2 2 0 002 2h12a2 2 0 002-2v-3"/></svg>
+        <strong>Robô de Seleção de Produtos</strong>
+        <span id="rbFileText">Arraste seu arquivo Excel até aqui ou clique para selecionar.</span>
+        <small id="rbFileDetail">.xlsx / .xls · até 20 MB · processamento no navegador</small>
+        <button type="button" id="rbRemoveFile" class="rb-link" hidden onclick="event.stopPropagation();rbRemoveFile()">Remover arquivo</button>
+      </div>
       <input type="file" id="rbFile" accept=".xlsx,.xls" onchange="rbLoadFile(event)" hidden>
-      <div class="rb-info" id="rbImportNote">A planilha deve conter Item SKU, Marca, Grupo, Categoria e Fat. Líquido Período Selecionado. O campo Item SKU pode trazer código e descrição juntos.</div>
+      <div class="rb-requirements"><strong>O arquivo deve conter:</strong> Item SKU, Marca, Grupo, Categoria e Fat. Líquido Período Selecionado. <span>O Item SKU pode incluir código e descrição no mesmo campo.</span></div>
+      <div class="rb-info" id="rbImportNote" role="status" aria-live="polite">A planilha deve conter Item SKU, Marca, Grupo, Categoria e Fat. Líquido Período Selecionado. O campo Item SKU pode trazer código e descrição juntos.</div>
     </div>
     <div class="rb-panel">
-      <div class="rb-title"><span class="rb-step">2</span> Tipo de campanha</div>
-      <div class="rb-muted">As regras de composição e de quantidade mudam de acordo com a campanha.</div>
+      <div class="rb-title"><span class="rb-step">02</span> Selecione o Tipo de campanha</div>
+      <div class="rb-muted">A campanha define como os produtos são agrupados e avaliados.</div>
       <div class="rb-campaigns">
-        <button type="button" id="rbBnBtn" class="rb-campaign active" onclick="rbSetCampaign('BN')"><span class="rb-campaign-ic">▦</span><span><strong>Bons Negócios</strong><small>Mesmo grupo · 20 a 40 itens · exceção a partir de 15</small></span></button>
-        <button type="button" id="rbOrBtn" class="rb-campaign" onclick="rbSetCampaign('OR')"><span class="rb-campaign-ic">⚡</span><span><strong>Oferta Relâmpago</strong><small>Grupo + categoria + marca · 10 a 70 itens</small></span></button>
+        <button type="button" id="rbBnBtn" class="rb-campaign active" onclick="rbSetCampaign('BN')"><span class="rb-campaign-ic" aria-hidden="true"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8"><path d="M3 8V5h7l2 2h9v12H3z"/><path d="M7 15l3 3 6-6"/></svg></span><span><strong>Bons Negócios</strong><small>Agrupamento por grupo · faturamento dos itens selecionados</small></span></button>
+        <button type="button" id="rbOrBtn" class="rb-campaign" onclick="rbSetCampaign('OR')"><span class="rb-campaign-ic" aria-hidden="true"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8"><path d="M13 2L5 13h6l-1 9 9-12h-6z"/></svg></span><span><strong>Oferta Relâmpago</strong><small>Agrupamento por grupo, categoria e marca</small></span></button>
       </div>
     </div>
   </div>
   <div class="rb-panel" style="margin-top:14px">
-    <div class="rb-title"><span class="rb-step">3</span> Filtros e parâmetros</div>
+    <div class="rb-title"><span class="rb-step">03</span> Filtros e parâmetros</div>
     <div class="rb-muted">Os filtros são opcionais. Nenhuma sugestão deve misturar famílias que desrespeitem a regra da campanha.</div>
     <div class="rb-controls">
-      <label class="rb-label">Grupo<select id="rbGroup" onchange="rbFilterChanged('group')"><option value="">Todos os grupos</option></select></label>
-      <label class="rb-label">Categoria<select id="rbCategory" onchange="rbFilterChanged('category')"><option value="">Todas as categorias</option></select></label>
-      <label class="rb-label">Marca<select id="rbBrand" onchange="rbFilterChanged('brand')"><option value="">Todas as marcas</option></select></label>
-      <label class="rb-label">Quantidade desejada<input id="rbQty" class="rb-input" type="number" min="15" max="40" value="25" onchange="rbControlsChanged()"></label>
+      <div class="rb-label">Grupo<div id="rbGroup" class="rb-multi" aria-label="Filtrar por grupo"></div></div>
+      <div class="rb-label">Categoria<div id="rbCategory" class="rb-multi" aria-label="Filtrar por categoria"></div></div>
+      <div class="rb-label">Marca<div id="rbBrand" class="rb-multi" aria-label="Filtrar por marca"></div></div>
+      <label class="rb-label">Quantidade desejada<input id="rbQty" class="rb-input" type="number" min="1" step="1" value="25" oninput="rbControlsChanged()"></label>
+      <label class="rb-label">Faturamento Líquido Mínimo (R$)<input id="rbMinRevenue" class="rb-input" type="text" inputmode="decimal" placeholder="R$ 0,00 (opcional)" oninput="rbCurrencyInput(this)" onblur="rbCurrencyBlur(this)"></label>
     </div>
+    <section class="rb-preflight" aria-labelledby="rbPreflightHeading">
+      <div class="rb-preflight-header"><h3 id="rbPreflightHeading">Resumo da seleção</h3><span id="rbReadyLabel">Aguardando importação</span></div>
+      <div class="rb-preflight-grid" aria-live="polite">
+        <div><span>Campanha</span><strong id="rbSummaryCampaign">Bons Negócios</strong></div>
+        <div><span>Grupo</span><strong id="rbSummaryGroup">Todos</strong></div>
+        <div><span>Categoria</span><strong id="rbSummaryCategory">Todas</strong></div>
+        <div><span>Marca</span><strong id="rbSummaryBrand">Todas</strong></div>
+        <div><span>Quantidade desejada</span><strong id="rbSummaryQuantity">25</strong></div>
+        <div><span>Faturamento mínimo</span><strong id="rbSummaryRevenue">Não aplicado</strong></div>
+        <div><span>Produtos após os filtros</span><strong id="rbSummaryAvailable">Importe uma base</strong></div>
+      </div>
+    </section>
     <div class="rb-toolbar">
-      <div><button type="button" class="rb-link" onclick="rbClearFilters()">Limpar filtros</button><span class="rb-pill" id="rbRuleLabel">BN: 20–40 itens · exceção 15–19 · R$ 300 mil selecionados</span></div>
-      <button type="button" class="rb-button rb-primary" onclick="rbGenerate(false)">✦ Gerar sugestão</button>
+      <div><button type="button" class="rb-link" onclick="rbClearFilters()">Limpar filtros</button><span class="rb-pill" id="rbRuleLabel">BN: seleção por grupo · faturamento dos itens selecionados</span></div>
+      <button type="button" class="rb-button rb-primary" onclick="rbGenerate(false)">Gerar sugestão</button>
     </div>
-    <div class="rb-info" id="rbRevenueExplanation">BN: o mínimo de R$ 300 mil considera somente os SKUs selecionados após os filtros.</div>
+    <div class="rb-info" id="rbRevenueExplanation">BN: o faturamento mínimo, quando informado, é verificado nos itens selecionados.</div>
   </div>
   <div class="rb-empty" id="rbEmpty">
-    <div class="rb-illustration">⚙</div>
+    <div class="rb-illustration" aria-hidden="true"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.5"><rect x="3" y="4" width="18" height="16" rx="2"/><path d="M7 9h10M7 13h7M7 17h4"/></svg></div>
     <h3>Pronto para encontrar oportunidades</h3>
     <p>Importe o relatório do BI, escolha a campanha e clique em <strong>Gerar sugestão</strong>.</p>
   </div>
@@ -3436,13 +3703,13 @@ body,#appScreen,.app-layout,.main-area{background:#f3f3f2;color:#25231e}
     <div class="rb-stats">
       <div class="rb-stat"><small>Itens selecionados</small><strong id="rbCount">0</strong></div>
       <div class="rb-stat rb-highlight"><small>Faturamento líquido selecionado</small><strong id="rbRevenue">R$ 0</strong></div>
-      <div class="rb-stat"><small id="rbQualificationLabel">Critério: faturamento dos itens</small><strong id="rbQualificationValue">R$ 0</strong><small>Exigido: pelo menos R$ 300 mil</small></div>
-      <div class="rb-stat"><small>Produtos da base</small><strong id="rbBaseCount">0</strong></div>
+      <div class="rb-stat"><small id="rbQualificationLabel">Critério: faturamento dos itens</small><strong id="rbQualificationValue">R$ 0</strong><small><span id="rbRequiredRevenue">Mínimo configurável</span></small></div>
+      <div class="rb-stat"><small>Produtos identificados no arquivo</small><strong id="rbBaseCount">0</strong></div>
     </div>
     <div class="rb-panel">
       <div class="rb-table-top">
-        <div><h3>Prévia da seleção</h3><p id="rbScope">Confira os SKUs antes de exportar.</p></div>
-        <div style="display:flex;gap:8px;flex-wrap:wrap"><button type="button" class="rb-button" onclick="rbGenerate(true)">↻ Indicar outra</button><button type="button" class="rb-button rb-dark" id="rbExportBtn" onclick="rbExport()">⇩ Exportar Excel</button></div>
+        <div><h3>Produtos sugeridos</h3><p id="rbScope">Confira os SKUs antes de exportar.</p></div>
+        <div style="display:flex;gap:8px;flex-wrap:wrap"><button type="button" class="rb-button" onclick="rbGenerate(true)">Indicar outra</button><button type="button" class="rb-button rb-dark" id="rbExportBtn" onclick="rbExport()">Exportar Excel</button></div>
       </div>
       <div class="rb-tablebox"><table><thead><tr><th>SKU</th><th>Produto</th><th>Marca</th><th>Categoria</th><th>Fat. líquido</th><th>Histórico</th><th>Ações</th></tr></thead><tbody id="rbRows"></tbody></table></div>
       <div class="rb-table-footer">
@@ -3453,12 +3720,12 @@ body,#appScreen,.app-layout,.main-area{background:#f3f3f2;color:#25231e}
   </div>
   <div class="rb-panel" style="margin-top:14px" id="rbHistoryPanel">
     <div class="rb-history-head">
-      <div><div class="rb-title" style="margin:0">▤ Histórico de produtos</div><p>Referências enviadas e seleções exportadas neste navegador.</p></div>
+      <div><div class="rb-title" style="margin:0">Histórico de produtos</div><p>Referências enviadas e seleções exportadas neste navegador.</p></div>
       <button type="button" class="rb-button" onclick="document.getElementById('rbHistoryFile').click()">+ Importar histórico</button>
       <input id="rbHistoryFile" type="file" accept=".xlsx,.xls" hidden onchange="rbLoadHistory(event)">
     </div>
     <div class="rb-history-list" id="rbHistoryList"></div>
-    <div class="rb-history-note">Histórico local do protótipo: não é compartilhado entre usuários ou computadores. A persistência corporativa e a permissão específica exigem integração com o backend do site.</div>
+    <div class="rb-history-note">Histórico armazenado neste navegador: não é compartilhado entre usuários ou computadores. A persistência corporativa e a permissão específica exigem integração com o backend do site.</div>
   </div>
 </div>
 
@@ -5896,7 +6163,8 @@ const RB_SEED_HISTORY = [{"id": "ref-1", "campaign": "Bons Negócios", "date": "
  * As funções rb* são a API pública usada pelos eventos do HTML existente.
  * A lógica de negócio é mantida separada do DOM, da importação e da exportação.
  */
-const RB_MIN_REVENUE = 300000;
+const RB_DEFAULT_REVENUE = 300000;
+function rbMinRevenue(){const raw=rbGetElement('rbMinRevenue').value.trim();return raw ? rbNumeric(raw) : 0;}
 const RB_STORAGE_KEY = 'ovd_robot_history_v1';
 const RB_MAX_HISTORY_RECORDS = 60;
 const RB_MAX_FILE_SIZE = 20 * 1024 * 1024;
@@ -5908,7 +6176,7 @@ const RB_CAMPAIGNS = Object.freeze({
 const rbState = {
   source: [], file: '', campaign: 'BN', family: '',
   candidateIndex: 0, candidates: [], current: [],
-  skipped: 0, period: '', info: '',
+  skipped: 0, period: '', info: '', selections: {group:[],category:[],brand:[]},
 };
 
 const rbGetElement = id => document.getElementById(id);
@@ -6058,58 +6326,83 @@ function rbInvalidate() {
 function rbSetCampaign(campaign) {
   if (!RB_CAMPAIGNS[campaign]) return;
   rbState.campaign = campaign;
-  const settings = rbCampaignSettings();
   rbGetElement('rbBnBtn').classList.toggle('active', campaign === 'BN');
   rbGetElement('rbOrBtn').classList.toggle('active', campaign === 'OR');
-  const quantity = rbGetElement('rbQty');
-  quantity.min = String(settings.min);
-  quantity.max = String(settings.max);
-  quantity.value = String(settings.defaultQuantity);
   rbGetElement('rbRuleLabel').textContent = campaign === 'BN'
-    ? 'BN: 20–40 itens · exceção 15–19 · R$ 300 mil selecionados'
-    : 'OR: 10–70 itens · R$ 300 mil no agrupamento completo';
+    ? 'BN: seleção por grupo · faturamento dos itens selecionados'
+    : 'OR: grupo + categoria + marca · faturamento do agrupamento';
   rbGetElement('rbRevenueExplanation').textContent = campaign === 'BN'
-    ? 'BN: o mínimo de R$ 300 mil considera somente os SKUs selecionados após os filtros.'
-    : 'Oferta Relâmpago: os R$ 300 mil são verificados em todos os produtos da mesma combinação Grupo + Categoria + Marca, após os filtros; o valor dos SKUs selecionados também será exibido.';
+    ? 'BN: o faturamento mínimo, quando informado, é verificado nos itens selecionados.'
+    : 'Oferta Relâmpago: o faturamento mínimo, quando informado, é verificado na família completa Grupo + Categoria + Marca.';
   rbInvalidate();
+  rbUpdateSummary();
 }
-
-function rbControlsChanged() { rbInvalidate(); }
+// Mascara monetaria pt-BR: digitos representam centavos (200 -> R$ 2,00).
+function rbCurrencyInput(input) {
+  const digits = input.value.replace(/\D/g, '').slice(0, 15);
+  if (!digits) {
+    input.value = '';
+  } else {
+    const amount = Number(digits) / 100;
+    input.value = amount.toLocaleString('pt-BR', {style:'currency', currency:'BRL'});
+  }
+  rbControlsChanged();
+}
+function rbCurrencyBlur(input) {
+  if (input.value.trim()) {
+    const amount = rbNumeric(input.value);
+    if (Number.isFinite(amount)) input.value = amount.toLocaleString('pt-BR', {style:'currency', currency:'BRL'});
+  }
+}
+function rbUpdateSummary(){
+  const get = id => rbGetElement(id);
+  const listText = field => rbState.selections[field].length ? rbState.selections[field].join(', ') : ({group:'Todos',category:'Todas',brand:'Todas'})[field];
+  get('rbSummaryCampaign').textContent = rbCampaignSettings().name;
+  get('rbSummaryGroup').textContent = listText('group');
+  get('rbSummaryCategory').textContent = listText('category');
+  get('rbSummaryBrand').textContent = listText('brand');
+  const qty = get('rbQty').value.trim();
+  get('rbSummaryQuantity').textContent = qty || 'Não informada';
+  get('rbSummaryRevenue').textContent = get('rbMinRevenue').value.trim() || 'Não aplicado';
+  const count = rbFilteredBase().length;
+  get('rbSummaryAvailable').textContent = rbState.source.length ? count.toLocaleString('pt-BR') : 'Importe uma base';
+  const ready = rbState.source.length > 0 && Number.isInteger(Number(qty)) && Number(qty) > 0;
+  get('rbReadyLabel').textContent = ready ? 'Parâmetros prontos' : (rbState.source.length ? 'Defina uma quantidade válida' : 'Aguardando importação');
+}
+function rbControlsChanged(){rbInvalidate();rbUpdateSummary();}
 
 function rbUniqueSortedValues(products, field) {
   return [...new Set(products.map(product => product[field]))]
     .sort((left, right) => left.localeCompare(right, 'pt-BR'));
 }
 
-function rbFillSelect(select, values, placeholder, previousValue) {
-  select.innerHTML = `<option value="">${placeholder}</option>` +
-    values.map(value => `<option value="${rbEsc(value)}">${rbEsc(value)}</option>`).join('');
-  if (values.includes(previousValue)) select.value = previousValue;
+function rbRenderMulti(field, options){
+  const root=rbGetElement({group:'rbGroup',category:'rbCategory',brand:'rbBrand'}[field]);
+  const selected=rbState.selections[field];
+  root.innerHTML=`<div class="rb-multi-chips">${selected.map(v=>`<span class="rb-chip">${rbEsc(v)} <button type="button" data-remove="${rbEsc(v)}" aria-label="Remover ${rbEsc(v)}">×</button></span>`).join('')}<button type="button" class="rb-multi-toggle" aria-expanded="false">${selected.length ? 'Adicionar opção +' : 'Todas as opções ▾'}</button></div><div class="rb-multi-menu" hidden><input type="search" placeholder="Pesquisar..." aria-label="Pesquisar opções"><div class="rb-multi-options">${options.map(v=>`<label><input type="checkbox" value="${rbEsc(v)}" ${selected.includes(v)?'checked':''}> ${rbEsc(v)}</label>`).join('')}</div><button type="button" class="rb-multi-clear">Limpar seleção</button></div>`;
+  const menu=root.querySelector('.rb-multi-menu');
+  root.querySelector('.rb-multi-toggle').onclick=e=>{e.stopPropagation();const show=menu.hidden;document.querySelectorAll('.rb-multi-menu').forEach(m=>m.hidden=true);menu.hidden=!show;e.currentTarget.setAttribute('aria-expanded',String(show));if(show)menu.querySelector('input[type=search]').focus();};
+  root.querySelectorAll('[data-remove]').forEach(btn=>btn.onclick=()=>{rbState.selections[field]=selected.filter(v=>v!==btn.dataset.remove);rbFilterChanged();});
+  root.querySelectorAll('.rb-multi-options input').forEach(input=>input.onchange=()=>{rbState.selections[field]=input.checked?[...selected,input.value]:selected.filter(v=>v!==input.value);rbFilterChanged();});
+  root.querySelector('.rb-multi-clear').onclick=()=>{rbState.selections[field]=[];rbFilterChanged();};
+  root.querySelector('input[type=search]').oninput=e=>root.querySelectorAll('.rb-multi-options label').forEach(label=>label.hidden=!rbNorm(label.textContent).includes(rbNorm(e.target.value)));
 }
-
-function rbRefreshSelectors() {
-  const group = rbGetElement('rbGroup');
-  const category = rbGetElement('rbCategory');
-  const brand = rbGetElement('rbBrand');
-  const previous = { group: group.value, category: category.value, brand: brand.value };
-  rbFillSelect(group, rbUniqueSortedValues(rbState.source, 'group'), 'Todos os grupos', previous.group);
-  const groupProducts = rbState.source.filter(product => !group.value || product.group === group.value);
-  rbFillSelect(category, rbUniqueSortedValues(groupProducts, 'category'), 'Todas as categorias', previous.category);
-  const categoryProducts = groupProducts.filter(product => !category.value || product.category === category.value);
-  rbFillSelect(brand, rbUniqueSortedValues(categoryProducts, 'brand'), 'Todas as marcas', previous.brand);
+function rbRefreshSelectors(){
+  const source=rbState.source;
+  const all={group:rbUniqueSortedValues(source,'group'),category:rbUniqueSortedValues(source,'category'),brand:rbUniqueSortedValues(source,'brand')};
+  for(const field of Object.keys(all)){
+    rbState.selections[field]=rbState.selections[field].filter(v=>all[field].includes(v));
+    rbRenderMulti(field,all[field]);
+  }
 }
-
-function rbFilterChanged(field) {
-  if (field === 'group') rbGetElement('rbCategory').value = '';
-  if (field === 'group' || field === 'category') rbGetElement('rbBrand').value = '';
-  rbRefreshSelectors();
-  rbInvalidate();
-}
-
-function rbClearFilters() {
-  for (const field of ['rbGroup', 'rbCategory', 'rbBrand']) rbGetElement(field).value = '';
-  rbRefreshSelectors();
-  rbInvalidate();
+function rbFilterChanged(){rbRefreshSelectors();rbInvalidate();rbUpdateSummary();}
+function rbClearFilters(){rbState.selections={group:[],category:[],brand:[]};rbRefreshSelectors();rbInvalidate();rbUpdateSummary();}
+function rbRemoveFile(){
+  rbState.source=[];rbState.file='';rbState.skipped=0;
+  rbGetElement('rbFile').value='';rbGetElement('rbFileText').textContent='Arraste seu arquivo Excel até aqui ou clique para selecionar.';
+  rbGetElement('rbFileDetail').textContent='.xlsx / .xls · até 20 MB · processamento no navegador';
+  rbGetElement('rbRemoveFile').hidden=true;rbGetElement('rbImportNote').textContent='Nenhum arquivo carregado.';
+  rbClearFilters();rbNotify('Arquivo removido.');
 }
 
 function rbValidateExcelFile(file) {
@@ -6130,12 +6423,15 @@ async function rbLoadFile(event) {
     return;
   }
   try {
+    rbGetElement('rbDrop').classList.add('is-processing');
+    rbGetElement('rbImportNote').textContent = 'Lendo e validando os dados da planilha...';
     const workbook = XLSX.read(await file.arrayBuffer(), { type: 'array' });
     const parsed = rbParseWorkbook(workbook);
     rbState.source = parsed.rows;
     rbState.file = file.name;
     rbState.skipped = parsed.invalid;
     rbGetElement('rbFileText').textContent = file.name;
+    rbGetElement('rbRemoveFile').hidden = false;
     rbGetElement('rbFileDetail').textContent = `${parsed.rows.length.toLocaleString('pt-BR')} SKUs únicos · aba ${parsed.sheetName}`;
     rbGetElement('rbImportNote').textContent = `Importação concluída: ${parsed.rows.length.toLocaleString('pt-BR')} SKUs válidos; ${parsed.duplicates} duplicados removidos; ${parsed.invalid} linhas inválidas descartadas. Confirme que o relatório é do mês anterior completo.`;
     rbClearFilters();
@@ -6145,26 +6441,21 @@ async function rbLoadFile(event) {
     rbState.file = '';
     rbInvalidate();
     rbRefreshSelectors();
-    rbGetElement('rbFileText').textContent = 'Clique para selecionar um arquivo Excel';
+    rbGetElement('rbFileText').textContent = 'Arraste seu arquivo Excel até aqui ou clique para selecionar.';
+    rbGetElement('rbRemoveFile').hidden = true;
     rbGetElement('rbFileDetail').textContent = '.xlsx / .xls · até 20 MB';
+    rbGetElement('rbImportNote').textContent = 'Falha na importação: ' + (error.message || 'Não foi possível ler a planilha.');
     rbNotify(error.message || 'Erro ao ler o Excel.', 'error');
   } finally {
+    rbGetElement('rbDrop').classList.remove('is-processing');
+    rbUpdateSummary();
     input.value = '';
   }
 }
 
-function rbFilters() {
-  return {
-    group: rbGetElement('rbGroup').value,
-    category: rbGetElement('rbCategory').value,
-    brand: rbGetElement('rbBrand').value,
-  };
-}
-
-function rbInFilters(product, filters = rbFilters()) {
-  return (!filters.group || product.group === filters.group) &&
-    (!filters.category || product.category === filters.category) &&
-    (!filters.brand || product.brand === filters.brand);
+function rbFilters(){return rbState.selections;}
+function rbInFilters(product,filters=rbFilters()){
+  return ['group','category','brand'].every(field=>!filters[field].length||filters[field].includes(product[field]));
 }
 
 function rbFilteredBase() {
@@ -6179,10 +6470,7 @@ function rbFamilyKey(product) {
 }
 
 function rbDefaultQty() { return rbCampaignSettings().defaultQuantity; }
-function rbBounds() {
-  const { min, normal, max } = rbCampaignSettings();
-  return { minimum: min, normal, max };
-}
+function rbBounds(){return {minimum:1,normal:1,max:Number.MAX_SAFE_INTEGER};}
 
 function rbGroupProducts(products) {
   const families = new Map();
@@ -6197,27 +6485,22 @@ function rbGroupProducts(products) {
 function rbBuildCandidate(family, sorted, start, desired, groupRevenue, usedSkus) {
   const limits = rbBounds();
   const chosen = sorted.slice(start, start + desired);
-  if (chosen.length < limits.minimum) return null;
+  if (chosen.length < desired) return null;
   let selectedRevenue = rbSumRevenue(chosen);
 
   // BN exige R$ 300 mil nos SKUs escolhidos; OR exige o valor da família completa.
   if (rbState.campaign === 'BN') {
-    for (let index = start + chosen.length;
-      selectedRevenue < RB_MIN_REVENUE && index < sorted.length && chosen.length < limits.max;
-      index++) {
-      chosen.push(sorted[index]);
-      selectedRevenue += sorted[index].revenue;
-    }
+    // A quantidade escolhida pelo usuário é respeitada, sem acréscimos automáticos.
   }
   if (chosen.length < limits.minimum || chosen.length > limits.max) return null;
-  if (rbState.campaign === 'BN' && selectedRevenue < RB_MIN_REVENUE) return null;
+  if (rbState.campaign === 'BN' && selectedRevenue < rbMinRevenue()) return null;
 
   const previouslyUsedCount = chosen.filter(product => usedSkus.has(product.sku)).length;
   return {
     family, items: chosen, rev: selectedRevenue, groupRevenue,
     used: previouslyUsedCount,
     rank: selectedRevenue - previouslyUsedCount * 5000,
-    exception: rbState.campaign === 'BN' && chosen.length < 20,
+    exception: false,
   };
 }
 
@@ -6230,7 +6513,7 @@ function rbBuildCandidates(desired) {
     const sorted = [...products].sort((a, b) => b.revenue - a.revenue || a.sku.localeCompare(b.sku));
     if (sorted.length < limits.minimum) continue;
     const groupRevenue = rbSumRevenue(sorted);
-    if (rbState.campaign === 'OR' && groupRevenue < RB_MIN_REVENUE) continue;
+    if (rbState.campaign === 'OR' && groupRevenue < rbMinRevenue()) continue;
     const step = Math.max(5, Math.floor(desired * .75));
     for (let variant = 0; variant < 7; variant++) {
       const candidate = rbBuildCandidate(family, sorted, variant * step, desired, groupRevenue, usedSkus);
@@ -6253,8 +6536,8 @@ function rbNotifyNoSuggestions(isNext, limits) {
   rbInvalidate();
   rbGetElement('rbEmpty').querySelector('h3').textContent = 'Nenhuma combinação elegível encontrada';
   rbGetElement('rbEmpty').querySelector('p').textContent = rbState.campaign === 'BN'
-    ? `Nenhum grupo apresentou pelo menos ${limits.minimum} itens com R$ 300 mil de faturamento nos itens escolhidos. Revise os filtros ou a quantidade.`
-    : `Nenhuma combinação de Grupo + Categoria + Marca apresentou ao menos ${limits.minimum} itens e R$ 300 mil de faturamento no agrupamento completo. Revise os filtros.`;
+    ? `Nenhum grupo apresentou pelo menos ${limits.minimum} itens com o faturamento mínimo configurado nos itens escolhidos. Revise os filtros ou a quantidade.`
+    : `Nenhuma combinação de Grupo + Categoria + Marca apresentou ao menos ${limits.minimum} itens e o faturamento mínimo configurado no agrupamento completo. Revise os filtros.`;
   rbNotify('Nenhuma sugestão atendeu às regras.', 'warn');
 }
 
@@ -6265,10 +6548,11 @@ function rbGenerate(next) {
   }
   const limits = rbBounds();
   const desired = Number(rbGetElement('rbQty').value);
-  if (!Number.isInteger(desired) || desired < limits.minimum || desired > limits.max) {
-    rbNotify(`Informe uma quantidade entre ${limits.minimum} e ${limits.max} itens.`, 'warn');
+  if (!Number.isSafeInteger(desired) || desired < 1) {
+    rbNotify('Informe uma quantidade inteira maior que zero.', 'warn');
     return;
   }
+  if (!Number.isFinite(rbMinRevenue()) || rbMinRevenue() < 0) { rbNotify('Informe um faturamento mínimo válido ou deixe o campo vazio.','warn'); return; }
   if (!next || !rbState.candidates.length) {
     rbState.candidates = rbBuildCandidates(desired);
     rbState.candidateIndex = 0;
@@ -6297,12 +6581,12 @@ function rbAssessment() {
   const groupRevenue = rbSumRevenue(rbFilteredBase().filter(rbIsSameFamily));
   const qualifyingRevenue = rbState.campaign === 'BN' ? revenue : groupRevenue;
   const issues = [];
-  if (selected.length < limits.minimum) issues.push(`mínimo de ${limits.minimum} itens`);
+  if (!selected.length) issues.push('nenhum item selecionado');
   if (selected.length > limits.max) issues.push(`máximo de ${limits.max} itens`);
-  if (qualifyingRevenue < RB_MIN_REVENUE) {
+  if (qualifyingRevenue < rbMinRevenue()) {
     issues.push(rbState.campaign === 'BN'
-      ? 'faturamento dos itens selecionados inferior a R$ 300 mil'
-      : 'faturamento do agrupamento inferior a R$ 300 mil');
+      ? 'faturamento dos itens selecionados inferior ao mínimo configurado'
+      : 'faturamento do agrupamento inferior ao mínimo configurado');
   }
   if (new Set(selected.map(product => product.sku)).size !== selected.length) issues.push('SKUs duplicados');
   if (selected.some(product => !rbIsSameFamily(product) || !rbInFilters(product))) {
@@ -6310,7 +6594,7 @@ function rbAssessment() {
   }
   return {
     ok: issues.length === 0, issues, revenue, groupRevenue, qualifyingRevenue,
-    exception: rbState.campaign === 'BN' && selected.length >= 15 && selected.length < 20,
+    exception: false,
   };
 }
 
@@ -6322,7 +6606,7 @@ function rbSelectionStatus(assessment) {
     return `Sugestão excepcional de BN: ${rbState.current.length} itens (abaixo do padrão de 20) e ${rbMoney(assessment.revenue)} nos itens selecionados. A decisão comercial sobre a exceção permanece manual.`;
   }
   if (rbState.campaign === 'OR') {
-    return `Sugestão válida para Oferta Relâmpago: ${rbState.current.length} itens; agrupamento completo com ${rbMoney(assessment.groupRevenue)} (mínimo R$ 300 mil); itens selecionados somam ${rbMoney(assessment.revenue)}.`;
+    return `Sugestão válida para Oferta Relâmpago: ${rbState.current.length} itens; agrupamento completo com ${rbMoney(assessment.groupRevenue)} (mínimo configurado: ${rbMoney(rbMinRevenue())}); itens selecionados somam ${rbMoney(assessment.revenue)}.`;
   }
   return `Sugestão válida para Bons Negócios: ${rbState.current.length} itens e ${rbMoney(assessment.revenue)} de faturamento líquido selecionado.`;
 }
@@ -6354,10 +6638,10 @@ function rbRenderSelection() {
     ? 'Critério: faturamento dos itens' : 'Faturamento do agrupamento';
   rbGetElement('rbQualificationValue').textContent = rbShortMoney(assessment.qualifyingRevenue);
   rbGetElement('rbBaseCount').textContent = rbState.source.length.toLocaleString('pt-BR');
+  rbGetElement('rbRequiredRevenue').textContent = rbMinRevenue() ? `Exigido: ${rbMoney(rbMinRevenue())}` : 'Sem mínimo de faturamento';
   const first = rbState.current[0];
-  rbGetElement('rbScope').textContent = first
-    ? `Grupo: ${first.group} ${rbState.campaign === 'OR' ? `· Categoria: ${first.category} · Marca: ${first.brand}` : '· categorias e marcas podem variar'} · ${rbState.candidates.length} sugestões disponíveis`
-    : 'Nenhum produto na seleção';
+  const selectionText=field=>rbState.selections[field].length?rbState.selections[field].join(', '):'Todos';
+  rbGetElement('rbScope').textContent=`Grupos: ${selectionText('group')} · Categorias: ${selectionText('category')} · Marcas: ${selectionText('brand')} · ${rbState.candidates.length} sugestões disponíveis`;
   const status = rbGetElement('rbStatus');
   status.className = 'rb-banner' + (!assessment.ok ? ' bad' : assessment.exception ? ' warn' : '');
   status.textContent = rbSelectionStatus(assessment);
@@ -6411,8 +6695,8 @@ function rbExportSummary(metadata, assessment) {
     ['Faturamento do agrupamento', metadata.groupRevenue],
     ['Faturamento utilizado para elegibilidade', metadata.qualifyingRevenue],
     ['Critério de faturamento', rbState.campaign === 'BN' ? 'Itens selecionados' : 'Todos os SKUs do agrupamento'],
-    ['Mínimo de faturamento', RB_MIN_REVENUE],
-    ['Exceção de quantidade', assessment.exception ? 'Sim – 15 a 19 itens BN' : 'Não'],
+    ['Mínimo de faturamento', rbMinRevenue()],
+    ['Exceção de quantidade', 'Não'],
     ['Observação', 'Histórico salvo somente neste navegador; aprovação comercial não automatizada.'],
   ];
 }
@@ -6519,6 +6803,8 @@ async function rbLoadHistory(event) {
       throw new Error('Importe um Excel de histórico de até 20 MB.');
     }
     if (typeof XLSX === 'undefined') throw new Error('Leitor Excel indisponível.');
+    rbGetElement('rbDrop').classList.add('is-processing');
+    rbGetElement('rbImportNote').textContent = 'Lendo e validando os dados da planilha...';
     const workbook = XLSX.read(await file.arrayBuffer(), { type: 'array' });
     const records = rbHistoryRecordsFromWorkbook(workbook, file.name);
     if (!records.length) throw new Error('Nenhum SKU válido encontrado. Use códigos na primeira coluna.');
@@ -6563,7 +6849,13 @@ function rbShowHistoryItems(id) {
 
 function rbInit() {
   rbRefreshSelectors();
+  const drop=rbGetElement('rbDrop');
+  ['dragenter','dragover'].forEach(type=>drop.addEventListener(type,e=>{e.preventDefault();drop.classList.add('drag-over');}));
+  ['dragleave','drop'].forEach(type=>drop.addEventListener(type,e=>{e.preventDefault();drop.classList.remove('drag-over');}));
+  drop.addEventListener('drop',e=>{const file=e.dataTransfer?.files?.[0];if(file)rbLoadFile({target:{files:[file],value:''}});});
+  document.addEventListener('click',e=>{if(!e.target.closest('.rb-multi'))document.querySelectorAll('.rb-multi-menu').forEach(menu=>menu.hidden=true);});
   rbRenderHistory();
+  rbUpdateSummary();
   rbGetElement('rbHistoryList').addEventListener('click', event => {
     const button = event.target.closest('[data-rb-history-index]');
     if (!button) return;
